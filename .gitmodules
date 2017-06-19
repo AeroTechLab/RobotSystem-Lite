@@ -1,0 +1,24 @@
+[submodule "src/kalman"]
+	path = src/kalman
+	url = https://github.com/LabDin/Simple-Kalman-Filter
+[submodule "src/threads"]
+	path = src/threads
+	url = https://github.com/LabDin/Simple-Multithreading
+[submodule "src/signal_processing"]
+	path = src/signal_processing
+	url = https://github.com/LabDin/Simple-Signal-Processing
+[submodule "src/json"]
+	path = src/json
+	url = https://github.com/LabDin/Simple-JSON
+[submodule "src/curves"]
+	path = src/curves
+	url = https://github.com/LabDin/Simple-Function-Curves
+[submodule "src/plugins"]
+	path = src/plugins
+	url = https://github.com/LabDin/Plugin-Loader
+[submodule "plugin_loader"]
+	path = plugin_loader
+	url = https://github.com/LabDin/Plugin-Loader
+[submodule "src/plugin_loader"]
+	path = src/plugin_loader
+	url = https://github.com/LabDin/Plugin-Loader
