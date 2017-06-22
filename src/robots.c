@@ -354,7 +354,7 @@ static void* AsyncControl( void* ref_robot )
 {
   Robot robot = (Robot) ref_robot;
   
-  double execTime = Time_GetExecTimeSeconds(), elapsedTime = 0.0;
+  double execTime = Time_GetExecSeconds(), elapsedTime = 0.0;
   
   robot->isControlRunning = true;
   
@@ -362,10 +362,10 @@ static void* AsyncControl( void* ref_robot )
   
   while( robot->isControlRunning )
   {
-    elapsedTime = Time_GetExecTimeSeconds() - execTime;
+    elapsedTime = Time_GetExecSeconds() - execTime;
     //DEBUG_PRINT( "step time for robot %p (after delay): %.5f ms", robot, elapsedTime );
     
-    execTime = Time_GetExecTimeSeconds();
+    execTime = Time_GetExecSeconds();
     
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
       (void) Actuator_UpdateMeasures( robot->jointsList[ jointIndex ]->actuator, (ActuatorVariables*) robot->jointMeasuresList[ jointIndex ], elapsedTime );
@@ -389,7 +389,7 @@ static void* AsyncControl( void* ref_robot )
                                                                               (ActuatorVariables*) robot->jointSetpointsList[ jointIndex ], elapsedTime );
     }
     
-    elapsedTime = Time_GetExecTimeSeconds() - execTime;
+    elapsedTime = Time_GetExecSeconds() - execTime;
     //DEBUG_PRINT( "step time for robot %p (before delay): %.5f ms", robot, elapsedTime );
     if( elapsedTime < robot->controlTimeStep ) Time_Delay( (unsigned long) ( 1000 * ( robot->controlTimeStep - elapsedTime ) ) );
   }
