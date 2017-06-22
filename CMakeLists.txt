@@ -31,9 +31,6 @@ link_directories( ${LIBRARY_DIR} )
 add_executable( RobotControl ${SOURCES_DIR}/main.c ${SOURCES_DIR}/system.c ${SOURCES_DIR}/robots.c ${SOURCES_DIR}/actuators.c ${SOURCES_DIR}/sensors.c ${SOURCES_DIR}/motors.c ${SOURCES_DIR}/ipc.c ${SOURCES_DIR}/data_io.c )
 target_compile_definitions( RobotControl PUBLIC -DDEBUG -DSIGNAL_IO_MODULES_PATH=${SIGNAL_IO_MODULES_PATH} -DACTUATOR_CONTROL_MODULES_PATH=${ACTUATOR_CONTROL_MODULES_PATH} -DROBOT_CONTROL_MODULES_PATH=${ROBOT_CONTROL_MODULES_PATH} )
 target_link_libraries( RobotControl DataLogging FunctionCurves SimpleJSON KalmanFilters SignalProcessing MultiThreading Timing ${CMAKE_DL_LIBS} )
-if( UNIX AND NOT APPLE )
-  target_link_libraries( RobotControl -lrt )
-endif()
 
 # PLUGINS/MODULES
 
