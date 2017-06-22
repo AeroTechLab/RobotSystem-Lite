@@ -50,6 +50,10 @@
 #define MOTORS_H
 
 
+#include "data_io.h"
+
+#include <stdbool.h>
+
 typedef struct _MotorData MotorData;       ///< Single motor internal data structure    
 typedef MotorData* Motor;                  ///< Opaque reference to motor internal data structure
 

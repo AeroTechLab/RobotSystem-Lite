@@ -61,7 +61,7 @@ Actuator Actuator_Init( DataHandle configuration )
   
   if( configuration == NULL ) return NULL;
   
-  char* actuatorName = DataIO_GetStringValue( configuration, NULL, "" );
+  const char* actuatorName = DataIO_GetStringValue( configuration, NULL, "" );
   if( actuatorName != NULL )
   {
     sprintf( filePath, "actuators/%s", actuatorName );
@@ -82,7 +82,7 @@ Actuator Actuator_Init( DataHandle configuration )
     {
       DataHandle sensorConfiguration = DataIO_GetSubData( configuration, "sensors.%lu.config", sensorIndex );
       newActuator->sensorsList[ sensorIndex ] = Sensor_Init( sensorConfiguration ); 
-      char* sensorType = DataIO_GetStringValue( configuration, "", "sensors.%lu.input_variable", sensorIndex );
+      const char* sensorType = DataIO_GetStringValue( configuration, "", "sensors.%lu.input_variable", sensorIndex );
       for( int controlModeIndex = 0; controlModeIndex < CONTROL_VARS_NUMBER; controlModeIndex++ )
       {
         if( strcmp( sensorType, CONTROL_MODE_NAMES[ controlModeIndex ] ) == 0 ) 
@@ -94,7 +94,7 @@ Actuator Actuator_Init( DataHandle configuration )
   DataHandle motorConfiguration = DataIO_GetSubData( configuration, "motor.config" );
   if( (newActuator->motor = Motor_Init( motorConfiguration )) == NULL ) loadSuccess = false;
   
-  char* controlModeName = DataIO_GetStringValue( configuration, (char*) CONTROL_MODE_NAMES[ 0 ], "motor.output_variable" );
+  const char* controlModeName = DataIO_GetStringValue( configuration, (char*) CONTROL_MODE_NAMES[ 0 ], "motor.output_variable" );
   for( newActuator->controlMode = 0; newActuator->controlMode < CONTROL_VARS_NUMBER; newActuator->controlMode++ )
   {
     if( strcmp( controlModeName, CONTROL_MODE_NAMES[ newActuator->controlMode ] ) == 0 ) break;

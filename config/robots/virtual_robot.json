@@ -1,0 +1,7 @@
+{
+  "controller": {
+    "type": "SimpleJoint",
+    "config": ""
+  },
+  "actuators": [ "virtual_actuator" ]
+}

@@ -30,6 +30,7 @@
 
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #define DATA_IO_MAX_FILE_PATH_LENGTH 256    ///< Maximum length of data file path (from base directory) string
 #define DATA_IO_MAX_KEY_PATH_LENGTH 256     ///< Maximum length of value key/index string inside data structure
@@ -78,7 +79,7 @@ DataHandle DataIO_GetSubData( DataHandle data, const char* pathFormat, ... );
 /// @param[in] pathFormat format string (like in printf) to value path inside the data structure (key or index fields separated by ".")
 /// @param[in] ... list of string keys or numeric indexes to build searched value path from pathFormat (like in printf)
 /// @return numeric value (floating point format) found or the default one
-double DataIO_GetNumericValue( DataHandle data, double defaultValue, const char* pathFormat, ... );
+double DataIO_GetNumericValue( DataHandle data, const double defaultValue, const char* pathFormat, ... );
 
 /// @brief Get specified string value from given data strucuture
 /// @param[in] data reference to internal data structure where the value will be searched
@@ -86,7 +87,7 @@ double DataIO_GetNumericValue( DataHandle data, double defaultValue, const char*
 /// @param[in] pathFormat format string (like in printf) to value path inside the data structure (key or index fields separated by ".")
 /// @param[in] ... list of string keys or numeric indexes to build searched value path from pathFormat (like in printf)
 /// @return string value found or the default one
-char* DataIO_GetStringValue( DataHandle data, char* defaultValue, const char* pathFormat, ... );
+const char* DataIO_GetStringValue( DataHandle data, const char* defaultValue, const char* pathFormat, ... );
 
 /// @brief Get specified boolean value from given data strucuture
 /// @param[in] data reference to internal data structure where the value will be searched
@@ -94,7 +95,7 @@ char* DataIO_GetStringValue( DataHandle data, char* defaultValue, const char* pa
 /// @param[in] pathFormat format string (like in printf) to value path inside the data structure (key or index fields separated by ".")
 /// @param[in] ... list of string keys or numeric indexes to build searched value path from pathFormat (like in printf)
 /// @return boolean value found or the default one
-bool DataIO_GetBooleanValue( DataHandle data, bool defaultValue, const char* pathFormat, ... );
+bool DataIO_GetBooleanValue( DataHandle data, const bool defaultValue, const char* pathFormat, ... );
 
 /// @brief Get number of elements for specified list from given data strucuture
 /// @param[in] data reference to internal data structure where the list will be searched

@@ -1,0 +1,12 @@
+{
+  "input_interface": {
+    "type": "NICANEPOS",
+    "config": "2",
+    "channel": 0
+  },
+  "input_gain": {
+    "multiplier": -1,
+    "divisor": 2000
+  },
+  "log_data": false
+}

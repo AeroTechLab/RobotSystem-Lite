@@ -1,0 +1,53 @@
+{
+  "total_length": 1,
+  "phases": [
+    {
+      "begin": {
+        "point": 0,
+        "value": -1.5,
+        "derivative": 0
+      },
+      "end": {
+        "point": 0.3,
+        "value": -1.5,
+        "derivative": 0
+      }
+    },
+    {
+      "begin": {
+        "point": 0.3,
+        "value": -1.5,
+        "derivative": 0
+      },
+      "end": {
+        "point": 0.5,
+        "value": 0,
+        "derivative": 0
+      }
+    },
+    {
+      "begin": {
+        "point": 0.5,
+        "value": 0,
+        "derivative": 0
+      },
+      "end": {
+        "point": 0.7,
+        "value": -1.5,
+        "derivative": 0
+      }
+    },
+    {
+      "begin": {
+        "point": 0.7,
+        "value": -1.5,
+        "derivative": 0
+      },
+      "end": {
+        "point": 1,
+        "value": -1.5,
+        "derivative": 0
+      }
+    }
+  ]
+}

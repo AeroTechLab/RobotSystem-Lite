@@ -1,0 +1,12 @@
+{
+  "input_interface": {
+    "type": "Dummy",
+    "id": "NULL",
+    "channel": 0
+  },
+  "input_gain": {
+    "multiplier": 1,
+    "divisor": 1
+  },
+  "log_data": false
+}

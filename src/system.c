@@ -30,8 +30,7 @@
 
 #include "data_io.h"
 
-//#include "utils/debug/async_debug.h"
-//#include "utils/debug/data_logging.h"
+#include "debug/data_logging.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -59,26 +58,47 @@ void RefreshRobotsInfo( const char* );
 
 bool System_Init( const int argc, const char** argv )
 {
-  if( argc < 4 ) 
+  if( argc < 2 ) 
   {
-    //DEBUG_PRINT( "usage: %s <config_dir> <config_type> <config_file>", argv[ 0 ] );
+    Log_PrintString( NULL, "wrong usage: type \"%s --help\" for instructions", argv[ 0 ] );
     return false;
   }
   
-  const char* configDirectory = argv[ 1 ];
-  const char* configType = argv[ 2 ];
-  const char* configFile = argv[ 3 ];
+  if( strcmp( argv[ 1 ], "--help" ) == 0 )
+  {
+    Log_PrintString( NULL, "usage: %s [--config <config_dir>] [--mcast <multicast_ip>] <config_file>", argv[ 0 ] );
+    return false;
+  }
   
-  robotEventsConnection = IPC_OpenConnection( IPC_TCP | IPC_SERVER, NULL, 50000 );
-  robotAxesConnection = IPC_OpenConnection( IPC_UDP | IPC_SERVER, NULL, 50001 );
-  robotJointsConnection = IPC_OpenConnection( IPC_UDP | IPC_SERVER, NULL, 50002 );
+  const char* configDirectory = "./config/";
+  const char* multicastAddress = NULL;
+  const char* configFile = argv[ argc - 1 ];
   
-  //DEBUG_PRINT( "looking for %s robotsConfiguration", configType );
+  for( int optionIndex = 1; optionIndex < argc - 1; optionIndex+=2 )
+  {
+    if( optionIndex + 1 >= argc - 1 )
+    {
+      Log_PrintString( NULL, "missing value for option %s. type \"%s --help\" for instructions", argv[ optionIndex ], argv[ 0 ] );
+      return false;
+    }
+    
+    if( strcmp( argv[ optionIndex ], "--config" ) == 0 ) configDirectory = argv[ optionIndex + 1 ];
+    else if( strcmp( argv[ optionIndex ], "--mcast" ) == 0 ) multicastAddress = argv[ optionIndex + 1 ];
+    else
+    {
+      Log_PrintString( NULL, "unknown option %s. type \"%s --help\" for instructions", argv[ optionIndex ], argv[ 0 ] );
+      return false;
+    }
+  }
+  
+  robotEventsConnection = IPC_OpenConnection( IPC_TCP | IPC_SERVER, multicastAddress, 50000 );
+  robotAxesConnection = IPC_OpenConnection( /*IPC_UDP*/IPC_TCP | IPC_SERVER, multicastAddress, 50001 );
+  robotJointsConnection = IPC_OpenConnection( /*IPC_UDP*/IPC_TCP | IPC_SERVER, multicastAddress, 50002 );
   
   DataIO_SetBaseFilePath( configDirectory );
   
   robotConfig = DataIO_CreateEmptyData();
-  //DEBUG_PRINT( "loading robotsConfiguration from %s", configDirectory );
+  Log_PrintString( NULL, "loading robots configuration from %s", configDirectory );
   RefreshRobotsInfo( configFile );
 
   return true;
@@ -86,7 +106,7 @@ bool System_Init( const int argc, const char** argv )
 
 void System_End()
 {
-  //DEBUG_PRINT( "Ending RobRehab Control on thread %lx", THREAD_ID );
+  Log_PrintString( NULL, "Ending Robot Control" );
 
   IPC_CloseConnection( robotEventsConnection );
   IPC_CloseConnection( robotAxesConnection );
@@ -99,40 +119,35 @@ void System_End()
 
   Robot_End( robotController );
   
-  //DEBUG_PRINT( "RobRehab Control ended on thread %lx", THREAD_ID );
+  Log_PrintString( NULL, "Robot Control ended" );
 }
 
 void UpdateEvents()
 {
   static Byte message[ IPC_MAX_MESSAGE_LENGTH ];
   static RemoteID messageSenderID;
-  
+
   if( IPC_ReadMessage( robotAxesConnection, (Byte*) message, &messageSenderID ) ) 
   {
     Byte* messageIn = (Byte*) message;
     Byte robotCommand = (Byte) *(messageIn++);
     
-    if( robotCommand == 0x00 )
-    {
-      //DEBUG_PRINT( "info string request: %u", commandBlocksNumber );
-      RefreshRobotsInfo( NULL );
-    }
-    else
-    {
-      Byte robotState = 0x00;
+    Log_PrintString( NULL, "received robot command: %u", robotCommand );
+    
+    Byte robotState = 0x00;
       
-      if( robotCommand == ROBOT_CMD_DISABLE ) robotState = Robot_Disable( robotController ) ? ROBOT_ST_DISABLED : 0x00;
-      else if( robotCommand == ROBOT_CMD_ENABLE ) robotState = Robot_Enable( robotController ) ? ROBOT_ST_ENABLED : 0x00;
-      else if( robotCommand == ROBOT_CMD_OFFSET ) robotState = Robot_SetControlState( robotController, ROBOT_OFFSET ) ? ROBOT_ST_OFFSETTING : 0x00;
-      else if( robotCommand == ROBOT_CMD_CALIBRATE ) robotState = Robot_SetControlState( robotController, ROBOT_CALIBRATION ) ? ROBOT_ST_CALIBRATING : 0x00;
-      else if( robotCommand == ROBOT_CMD_PREPROCESS ) robotState = Robot_SetControlState( robotController, ROBOT_PREPROCESSING ) ? ROBOT_ST_PREPROCESSING : 0x00;
-      else if( robotCommand == ROBOT_CMD_OPERATE ) robotState = Robot_SetControlState( robotController, ROBOT_OPERATION ) ? ROBOT_ST_OPERATING : 0x00;
-      else if( robotCommand == ROBOT_CMD_SET_USER )
-      {
-        char* userName = (char*) messageIn;
-        //DataLogging.SetBaseDirectory( userName );
-        //DEBUG_PRINT( "New user name: %s", userName );
-      }
+    if( robotCommand == 0x00 ) RefreshRobotsInfo( NULL );
+    else if( robotCommand == ROBOT_CMD_DISABLE ) robotState = Robot_Disable( robotController ) ? ROBOT_ST_DISABLED : 0x00;
+    else if( robotCommand == ROBOT_CMD_ENABLE ) robotState = Robot_Enable( robotController ) ? ROBOT_ST_ENABLED : 0x00;
+    else if( robotCommand == ROBOT_CMD_OFFSET ) robotState = Robot_SetControlState( robotController, ROBOT_OFFSET ) ? ROBOT_ST_OFFSETTING : 0x00;
+    else if( robotCommand == ROBOT_CMD_CALIBRATE ) robotState = Robot_SetControlState( robotController, ROBOT_CALIBRATION ) ? ROBOT_ST_CALIBRATING : 0x00;
+    else if( robotCommand == ROBOT_CMD_PREPROCESS ) robotState = Robot_SetControlState( robotController, ROBOT_PREPROCESSING ) ? ROBOT_ST_PREPROCESSING : 0x00;
+    else if( robotCommand == ROBOT_CMD_OPERATE ) robotState = Robot_SetControlState( robotController, ROBOT_OPERATION ) ? ROBOT_ST_OPERATING : 0x00;
+    else if( robotCommand == ROBOT_CMD_SET_USER )
+    {
+      char* userName = (char*) messageIn;
+      //DataLogging.SetBaseDirectory( userName );
+      //DEBUG_PRINT( "New user name: %s", userName );
     }
   }   
 }
@@ -145,7 +160,7 @@ void UpdateAxes()
   {
     Byte* messageIn = (Byte*) message;
     size_t setpointBlocksNumber = (size_t) *(messageIn++);
-    //DEBUG_PRINT( "received message from client %lu for %lu axes", clientID, setpointBlocksNumber );
+    Log_PrintString( NULL, "received message %lu axes", setpointBlocksNumber );
     for( size_t setpointBlockIndex = 0; setpointBlockIndex < setpointBlocksNumber; setpointBlockIndex++ )
     {
       size_t axisIndex = (size_t) *(messageIn++);
@@ -186,14 +201,17 @@ void UpdateAxes()
       axisMeasuresList[ DOF_STIFFNESS ] = (float) axisMeasures.stiffness;
       axisMeasuresList[ DOF_DAMPING ] = (float) axisMeasures.damping;
       
-      //DEBUG_PRINT( "measures: p: %.3f - v: %.3f - f: %.3f", axisMeasuresList[ DOF_POSITION ], axisMeasuresList[ DOF_VELOCITY ], axisMeasuresList[ DOF_FORCE ] );
+      Log_PrintString( NULL, "measures: p: %.3f - v: %.3f - f: %.3f", axisMeasuresList[ DOF_POSITION ], axisMeasuresList[ DOF_VELOCITY ], axisMeasuresList[ DOF_FORCE ] );
     }
     
     axisdataOffset += DOF_DATA_BLOCK_SIZE;
   }
   
-  //DEBUG_PRINT( "sending %u axes for client %lu", messageOut[ 0 ], clientID );
-  IPC_WriteMessage( robotAxesConnection, (const Byte*) message, NULL );
+  if( message[ 0 ] > 0 )
+  {
+    Log_PrintString( NULL, "sending measures from %lu axes", message[ 0 ] );
+    IPC_WriteMessage( robotAxesConnection, (const Byte*) message, NULL );
+  }
 }
 
 void UpdateJoints()
@@ -226,8 +244,11 @@ void UpdateJoints()
     jointDataOffset += DOF_DATA_BLOCK_SIZE;
   }
   
-  //DEBUG_UPDATE( "sending measures for %u joints", messageOut[ 0 ] );
-  IPC_WriteMessage( robotJointsConnection, (const Byte*) messageOut, NULL );
+  if( messageOut[ 0 ] > 0 )
+  {
+    //DEBUG_UPDATE( "sending measures for %u joints", messageOut[ 0 ] );
+    IPC_WriteMessage( robotJointsConnection, (const Byte*) messageOut, NULL );
+  }
 }
 
 void System_Update()
@@ -249,18 +270,17 @@ void RefreshRobotsInfo( const char* configFile )
   DataHandle robotsConfiguration = DataIO_LoadFileData( configFileName );
   if( robotsConfiguration != NULL )
   {
-    char* robotName = DataIO_GetStringValue( robotsConfiguration, NULL, "id" );
+    const char* robotName = DataIO_GetStringValue( robotsConfiguration, NULL, "id" );
     if( robotName != NULL )
     {     
       robotController = Robot_Init( robotName );
       if( robotController != NULL )
       {
         DataIO_SetStringValue( robotConfig, "id", robotName );   
-        //DEBUG_PRINT( "set string value %s to data list %p", robotName, sharedRobotsList );
         
         size_t axesNumber = Robot_GetAxesNumber( robotController ); 
         axesList = (Axis*) realloc( axesList, axesNumber * sizeof(Axis) );
-        //DEBUG_PRINT( "got %lu axes for robot %lu", axesNumber, robotController );
+
         for( size_t axisIndex = 0; axisIndex < axesNumber; axisIndex++ )
         {
           const char* axisName = Robot_GetAxisName( robotController, axisIndex );
@@ -291,7 +311,7 @@ void RefreshRobotsInfo( const char* configFile )
   char* robotEventsConnectionString = DataIO_GetDataString( robotConfig );
   if( robotEventsConnectionString != NULL )
   {
-    //DEBUG_PRINT( "robots info string: %s", robotEventsConnectionString );
+    Log_PrintString( NULL, "robots info string: %s", robotEventsConnectionString );
     
     IPC_WriteMessage( robotEventsConnection, (const Byte*) robotEventsConnectionString, NULL );
     

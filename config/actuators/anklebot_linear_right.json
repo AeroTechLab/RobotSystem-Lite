@@ -1,0 +1,8 @@
+{
+  "sensors": [
+    { "input_variable": "POSITION", "config": "anklebot_right_position" },
+    { "input_variable": "FORCE", "config": "anklebot_right_force" }
+  ],
+  "motor": { "output_variable": "FORCE", "config": "anklebot_right_motor" },
+  "controller": "SimpleControl"
+}

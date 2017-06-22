@@ -29,8 +29,7 @@
 #include "threads/threads.h"
 #include "timing/timing.h"
 
-//#include "utils/debug/async_debug.h"
-//#include "utils/debug/data_logging.h"
+#include "debug/data_logging.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -81,7 +80,7 @@ Robot Robot_Init( const char* configFileName )
 {
   static char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
 
-  //DEBUG_PRINT( "Trying to create robot %s", configFileName );
+  Log_PrintString( NULL, "Trying to create robot %s", configFileName );
   
   Robot newRobot = NULL;
   
@@ -97,7 +96,7 @@ Robot Robot_Init( const char* configFileName )
     LOAD_MODULE_IMPLEMENTATION( ROBOT_CONTROL_INTERFACE, filePath, newRobot, &loadSuccess );
     if( loadSuccess )
     {
-      char* controllerConfigString = DataIO_GetStringValue( configuration, "", "controller.config" );
+      const char* controllerConfigString = DataIO_GetStringValue( configuration, "", "controller.config" );
       newRobot->controller = newRobot->InitController( controllerConfigString );
       
       newRobot->controlTimeStep = DataIO_GetNumericValue( configuration, CONTROL_PASS_INTERVAL, "controller.time_step" );   
@@ -139,26 +138,20 @@ Robot Robot_Init( const char* configFileName )
       return NULL;
     }
 
-    //DEBUG_PRINT( "robot %s created", configFileName );
+    Log_PrintString( NULL, "robot %s created (handle: %p)", configFileName, newRobot );
   }
-  //else
-  //  DEBUG_PRINT( "configuration for robot %s is not available", configFileName );
   
   // temp
   //Robot_Enable( newRobot ); 
-  
-  //DEBUG_PRINT( "robot %s created (iterator %u)", configFileName, newRobotIndex );
   
   return newRobot;
 }
 
 void Robot_End( Robot robot )
 {
-  //DEBUG_EVENT( 0, "ending Axis Controller %d", robot );
-
   if( robot == NULL ) return;
   
-  //DEBUG_PRINT( "ending robot robot %p", robot );
+  Log_PrintString( NULL, "ending robot robot %p", robot );
   
   Robot_Disable( robot );
   
@@ -182,13 +175,11 @@ void Robot_End( Robot robot )
     
   free( robot );
 
-  //DEBUG_PRINT( "robot robot %p discarded", robot );
+  Log_PrintString( NULL, "robot robot %p discarded", robot );
 }
 
 bool Robot_Enable( Robot robot )
-{
-  //DEBUG_PRINT( "Trying to enable robot %lu", robot );
-  
+{ 
   if( robot == NULL ) return false;
   
   //DEBUG_PRINT( "Enabling robot %p", robot );

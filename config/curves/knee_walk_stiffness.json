@@ -1,0 +1,89 @@
+{
+  "total_length": 1,
+  "phases": [
+    {
+      "begin": {
+        "point": 0,
+        "value": 0.75,
+        "derivative": 2
+      },
+      "end": {
+        "point": 0.04,
+        "value": 1,
+        "derivative": 0
+      }
+    },
+    {
+      "begin": {
+        "point": 0.09,
+        "value": 1,
+        "derivative": 0
+      },
+      "end": {
+        "point": 0.17,
+        "value": 0.9,
+        "derivative": 0
+      }
+    },
+    {
+      "begin": {
+        "point": 0.25,
+        "value": 0.9,
+        "derivative": 0
+      },
+      "end": {
+        "point": 0.45,
+        "value": 0.1,
+        "derivative": 0
+      }
+    },
+    {
+      "begin": {
+        "point": 0.53,
+        "value": 0.1,
+        "derivative": 0
+      },
+      "end": {
+        "point": 0.63,
+        "value": 0,
+        "derivative": 0
+      }
+    },
+    {
+      "begin": {
+        "point": 0.69,
+        "value": 0,
+        "derivative": 0
+      },
+      "end": {
+        "point": 0.79,
+        "value": 0.05,
+        "derivative": 0
+      }
+    },
+    {
+      "begin": {
+        "point": 0.85,
+        "value": 0.05,
+        "derivative": 0
+      },
+      "end": {
+        "point": 0.97,
+        "value": 0.5,
+        "derivative": 0
+      }
+    },
+    {
+      "begin": {
+        "point": 0.97,
+        "value": 0.5,
+        "derivative": 0
+      },
+      "end": {
+        "point": 1,
+        "value": 0.75,
+        "derivative": 2
+      }
+    }
+  ]
+}

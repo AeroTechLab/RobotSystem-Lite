@@ -52,7 +52,7 @@ typedef IPCConnectionData* IPCConnection;
 #define IPC_UDP 0x20                     ///< IP UDP (datagram) connection creation flag
 #define IPC_SHM 0x30                     ///< Shared Memory connection creation flag
 
-const IPCConnection IPC_INVALID_CONNECTION = NULL;      ///< Connection identifier to be returned on initialization errors
+//const IPCConnection IPC_INVALID_CONNECTION = NULL;      ///< Connection identifier to be returned on initialization errors
 
 
 /// @brief Creates a new IP connection structure (with defined properties) and add it to the asynchronous connections list                              
@@ -86,7 +86,7 @@ bool IPC_ReadMessage( IPCConnection connection, Byte* message, RemoteID* ref_rem
 /// @brief Pushes given message string to write queue of connection corresponding to given identifier                                                
 /// @param[in] connection connection identifier   
 /// @param[in] message message byte array pointer  
-/// @param[out] remoteID client connection identifier
+/// @param[in] ref_remoteID client connection identifier
 /// @return true on success, false on error  
 bool IPC_WriteMessage( IPCConnection connection, const Byte* message, const RemoteID* ref_remoteID );
 

@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 2.8 )
-project( RobotControl )
+project( RobotSystem-Lite )
 
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR} )
 
@@ -14,6 +14,17 @@ set( MODULES_DIR ${CMAKE_SOURCE_DIR}/plugins CACHE PATH "Dynamic modules output 
 set( SIGNAL_IO_MODULES_PATH ${MODULES_DIR}/signal_io )
 set( ACTUATOR_CONTROL_MODULES_PATH ${MODULES_DIR}/actuator_control )
 set( ROBOT_CONTROL_MODULES_PATH ${MODULES_DIR}/robot_control )
+
+# Find ZeroMQ libraries
+
+## load in pkg-config support
+find_package( PkgConfig )
+## use pkg-config to get hints for 0mq locations
+pkg_check_modules( PC_ZeroMQ QUIET zmq )
+## use the hint from above to find where 'zmq.hpp' is located
+find_path( ZeroMQ_INCLUDE_DIR NAMES zmq.hpp PATHS ${PC_ZeroMQ_INCLUDE_DIRS} )
+## use the hint from about to find the location of libzmq
+find_library( ZeroMQ_LIBRARY NAMES zmq PATHS ${PC_ZeroMQ_LIBRARY_DIRS} )
 
 include( ${SOURCES_DIR}/debug/CMakeLists.txt )
 include( ${SOURCES_DIR}/curves/CMakeLists.txt )
@@ -30,33 +41,34 @@ link_directories( ${LIBRARY_DIR} )
 # (REAL-TIME) CONTROL APPLICATION
 add_executable( RobotControl ${SOURCES_DIR}/main.c ${SOURCES_DIR}/system.c ${SOURCES_DIR}/robots.c ${SOURCES_DIR}/actuators.c ${SOURCES_DIR}/sensors.c ${SOURCES_DIR}/motors.c ${SOURCES_DIR}/ipc.c ${SOURCES_DIR}/data_io.c )
 target_compile_definitions( RobotControl PUBLIC -DDEBUG -DSIGNAL_IO_MODULES_PATH=${SIGNAL_IO_MODULES_PATH} -DACTUATOR_CONTROL_MODULES_PATH=${ACTUATOR_CONTROL_MODULES_PATH} -DROBOT_CONTROL_MODULES_PATH=${ROBOT_CONTROL_MODULES_PATH} )
-target_link_libraries( RobotControl DataLogging FunctionCurves SimpleJSON KalmanFilters SignalProcessing MultiThreading Timing ${CMAKE_DL_LIBS} )
+target_include_directories( RobotControl PUBLIC ${ZeroMQ_INCLUDE_DIR} )
+target_link_libraries( RobotControl DataLogging FunctionCurves SimpleJSON KalmanFilters SignalProcessing MultiThreading Timing ${CMAKE_DL_LIBS} ${ZeroMQ_LIBRARY} )
 
 # PLUGINS/MODULES
 
-add_library( ForcePIControl MODULE ${SOURCES_DIR}/actuator_control/force_pi_control.c )
-set_target_properties( ForcePIControl PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ACTUATOR_CONTROL_MODULES_PATH} )
-set_target_properties( ForcePIControl PROPERTIES PREFIX "" )
-target_include_directories( ForcePIControl PUBLIC ${SOURCES_DIR}/actuator_control/ )
-
-add_library( SimpleControl MODULE ${SOURCES_DIR}/actuator_control/simple_control.c )
-set_target_properties( SimpleControl PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ACTUATOR_CONTROL_MODULES_PATH} )
-set_target_properties( SimpleControl PROPERTIES PREFIX "" )
-target_include_directories( SimpleControl PUBLIC ${SOURCES_DIR}/actuator_control/ )
-
-add_library( SimpleJoint MODULE ${SOURCES_DIR}/robot_control/simple_joint.c )
-set_target_properties( SimpleJoint PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ROBOT_CONTROL_MODULES_PATH} )
-set_target_properties( SimpleJoint PROPERTIES PREFIX "" )
-target_include_directories( SimpleJoint PUBLIC ${SOURCES_DIR}/robot_control/ )
-
-add_library( AnkleBot MODULE ${SOURCES_DIR}/robot_control/anklebot.c )
-set_target_properties( AnkleBot PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ROBOT_CONTROL_MODULES_PATH} )
-set_target_properties( AnkleBot PROPERTIES PREFIX "" )
-target_include_directories( AnkleBot PUBLIC ${SOURCES_DIR}/robot_control/ )
-
-add_library( EMGJoint MODULE ${SOURCES_DIR}/robot_control/emg/emg_control.c ${SOURCES_DIR}/robot_control/emg/emg_muscular_model.c )
-set_target_properties( EMGJoint PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ROBOT_CONTROL_MODULES_PATH} )
-set_target_properties( EMGJoint PROPERTIES PREFIX "" )
-target_include_directories( EMGJoint PUBLIC ${SOURCES_DIR}/robot_control/ ${SOURCES_DIR}/robot_control/emg/ )
+# add_library( ForcePIControl MODULE ${SOURCES_DIR}/actuator_control/force_pi_control.c )
+# set_target_properties( ForcePIControl PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ACTUATOR_CONTROL_MODULES_PATH} )
+# set_target_properties( ForcePIControl PROPERTIES PREFIX "" )
+# target_include_directories( ForcePIControl PUBLIC ${SOURCES_DIR}/actuator_control/ )
+# 
+# add_library( SimpleControl MODULE ${SOURCES_DIR}/actuator_control/simple_control.c )
+# set_target_properties( SimpleControl PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ACTUATOR_CONTROL_MODULES_PATH} )
+# set_target_properties( SimpleControl PROPERTIES PREFIX "" )
+# target_include_directories( SimpleControl PUBLIC ${SOURCES_DIR}/actuator_control/ )
+# 
+# add_library( SimpleJoint MODULE ${SOURCES_DIR}/robot_control/simple_joint.c )
+# set_target_properties( SimpleJoint PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ROBOT_CONTROL_MODULES_PATH} )
+# set_target_properties( SimpleJoint PROPERTIES PREFIX "" )
+# target_include_directories( SimpleJoint PUBLIC ${SOURCES_DIR}/robot_control/ )
+# 
+# add_library( AnkleBot MODULE ${SOURCES_DIR}/robot_control/anklebot.c )
+# set_target_properties( AnkleBot PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ROBOT_CONTROL_MODULES_PATH} )
+# set_target_properties( AnkleBot PROPERTIES PREFIX "" )
+# target_include_directories( AnkleBot PUBLIC ${SOURCES_DIR}/robot_control/ )
+# 
+# add_library( EMGJoint MODULE ${SOURCES_DIR}/robot_control/emg/emg_control.c ${SOURCES_DIR}/robot_control/emg/emg_muscular_model.c )
+# set_target_properties( EMGJoint PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ROBOT_CONTROL_MODULES_PATH} )
+# set_target_properties( EMGJoint PROPERTIES PREFIX "" )
+# target_include_directories( EMGJoint PUBLIC ${SOURCES_DIR}/robot_control/ ${SOURCES_DIR}/robot_control/emg/ )
 
 # install( TARGETS RobRehabGui RobRehabServer RUNTIME DESTINATION . )

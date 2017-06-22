@@ -29,7 +29,7 @@
 
 struct _IPCConnectionData
 {
-  void* socket;
+  zmq_pollitem_t poller;
   RemoteID* remoteIDsList;
   size_t remotesCount;
   size_t identityLength;
@@ -55,22 +55,41 @@ IPCConnection IPC_OpenConnection( Byte flags, const char* host, uint16_t channel
   
   IPCConnection newConnection = (IPCConnection) malloc( sizeof(IPCConnectionData) );
   
-  newConnection->socket = NULL;
+  newConnection->poller.socket = NULL;
   if( (flags & TRANSPORT_MASK) == IPC_TCP )
   {
     sprintf( zmqAddress, "tcp://%s:%u", ( host != NULL ) ? host : "*", channel );
-    newConnection->socket = zmq_socket( context, ZMQ_STREAM );
+    newConnection->poller.socket = zmq_socket( context, ZMQ_STREAM );
   }
 #ifdef ZMQ_BUILD_DRAFT_API
   else if( (flags & TRANSPORT_MASK) == IPC_UDP )
   {
     sprintf( zmqAddress, "udp://%s:%u", ( host != NULL ) ? host : "*", channel );
-    newConnection->socket = zmq_socket( context, ZMQ_DGRAM );    
+    newConnection->poller.socket = zmq_socket( context, ZMQ_DGRAM );    
   }
 #endif
   
-  if( (flags & ROLE_MASK) == IPC_SERVER ) zmq_bind( newConnection->socket, zmqAddress );
-  else zmq_connect( newConnection->socket, zmqAddress );
+  printf( "socket created on port %u: %p\n", channel, newConnection->poller.socket );
+  
+  if( newConnection->poller.socket == NULL ) 
+  {
+    free( newConnection );
+    return NULL;
+  }
+  
+  int status = 0;
+  if( (flags & ROLE_MASK) == IPC_SERVER ) status = zmq_bind( newConnection->poller.socket, zmqAddress );
+  else status = zmq_connect( newConnection->poller.socket, zmqAddress );
+  
+  printf( "socket %p binding status: %d\n", newConnection->poller.socket, status );
+  
+  if( status == -1 ) 
+  {
+    free( newConnection );
+    return NULL;
+  }
+  
+  newConnection->poller.events = ZMQ_POLLIN;
   
   newConnection->remoteIDsList = NULL;
   newConnection->remotesCount = 0;
@@ -78,16 +97,21 @@ IPCConnection IPC_OpenConnection( Byte flags, const char* host, uint16_t channel
   newConnection->messageLength = IPC_MAX_MESSAGE_LENGTH;
   
   int multicastHops;
-  size_t optionLength;  
-  if( host != NULL || zmq_getsockopt( newConnection->socket, ZMQ_MULTICAST_HOPS, &multicastHops, &optionLength ) == 0 ) 
+  size_t optionLength;
+  bool isMulticast = (bool) ( zmq_getsockopt( newConnection->poller.socket, ZMQ_MULTICAST_HOPS, &multicastHops, &optionLength ) == 0 );
+  
+  if( (flags & ROLE_MASK) == IPC_CLIENT || isMulticast ) 
   {
-    zmq_connect( newConnection->socket, zmqAddress );
-    
     newConnection->remoteIDsList = (RemoteID*) malloc( sizeof(RemoteID) );
     newConnection->remotesCount = 1;
     
-    zmq_getsockopt( newConnection->socket, ZMQ_IDENTITY, &(newConnection->remoteIDsList[ 0 ]), &(newConnection->identityLength) );
+    zmq_getsockopt( newConnection->poller.socket, ZMQ_IDENTITY, &(newConnection->remoteIDsList[ 0 ]), &(newConnection->identityLength) );
   }
+  
+  char address[ 256 ];
+  size_t addrLength = 256;
+  zmq_getsockopt( newConnection->poller.socket, ZMQ_LAST_ENDPOINT, address, &addrLength );
+  printf( "socket %p address: %s\n", newConnection->poller.socket, address );
   
   activeConnectionsNumber++;
   
@@ -100,19 +124,19 @@ void IPC_CloseConnection( IPCConnection connection )
    
    for( size_t remoteIndex = 0; remoteIndex < connection->remotesCount; remoteIndex++ )
    {
-     zmq_send( connection->socket, connection->remoteIDsList[ remoteIndex ], connection->identityLength, ZMQ_SNDMORE );
-     zmq_send( connection->socket, NULL, 0, 0 );
+     zmq_send( connection->poller.socket, connection->remoteIDsList[ remoteIndex ], connection->identityLength, ZMQ_SNDMORE );
+     zmq_send( connection->poller.socket, NULL, 0, 0 );
    }
    
-   zmq_close( connection->socket );
+   zmq_close( connection->poller.socket );
    
-   free( connection->remoteIDsList );
+   if( connection->remoteIDsList != NULL ) free( connection->remoteIDsList );
    
    free( connection );
    
    if( --activeConnectionsNumber <= 0 ) 
    {
-     zmq_ctx_destroy( context );
+     if( context != NULL ) zmq_ctx_destroy( context );
      context = NULL;
    }
 }
@@ -130,10 +154,22 @@ size_t IPC_SetMessageLength( IPCConnection connection, size_t messageLength )
 
 bool IPC_ReadMessage( IPCConnection connection, Byte* message, RemoteID* ref_remoteID )
 {
+  static RemoteID remoteID;
+  
   if( connection == NULL ) return false;
   
-  if( zmq_recv( connection->socket, ref_remoteID, connection->identityLength, 0 ) < 0 ) return false;
-  if( zmq_recv( connection->socket, message, connection->messageLength, 0 ) < 0 ) return false;
+  if( ref_remoteID == NULL ) ref_remoteID = &remoteID;
+  
+  if( zmq_poll( &(connection->poller), 1, 0 ) <= 0 ) return false;
+  
+  if( connection->poller.revents != ZMQ_POLLIN ) return false;
+  
+  printf( "reading from socket %p\r", connection->poller.socket );
+  
+  if( zmq_recv( connection->poller.socket, ref_remoteID, connection->identityLength, 0 ) <= 0 ) return false;
+  if( zmq_recv( connection->poller.socket, message, connection->messageLength, 0 ) <= 0 ) return false;
+  
+  printf( "%x\r", message[ 0 ] );
   
   for( size_t remoteIndex = 0; remoteIndex < connection->remotesCount; remoteIndex++ )
   {
@@ -156,15 +192,15 @@ bool IPC_WriteMessage( IPCConnection connection, const Byte* message, const Remo
   
   if( ref_remoteID != NULL )
   {
-    if( zmq_send( connection->socket, ref_remoteID, connection->identityLength, ZMQ_SNDMORE ) < 0 ) return false;
-    if( zmq_send( connection->socket, message, strlen( (const char*) message ), 0 ) < 0 ) return false;
+    if( zmq_send( connection->poller.socket, ref_remoteID, connection->identityLength, ZMQ_SNDMORE ) < 0 ) return false;
+    if( zmq_send( connection->poller.socket, message, strlen( (const char*) message ), 0 ) < 0 ) return false;
   }
   else
   {
     for( size_t remoteIndex = 0; remoteIndex < connection->remotesCount; remoteIndex++ )
     {
-      zmq_send( connection->socket, connection->remoteIDsList[ remoteIndex ], connection->identityLength, ZMQ_SNDMORE );
-      zmq_send( connection->socket, message, strlen( (const char*) message ), 0 );
+      zmq_send( connection->poller.socket, connection->remoteIDsList[ remoteIndex ], connection->identityLength, ZMQ_SNDMORE );
+      zmq_send( connection->poller.socket, message, strlen( (const char*) message ), 0 );
     }
   }
   

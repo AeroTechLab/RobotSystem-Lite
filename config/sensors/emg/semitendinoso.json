@@ -1,0 +1,16 @@
+{
+  "input_interface": {
+    "type": "NIDAQmx",
+    "config": "EMGReadTask",
+    "channel": 2
+  },
+  "input_gain": {
+    "divisor": 909
+  },
+  "signal_processing": {
+    "rectified": true,
+    "normalized": true,
+    "smoothing_frequency": 0.001
+  },
+  "log": "semitendinoso"
+}

@@ -1,0 +1,7 @@
+{
+  "controller": {
+    "type": "OpenSimModel",
+    "config": "test_model"
+  },
+  "actuators": [ "virtual_actuator", "virtual_actuator" ]
+}

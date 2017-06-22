@@ -1,0 +1,9 @@
+{
+  "muscles": [
+    { "sensor": "emg/rectus_femoris", "properties": "rectus_femoris" },
+    { "sensor": "emg/vastus_medialis", "properties": "vastus_medialis" },
+    { "sensor": "emg/vastus_laterais", "properties": "vastus_laterais" },
+    { "sensor": "emg/bisceps_femoris", "properties": "bisceps_femoris" },
+    { "sensor": "emg/semitendinoso", "properties": "semitendinoso" }
+  ]
+}

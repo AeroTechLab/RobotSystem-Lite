@@ -121,9 +121,9 @@ static inline JSONNode GetPathNode( DataHandle data, const char* pathFormat, va_
   {
     if( currentNode == NULL ) break;
         
-    if( currentNode->type == JSON_TYPE_BRACE )
+    if( JSON_GetType( currentNode ) == JSON_TYPE_BRACE )
       currentNode = JSON_FindByKey( currentNode, key );
-    else if( currentNode->type == JSON_TYPE_BRACKET )
+    else if( JSON_GetType( currentNode ) == JSON_TYPE_BRACKET )
       currentNode = JSON_FindByIndex( currentNode, strtoul( key, NULL, 10 ) );
   }
     
@@ -142,7 +142,7 @@ DataHandle DataIO_GetSubData( DataHandle data, const char* pathFormat, ... )
   return (DataHandle) subNode;
 }
 
-char* DataIO_GetStringValue( DataHandle data, char* defaultValue, const char* pathFormat, ... )
+const char* DataIO_GetStringValue( DataHandle data, const char* defaultValue, const char* pathFormat, ... )
 {
   va_list pathArgs;
   va_start( pathArgs, pathFormat );  
@@ -150,17 +150,17 @@ char* DataIO_GetStringValue( DataHandle data, char* defaultValue, const char* pa
   va_end( pathArgs );
   if( valueNode == NULL ) return defaultValue;
   
-  if( valueNode->type != JSON_TYPE_STRING )
+  if( JSON_GetType( valueNode ) != JSON_TYPE_STRING )
     return defaultValue;
   
-  if( valueNode->value == NULL ) return defaultValue;
+  if( JSON_Get( valueNode ) == NULL ) return defaultValue;
   
   //DEBUG_PRINT( "Found value: %s", valueNode->value );
   
-  return valueNode->value;
+  return JSON_Get( valueNode );
 }
 
-double DataIO_GetNumericValue( DataHandle data, double defaultValue, const char* pathFormat, ... )
+double DataIO_GetNumericValue( DataHandle data, const double defaultValue, const char* pathFormat, ... )
 {
   va_list pathArgs;
   va_start( pathArgs, pathFormat );  
@@ -168,14 +168,14 @@ double DataIO_GetNumericValue( DataHandle data, double defaultValue, const char*
   va_end( pathArgs );
   if( valueNode == NULL ) return defaultValue;
   
-  if( valueNode->type != JSON_TYPE_NUMBER ) return defaultValue;
+  if( JSON_GetType( valueNode ) != JSON_TYPE_NUMBER ) return defaultValue;
   
   //DEBUG_PRINT( "Found value: %g", strtod( valueNode->value, NULL ) );
   
-  return strtod( valueNode->value, NULL );
+  return strtod( JSON_Get( valueNode ), NULL );
 }
 
-bool DataIO_GetBooleanValue( DataHandle data, bool defaultValue, const char* pathFormat, ... )
+bool DataIO_GetBooleanValue( DataHandle data, bool const defaultValue, const char* pathFormat, ... )
 {
   va_list pathArgs;
   va_start( pathArgs, pathFormat );  
@@ -183,9 +183,9 @@ bool DataIO_GetBooleanValue( DataHandle data, bool defaultValue, const char* pat
   va_end( pathArgs );
   if( valueNode == NULL ) return defaultValue;
   
-  if( valueNode->type != JSON_TYPE_BOOLEAN ) return defaultValue;
+  if( JSON_GetType( valueNode ) != JSON_TYPE_BOOLEAN ) return defaultValue;
   
-  if( strcmp( valueNode->value, "true" ) == 0 ) return true;
+  if( strcmp( JSON_Get( valueNode ), "true" ) == 0 ) return true;
 
   return false;
 }
@@ -198,11 +198,11 @@ size_t DataIO_GetListSize( DataHandle data, const char* pathFormat, ... )
   va_end( pathArgs );  
   if( listNode == NULL ) return 0;
   
-  if( listNode->type != JSON_TYPE_BRACKET ) return 0;
+  if( JSON_GetType( listNode ) != JSON_TYPE_BRACKET ) return 0;
   
   //DEBUG_PRINT( "List %s size: %lu", pathFormat, (size_t) listNode->childrenCount );
   
-  return (size_t) listNode->childrenCount;
+  return (size_t) JSON_GetChildrenCount( listNode );
 }
 
 bool DataIO_HasKey( DataHandle data, const char* pathFormat, ... )
@@ -221,9 +221,9 @@ static JSONNode AddNode( JSONNode parentNode, const char* key, long type )
   if( parentNode == NULL ) return NULL;
   
   JSONNode childNode = NULL;
-  if( parentNode->type == JSON_TYPE_BRACE )
+  if( JSON_GetType( parentNode ) == JSON_TYPE_BRACE )
     childNode = JSON_AddKey( parentNode, type, key );
-  else if( parentNode->type == JSON_TYPE_BRACKET )
+  else if( JSON_GetType( parentNode ) == JSON_TYPE_BRACKET )
     childNode = JSON_AddIndex( parentNode, type );
   
   return childNode;

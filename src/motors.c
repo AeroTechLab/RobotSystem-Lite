@@ -49,7 +49,7 @@ Motor Motor_Init( DataHandle configuration )
   
   if( configuration == NULL ) return NULL;
   
-  char* motorName = DataIO_GetStringValue( configuration, NULL, "" );
+  const char* motorName = DataIO_GetStringValue( configuration, NULL, "" );
   if( motorName != NULL )
   {
     sprintf( filePath, "motors/%s", motorName );

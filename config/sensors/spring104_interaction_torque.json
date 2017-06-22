@@ -1,0 +1,19 @@
+{
+  "segments": [
+    {
+      "type": "polynomial",
+      "bounds": [ -3.142, -0.02 ],
+      "parameters": [ -103.83, -0.3701 ]
+    },
+    {
+      "type": "cubic_spline",
+      "bounds": [ -0.02, 0.02 ],
+      "parameters": [ 1.7065, -103.83, -1.5505, -106.97 ]
+    },
+    {
+      "type": "polynomial",
+      "bounds": [ 0.02, 3.142 ],
+      "parameters": [ -106.97, 0.5889 ]
+    }
+  ]
+}

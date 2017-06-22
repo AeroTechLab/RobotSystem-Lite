@@ -30,6 +30,8 @@
 
 #include "data_io.h"
 
+#include "timing/timing.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -59,7 +61,7 @@ Sensor Sensor_Init( DataHandle configuration )
   
   if( configuration == NULL ) return NULL;
   
-  char* sensorName = DataIO_GetStringValue( configuration, NULL, "" );
+  const char* sensorName = DataIO_GetStringValue( configuration, NULL, "" );
   if( sensorName != NULL )
   {
     sprintf( filePath, "sensors/%s", sensorName );
@@ -88,19 +90,19 @@ Sensor Sensor_Init( DataHandle configuration )
       uint8_t signalProcessingFlags = 0;
       if( DataIO_GetBooleanValue( configuration, false, "signal_processing.rectified" ) ) signalProcessingFlags |= SIG_PROC_RECTIFY;
       if( DataIO_GetBooleanValue( configuration, false, "signal_processing.normalized" ) ) signalProcessingFlags |= SIG_PROC_NORMALIZE;
-      newSensor->processor = SigProc_Create( signalProcessingFlags );
+      newSensor->processor = SignalProcessor_Create( signalProcessingFlags );
       
       double inputGain = DataIO_GetNumericValue( configuration, 1.0, "input_gain.multiplier" );
       inputGain /= DataIO_GetNumericValue( configuration, 1.0, "input_gain.divisor" );
-      SigProc_SetInputGain( newSensor->processor, inputGain );
+      SignalProcessor_SetInputGain( newSensor->processor, inputGain );
       
       double relativeCutFrequency = DataIO_GetNumericValue( configuration, 0.0, "signal_processing.low_pass_frequency" );
-      SigProc_SetMaxFrequency( newSensor->processor, relativeCutFrequency );
+      SignalProcessor_SetMaxFrequency( newSensor->processor, relativeCutFrequency );
       
       DataHandle curveConfiguration = DataIO_GetSubData( configuration, "conversion_curve" );
       newSensor->measurementCurve = LoadMeasurementCurve( curveConfiguration );
       
-      char* logFileName = DataIO_GetStringValue( configuration, NULL, "log" );
+      const char* logFileName = DataIO_GetStringValue( configuration, NULL, "log" );
       if( logFileName != NULL )
       {
         sprintf( filePath, "sensors/%s", logFileName );
@@ -134,7 +136,7 @@ void Sensor_End( Sensor sensor )
   sensor->ReleaseInputChannel( sensor->deviceID, sensor->channel );
   sensor->EndTask( sensor->deviceID );
   
-  SigProc_Discard( sensor->processor );
+  SignalProcessor_Discard( sensor->processor );
   Curve_Discard( sensor->measurementCurve );
   
   free( sensor->inputBuffer );
@@ -153,7 +155,7 @@ double Sensor_Update( Sensor sensor, double* rawBuffer )
   size_t aquiredSamplesNumber = sensor->Read( sensor->deviceID, sensor->channel, sensor->inputBuffer );
   if( rawBuffer != NULL ) memcpy( rawBuffer, sensor->inputBuffer, sensor->maxInputSamplesNumber * sizeof(double) );
     
-  double sensorOutput = SigProc_UpdateSignal( sensor->processor, sensor->inputBuffer, aquiredSamplesNumber );
+  double sensorOutput = SignalProcessor_UpdateSignal( sensor->processor, sensor->inputBuffer, aquiredSamplesNumber );
   
   double referenceOutput = Sensor_Update( sensor->reference, NULL );
   //if( sensor->reference != NULL ) DEBUG_PRINT( "sensor: %g - reference: %g", sensorOutput, referenceOutput );
@@ -161,6 +163,7 @@ double Sensor_Update( Sensor sensor, double* rawBuffer )
   
   double sensorMeasure = Curve_GetValue( sensor->measurementCurve, sensorOutput, sensorOutput );
   
+  Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
   Log_RegisterList( sensor->log, sensor->maxInputSamplesNumber, sensor->inputBuffer );
   Log_RegisterValues( sensor->log, 3, sensorOutput, referenceOutput, sensorMeasure );
   
@@ -185,7 +188,7 @@ void Sensor_Reset( Sensor sensor )
 {
   if( sensor == NULL ) return;
   
-  SigProc_SetState( sensor->processor, SIG_PROC_STATE_MEASUREMENT );
+  SignalProcessor_SetState( sensor->processor, SIG_PROC_STATE_MEASUREMENT );
   sensor->Reset( sensor->deviceID );
 }
 
@@ -193,7 +196,7 @@ void Sensor_SetState( Sensor sensor, enum SigProcState newProcessingState )
 {
   if( sensor == NULL ) return;
   
-  SigProc_SetState( sensor->processor, newProcessingState );
+  SignalProcessor_SetState( sensor->processor, newProcessingState );
   Sensor_SetState( sensor->reference, newProcessingState );
 }
 
@@ -204,7 +207,7 @@ Curve LoadMeasurementCurve( DataHandle curveData )
   
   if( curveData == NULL ) return NULL;
   
-  char* curveName = DataIO_GetStringValue( curveData, NULL, "" );
+  const char* curveName = DataIO_GetStringValue( curveData, NULL, "" );
   if( curveName != NULL )
   {
     sprintf( filePath, "curves/%s", curveName );
@@ -230,7 +233,7 @@ Curve LoadMeasurementCurve( DataHandle curveData )
     for( int parameterIndex = 0; parameterIndex < parametersNumber; parameterIndex++ )
       curveParameters[ parametersNumber - parameterIndex - 1 ] = DataIO_GetNumericValue( curveData, 0.0, "segments.%lu.parameters.%d", segmentIndex, parameterIndex );
 
-    char* curveType = DataIO_GetStringValue( curveData, "", "segments.%lu.type", segmentIndex );
+    const char* curveType = DataIO_GetStringValue( curveData, "", "segments.%lu.type", segmentIndex );
     if( strcmp( curveType, "cubic_spline" ) == 0 && parametersNumber == SPLINE3_COEFFS_NUMBER ) 
       Curve_AddSpline3Segment( newCurve, curveParameters, curveBounds );
     else if( strcmp( curveType, "polynomial" ) == 0 ) 
