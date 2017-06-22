@@ -26,7 +26,7 @@
 #include "curves/curves.h"
 
 //#include "debug/async_debug.h"
-//#include "debug/data_logging.h"
+#include "debug/data_logging.h"
 
 #include "data_io.h"
 
@@ -104,7 +104,7 @@ Sensor Sensor_Init( DataHandle configuration )
       if( logFileName != NULL )
       {
         sprintf( filePath, "sensors/%s", logFileName );
-        newSensor->log = DataLogging.InitLog( filePath, newSensor->maxInputSamplesNumber + 3, 4 );
+        newSensor->log = Log_Init( filePath, 4 );
       }
       
       DataHandle referenceConfiguration = DataIO_GetSubData( configuration, "relative_to" );
@@ -135,11 +135,11 @@ void Sensor_End( Sensor sensor )
   sensor->EndTask( sensor->deviceID );
   
   SigProc_Discard( sensor->processor );
-  Curves_UnloadCurve( sensor->measurementCurve );
+  Curve_Discard( sensor->measurementCurve );
   
   free( sensor->inputBuffer );
   
-  DataLogging.EndLog( sensor->log );
+  Log_End( sensor->log );
   
   Sensor_End( sensor->reference );
   
@@ -159,10 +159,10 @@ double Sensor_Update( Sensor sensor, double* rawBuffer )
   //if( sensor->reference != NULL ) DEBUG_PRINT( "sensor: %g - reference: %g", sensorOutput, referenceOutput );
   sensorOutput -= referenceOutput;
   
-  double sensorMeasure = Curves_GetValue( sensor->measurementCurve, sensorOutput, sensorOutput );
+  double sensorMeasure = Curve_GetValue( sensor->measurementCurve, sensorOutput, sensorOutput );
   
-  DataLogging.RegisterList( sensor->log, sensor->maxInputSamplesNumber, sensor->inputBuffer );
-  DataLogging.RegisterValues( sensor->log, 3, sensorOutput, referenceOutput, sensorMeasure );
+  Log_RegisterList( sensor->log, sensor->maxInputSamplesNumber, sensor->inputBuffer );
+  Log_RegisterValues( sensor->log, 3, sensorOutput, referenceOutput, sensorMeasure );
   
   return sensorMeasure;
 }

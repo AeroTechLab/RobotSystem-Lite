@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 2.8 )
-project( RobRehabSystem )
+project( RobotControl )
 
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR} )
 
@@ -8,25 +8,32 @@ set( CMAKE_C_STANDARD_REQUIRED ON )
 
 set( SOURCES_DIR ${CMAKE_SOURCE_DIR}/src )
 
-set( LIBRARY_DIR ${CMAKE_SOURCE_DIR}/libs CACHE PATH "Platform-Utils variable" FORCE )
-set( MODULES_DIR ${CMAKE_SOURCE_DIR}/plugins CACHE PATH "Platform-Utils variable" FORCE )
-set( PlatformUtils_DIR ${SOURCES_DIR}/utils CACHE PATH "Platform-Utils variable" FORCE )
+set( LIBRARY_DIR ${CMAKE_SOURCE_DIR}/libs CACHE PATH "Linked libraries directory" FORCE )
+set( MODULES_DIR ${CMAKE_SOURCE_DIR}/plugins CACHE PATH "Dynamic modules output directory" FORCE )
 
-include( ${SOURCES_DIR}/control/CMakeLists.txt )
+set( SIGNAL_IO_MODULES_PATH ${MODULES_DIR}/signal_io )
+set( ACTUATOR_CONTROL_MODULES_PATH ${MODULES_DIR}/actuator_control )
+set( ROBOT_CONTROL_MODULES_PATH ${MODULES_DIR}/robot_control )
+
+include( ${SOURCES_DIR}/debug/CMakeLists.txt )
+include( ${SOURCES_DIR}/curves/CMakeLists.txt )
+include( ${SOURCES_DIR}/json/CMakeLists.txt )
+include( ${SOURCES_DIR}/kalman/CMakeLists.txt )
+include( ${SOURCES_DIR}/signal_processing/CMakeLists.txt )
+include( ${SOURCES_DIR}/threads/CMakeLists.txt )
+include( ${SOURCES_DIR}/timing/CMakeLists.txt )
 
 include_directories( ${SOURCES_DIR} )
 link_directories( ${LIBRARY_DIR} )
 
 
 # (REAL-TIME) CONTROL APPLICATION
-add_executable( RobRehabControl ${SOURCES_DIR}/robrehab_system.c ${SOURCES_DIR}/robrehab_control.c ${SOURCES_DIR}/shm_control.c )
-target_compile_definitions( RobRehabControl PUBLIC -DDEBUG )
-target_link_libraries( RobRehabControl RobotControl PlatformUtils )
-
-# (AXIS/JOINT) SERVER
-add_executable( RobRehabServer ${SOURCES_DIR}/robrehab_system.c ${SOURCES_DIR}/robrehab_network.c ${SOURCES_DIR}/shm_control.c )
-target_compile_definitions( RobRehabServer PUBLIC -DDEBUG )
-target_link_libraries( RobRehabServer PlatformUtils )
+add_executable( RobotControl ${SOURCES_DIR}/main.c ${SOURCES_DIR}/system.c ${SOURCES_DIR}/robots.c ${SOURCES_DIR}/actuators.c ${SOURCES_DIR}/sensors.c ${SOURCES_DIR}/motors.c ${SOURCES_DIR}/ipc.c ${SOURCES_DIR}/data_io.c )
+target_compile_definitions( RobotControl PUBLIC -DDEBUG -DSIGNAL_IO_MODULES_PATH=${SIGNAL_IO_MODULES_PATH} -DACTUATOR_CONTROL_MODULES_PATH=${ACTUATOR_CONTROL_MODULES_PATH} -DROBOT_CONTROL_MODULES_PATH=${ROBOT_CONTROL_MODULES_PATH} )
+target_link_libraries( RobotControl DataLogging FunctionCurves SimpleJSON KalmanFilters SignalProcessing MultiThreading Timing ${CMAKE_DL_LIBS} )
+if( UNIX AND NOT APPLE )
+  target_link_libraries( RobotControl -lrt )
+endif()
 
 # PLUGINS/MODULES
 

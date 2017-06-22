@@ -33,7 +33,7 @@
 #define M_PI 3.14159      ///< Defines mathematical Pi value if standard math.h one is not available
 #endif
 
-#include "../plugins/loader_macros.h"
+#include "plugin_loader/loader_macros.h"
 
 #define ROBOT_CONTROLLER_INVALID_HANDLE NULL    ///< Reference/pointer to be returned on controller creation failure
 
@@ -53,7 +53,7 @@ enum RobotState
 /// Control used variables list indexes enumeration
 typedef struct RobotVariables
 {
-  double position, velocity, force, acceleration, stiffness, damping;
+  double position, velocity, force, acceleration, inertia, stiffness, damping;
 }
 RobotVariables;
 

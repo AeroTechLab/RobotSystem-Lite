@@ -33,7 +33,7 @@
 #define M_PI 3.14159      ///< Defines mathematical Pi value if standard math.h one is not available
 #endif
 
-#include "utils/modules.h"
+#include "plugin_loader/loader_macros.h"
 
 #define ACTUATOR_CONTROLLER_INVALID_HANDLE NULL    ///< Reference/pointer to be returned on controller creation failure
 

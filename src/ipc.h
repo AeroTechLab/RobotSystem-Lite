@@ -33,31 +33,34 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define IPC_ID_LENGTH 5
+#define IPC_MAX_ID_LENGTH 256
 #define IPC_MAX_MESSAGE_LENGTH 512      ///< Maximum allowed length of messages transmitted through an IP connection
 
 typedef uint8_t Byte;
 
-typedef Byte RemoteID[ IPC_ID_LENGTH ];
+typedef Byte RemoteID[ IPC_MAX_ID_LENGTH ];
 
 /// Structure that stores data of a single IP connection
 typedef struct _IPCConnectionData IPCConnectionData;
 /// Opaque type to reference encapsulated IP connection structure
 typedef IPCConnectionData* IPCConnection;                
 
-enum IPCTransport { IPC_TCP,                         ///< IP TCP (stream) connection creation flag
-                    IPC_UDP,                         ///< IP UDP (datagram) connection creation flag
-                    IPC_SHM };
+#define IPC_SERVER 0x01                  ///< IPC server connection creation flag
+#define IPC_CLIENT 0x02                  ///< IPC client connection creation flag
+
+#define IPC_TCP 0x10                     ///< IP TCP (stream) connection creation flag
+#define IPC_UDP 0x20                     ///< IP UDP (datagram) connection creation flag
+#define IPC_SHM 0x30                     ///< Shared Memory connection creation flag
 
 const IPCConnection IPC_INVALID_CONNECTION = NULL;      ///< Connection identifier to be returned on initialization errors
 
 
 /// @brief Creates a new IP connection structure (with defined properties) and add it to the asynchronous connections list                              
-/// @param[in] transport flag defining connection as client or server, TCP or UDP (see ip_connection.h)                                   
+/// @param[in] flags configuration variable defining connection as client or server, TCP or UDP                                   
 /// @param[in] host IPv4 or IPv6 host string (NULL for server listening on any local address)    
 /// @param[in] channel IPv4 or IPv6 host string (NULL for server listening on any local address)     
 /// @return unique generic identifier for newly created connection (IPC_INVALID_CONNECTION on error) 
-IPCConnection IPC_OpenConnection( enum IPCTransport transport, const char* host, uint16_t channel );
+IPCConnection IPC_OpenConnection( Byte flags, const char* host, uint16_t channel );
 
 /// @brief Handle termination of connection corresponding to given identifier                             
 /// @param[in] connection connection identifier
@@ -85,7 +88,7 @@ bool IPC_ReadMessage( IPCConnection connection, Byte* message, RemoteID* ref_rem
 /// @param[in] message message byte array pointer  
 /// @param[out] remoteID client connection identifier
 /// @return true on success, false on error  
-bool IPC_WriteMessage( IPCConnection connection, const Byte* message, RemoteID remoteID );
+bool IPC_WriteMessage( IPCConnection connection, const Byte* message, const RemoteID* ref_remoteID );
 
 
 #endif // IPC_H 

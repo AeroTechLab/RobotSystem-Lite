@@ -24,8 +24,7 @@
 #include "ipc.h"
 
 #include "shared_robot_control.h"
-#include "shared_axis_data.h"
-#include "shared_joint_data.h"
+#include "shared_dof_variables.h"
 
 #include "robots.h"
 
@@ -70,9 +69,9 @@ bool System_Init( const int argc, const char** argv )
   const char* configType = argv[ 2 ];
   const char* configFile = argv[ 3 ];
   
-  robotEventsConnection = IPC_OpenConnection( IPC_TCP, NULL, 50000 );
-  robotAxesConnection = IPC_OpenConnection( IPC_UDP, NULL, 50001 );
-  robotJointsConnection = IPC_OpenConnection( IPC_UDP, NULL, 50002 );
+  robotEventsConnection = IPC_OpenConnection( IPC_TCP | IPC_SERVER, NULL, 50000 );
+  robotAxesConnection = IPC_OpenConnection( IPC_UDP | IPC_SERVER, NULL, 50001 );
+  robotJointsConnection = IPC_OpenConnection( IPC_UDP | IPC_SERVER, NULL, 50002 );
   
   //DEBUG_PRINT( "looking for %s robotsConfiguration", configType );
   
@@ -151,25 +150,17 @@ void UpdateAxes()
     {
       size_t axisIndex = (size_t) *(messageIn++);
       Axis axis = axesList[ axisIndex ];
-      
-      //DEBUG_PRINT( "receiving for axis %lu (of %lu)", axisIndex, kv_max( axisControlClientsList ) );
 
       if( axisIndex >= dofsNumber ) continue;      
-
-      //if( kv_A( axisControlClientsList, axisIndex ) == IPC_INVALID_CONNECTION ) kv_A( axisControlClientsList, axisIndex ) = clientID;
       
-      //if( kv_A( axisControlClientsList, axisIndex ) == clientID )  
-      //{
-        //DEBUG_PRINT( "receiving axis %lu setpoints", axisIndex );
-        //SHMControl.SetControlByte( sharedRobotAxesData, axisIndex, axisMask );
         float* axisSetpointsList = (float*) messageIn;
-        RobotVariables axisSetpoints = { .position = axisSetpointsList[ AXIS_POSITION ], .velocity = axisSetpointsList[ AXIS_VELOCITY ],
-                                     .acceleration = axisSetpointsList[ AXIS_ACCELERATION ], .force = axisSetpointsList[ AXIS_FORCE ],
-                                     .stiffness = axisSetpointsList[ AXIS_STIFFNESS ], .damping = axisSetpointsList[ AXIS_DAMPING ] };
+      RobotVariables axisSetpoints = { .position = axisSetpointsList[ DOF_POSITION ], .velocity = axisSetpointsList[ DOF_VELOCITY ],
+                                       .acceleration = axisSetpointsList[ DOF_ACCELERATION ], .force = axisSetpointsList[ DOF_FORCE ],
+                                       .inertia = axisSetpointsList[ DOF_INERTIA ],
+                                       .stiffness = axisSetpointsList[ DOF_STIFFNESS ], .damping = axisSetpointsList[ DOF_DAMPING ] };
         Robot_SetAxisSetpoints( axis, &axisSetpoints );
-      //}
 
-      messageIn += AXIS_DATA_BLOCK_SIZE;
+      messageIn += DOF_DATA_BLOCK_SIZE;
     }
   }
   
@@ -187,17 +178,18 @@ void UpdateAxes()
     RobotVariables axisMeasures = { 0 };
     if( Robot_GetAxisMeasures( axis, &axisMeasures ) )
     {
-      axisMeasuresList[ AXIS_POSITION ] = (float) axisMeasures.position;
-      axisMeasuresList[ AXIS_VELOCITY ] = (float) axisMeasures.velocity;
-      axisMeasuresList[ AXIS_ACCELERATION ] = (float) axisMeasures.acceleration;
-      axisMeasuresList[ AXIS_FORCE ] = (float) axisMeasures.force;
-      axisMeasuresList[ AXIS_STIFFNESS ] = (float) axisMeasures.stiffness;
-      axisMeasuresList[ AXIS_DAMPING ] = (float) axisMeasures.damping;
+      axisMeasuresList[ DOF_POSITION ] = (float) axisMeasures.position;
+      axisMeasuresList[ DOF_VELOCITY ] = (float) axisMeasures.velocity;
+      axisMeasuresList[ DOF_ACCELERATION ] = (float) axisMeasures.acceleration;
+      axisMeasuresList[ DOF_FORCE ] = (float) axisMeasures.force;
+      axisMeasuresList[ DOF_INERTIA ] = (float) axisMeasures.inertia;
+      axisMeasuresList[ DOF_STIFFNESS ] = (float) axisMeasures.stiffness;
+      axisMeasuresList[ DOF_DAMPING ] = (float) axisMeasures.damping;
       
-      //DEBUG_PRINT( "measures: p: %.3f - v: %.3f - f: %.3f", axisMeasuresList[ AXIS_POSITION ], axisMeasuresList[ AXIS_VELOCITY ], axisMeasuresList[ AXIS_FORCE ] );
+      //DEBUG_PRINT( "measures: p: %.3f - v: %.3f - f: %.3f", axisMeasuresList[ DOF_POSITION ], axisMeasuresList[ DOF_VELOCITY ], axisMeasuresList[ DOF_FORCE ] );
     }
     
-    axisdataOffset += AXIS_DATA_BLOCK_SIZE;
+    axisdataOffset += DOF_DATA_BLOCK_SIZE;
   }
   
   //DEBUG_PRINT( "sending %u axes for client %lu", messageOut[ 0 ], clientID );
@@ -222,15 +214,16 @@ void UpdateJoints()
     RobotVariables jointMeasures = { 0 };
     if( Robot_GetJointMeasures( joint, &jointMeasures ) )
     {
-      jointMeasuresList[ AXIS_POSITION ] = (float) jointMeasures.position;
-      jointMeasuresList[ AXIS_VELOCITY ] = (float) jointMeasures.velocity;
-      jointMeasuresList[ AXIS_ACCELERATION ] = (float) jointMeasures.acceleration;
-      jointMeasuresList[ AXIS_FORCE ] = (float) jointMeasures.force;
-      jointMeasuresList[ AXIS_STIFFNESS ] = (float) jointMeasures.stiffness;
-      jointMeasuresList[ AXIS_DAMPING ] = (float) jointMeasures.damping;
+      jointMeasuresList[ DOF_POSITION ] = (float) jointMeasures.position;
+      jointMeasuresList[ DOF_VELOCITY ] = (float) jointMeasures.velocity;
+      jointMeasuresList[ DOF_ACCELERATION ] = (float) jointMeasures.acceleration;
+      jointMeasuresList[ DOF_FORCE ] = (float) jointMeasures.force;
+      jointMeasuresList[ DOF_INERTIA ] = (float) jointMeasures.inertia;
+      jointMeasuresList[ DOF_STIFFNESS ] = (float) jointMeasures.stiffness;
+      jointMeasuresList[ DOF_DAMPING ] = (float) jointMeasures.damping;
     }
     
-    jointDataOffset += JOINT_DATA_BLOCK_SIZE;
+    jointDataOffset += DOF_DATA_BLOCK_SIZE;
   }
   
   //DEBUG_UPDATE( "sending measures for %u joints", messageOut[ 0 ] );

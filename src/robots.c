@@ -22,16 +22,18 @@
 
 #include "robots.h"
 
+#include "actuators.h"
+
 #include "data_io.h"
 
 #include "threads/threads.h"
-#include "time/time.h"
+#include "timing/timing.h"
 
 //#include "utils/debug/async_debug.h"
 //#include "utils/debug/data_logging.h"
 
-#include "actuators.h"
-
+#include <stdlib.h>
+#include <string.h>
 
 /////////////////////////////////////////////////////////////////////////////////
 /////                            CONTROL DEVICE                             /////
@@ -108,7 +110,7 @@ Robot Robot_Init( const char* configFileName )
       {
         newRobot->jointsList[ jointIndex ] = (Joint) malloc( sizeof(JointData) );
         DataHandle actuatorConfiguration = DataIO_GetSubData( configuration, "actuators.%lu", jointIndex );
-        newRobot->jointsList[ jointIndex ]->actuator = Actuators.Init( actuatorConfiguration );
+        newRobot->jointsList[ jointIndex ]->actuator = Actuator_Init( actuatorConfiguration );
         newRobot->jointMeasuresList[ jointIndex ] = &(newRobot->jointsList[ jointIndex ]->measures);
         newRobot->jointSetpointsList[ jointIndex ] = &(newRobot->jointsList[ jointIndex ]->setpoints);
         
@@ -164,7 +166,7 @@ void Robot_End( Robot robot )
   
   for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
   {
-    Actuators.End( robot->jointsList[ jointIndex ]->actuator );
+    Actuator_End( robot->jointsList[ jointIndex ]->actuator );
     free( robot->jointsList[ jointIndex ] );
   }
   free( robot->jointsList );
@@ -193,9 +195,9 @@ bool Robot_Enable( Robot robot )
   
   for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
   {
-    Actuators.Enable( robot->jointsList[ jointIndex ]->actuator );
+    Actuator_Enable( robot->jointsList[ jointIndex ]->actuator );
     
-    //if( !Actuators.IsEnabled( robot->jointsList[ jointIndex ]->actuator ) ) return false;
+    //if( !Actuator_IsEnabled( robot->jointsList[ jointIndex ]->actuator ) ) return false;
   }
   
   if( !robot->isControlRunning )
@@ -219,7 +221,7 @@ bool Robot_Disable( Robot robot )
   robot->controlThread = THREAD_INVALID_HANDLE;
   
   for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
-    Actuators.Disable( robot->jointsList[ jointIndex ]->actuator );
+    Actuator_Disable( robot->jointsList[ jointIndex ]->actuator );
   
   return true;
 }
@@ -241,7 +243,7 @@ bool Robot_SetControlState( Robot robot, enum RobotState newState )
   else if( newState == ROBOT_CALIBRATION ) actuatorState = ACTUATOR_CALIBRATION;
   
   for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
-    Actuators.SetControlState( robot->jointsList[ jointIndex ]->actuator, newState );
+    Actuator_SetControlState( robot->jointsList[ jointIndex ]->actuator, actuatorState );
   
   robot->controlState = newState;
   
@@ -320,7 +322,7 @@ void Robot_SetJointSetpoints( Joint joint, RobotVariables* ref_setpoints )
 {
   if( joint == NULL ) return;
   
-  joint->setpoints = *ref_setpoints;;
+  joint->setpoints = *ref_setpoints;
 }
 
 void Robot_SetAxisSetpoints( Axis axis, RobotVariables* ref_setpoints )
@@ -352,7 +354,7 @@ static void* AsyncControl( void* ref_robot )
 {
   Robot robot = (Robot) ref_robot;
   
-  double execTime = Timing.GetExecTimeSeconds(), elapsedTime = 0.0;
+  double execTime = Time_GetExecTimeSeconds(), elapsedTime = 0.0;
   
   robot->isControlRunning = true;
   
@@ -360,13 +362,13 @@ static void* AsyncControl( void* ref_robot )
   
   while( robot->isControlRunning )
   {
-    elapsedTime = Timing.GetExecTimeSeconds() - execTime;
+    elapsedTime = Time_GetExecTimeSeconds() - execTime;
     //DEBUG_PRINT( "step time for robot %p (after delay): %.5f ms", robot, elapsedTime );
     
-    execTime = Timing.GetExecTimeSeconds();
+    execTime = Time_GetExecTimeSeconds();
     
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
-      (void) Actuators.UpdateMeasures( robot->jointsList[ jointIndex ]->actuator, (ActuatorVariables*) robot->jointMeasuresList[ jointIndex ], elapsedTime );
+      (void) Actuator_UpdateMeasures( robot->jointsList[ jointIndex ]->actuator, (ActuatorVariables*) robot->jointMeasuresList[ jointIndex ], elapsedTime );
     
     robot->RunControlStep( robot->controller, robot->jointMeasuresList, robot->axisMeasuresList, robot->jointSetpointsList, robot->axisSetpointsList, elapsedTime );
     
@@ -381,15 +383,15 @@ static void* AsyncControl( void* ref_robot )
     {
       if( jointsChangedList[ jointIndex ] ) robot->jointsList[ jointIndex ]->hasChanged = true;
       
-      if( Actuators.HasError( robot->jointsList[ jointIndex ]->actuator ) ) Actuators.Reset( robot->jointsList[ jointIndex ]->actuator );
+      if( Actuator_HasError( robot->jointsList[ jointIndex ]->actuator ) ) Actuator_Reset( robot->jointsList[ jointIndex ]->actuator );
       
-      (void) Actuators.RunControl( robot->jointsList[ jointIndex ]->actuator, (ActuatorVariables*) robot->jointMeasuresList[ jointIndex ], 
+      (void) Actuator_RunControl( robot->jointsList[ jointIndex ]->actuator, (ActuatorVariables*) robot->jointMeasuresList[ jointIndex ], 
                                                                               (ActuatorVariables*) robot->jointSetpointsList[ jointIndex ], elapsedTime );
     }
     
-    elapsedTime = Timing.GetExecTimeSeconds() - execTime;
+    elapsedTime = Time_GetExecTimeSeconds() - execTime;
     //DEBUG_PRINT( "step time for robot %p (before delay): %.5f ms", robot, elapsedTime );
-    if( elapsedTime < robot->controlTimeStep ) Timing.Delay( (unsigned long) ( 1000 * ( robot->controlTimeStep - elapsedTime ) ) );
+    if( elapsedTime < robot->controlTimeStep ) Time_Delay( (unsigned long) ( 1000 * ( robot->controlTimeStep - elapsedTime ) ) );
   }
   
   return NULL;

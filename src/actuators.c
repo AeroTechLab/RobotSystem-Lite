@@ -31,6 +31,8 @@
 //#include "utils/debug/async_debug.h"
 //#include "utils/debug/data_logging.h"
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 
@@ -79,7 +81,7 @@ Actuator Actuator_Init( DataHandle configuration )
     for( size_t sensorIndex = 0; sensorIndex < newActuator->sensorsNumber; sensorIndex++ )
     {
       DataHandle sensorConfiguration = DataIO_GetSubData( configuration, "sensors.%lu.config", sensorIndex );
-      newActuator->sensorsList[ sensorIndex ] = Sensors.Init( sensorConfiguration ); 
+      newActuator->sensorsList[ sensorIndex ] = Sensor_Init( sensorConfiguration ); 
       char* sensorType = DataIO_GetStringValue( configuration, "", "sensors.%lu.input_variable", sensorIndex );
       for( int controlModeIndex = 0; controlModeIndex < CONTROL_VARS_NUMBER; controlModeIndex++ )
       {
@@ -90,7 +92,7 @@ Actuator Actuator_Init( DataHandle configuration )
   }
   
   DataHandle motorConfiguration = DataIO_GetSubData( configuration, "motor.config" );
-  if( (newActuator->motor = Motors.Init( motorConfiguration )) == NULL ) loadSuccess = false;
+  if( (newActuator->motor = Motor_Init( motorConfiguration )) == NULL ) loadSuccess = false;
   
   char* controlModeName = DataIO_GetStringValue( configuration, (char*) CONTROL_MODE_NAMES[ 0 ], "motor.output_variable" );
   for( newActuator->controlMode = 0; newActuator->controlMode < CONTROL_VARS_NUMBER; newActuator->controlMode++ )
@@ -125,33 +127,33 @@ void Actuator_End( Actuator actuator )
   
   Kalman_DiscardFilter( actuator->sensorFilter );
   
-  Motors.End( actuator->motor );
+  Motor_End( actuator->motor );
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
-    Sensors.End( actuator->sensorsList[ sensorIndex ] );
+    Sensor_End( actuator->sensorsList[ sensorIndex ] );
 }
 
 void Actuator_Enable( Actuator actuator )
 {
   if( actuator == NULL ) return;
   
-  Motors.Enable( actuator->motor );     
+  Motor_Enable( actuator->motor );     
 }
 
 void Actuator_Disable( Actuator actuator )
 {
   if( actuator == NULL ) return;
     
-  Motors.Disable( actuator->motor );
+  Motor_Disable( actuator->motor );
 }
 
 void Actuator_Reset( Actuator actuator )
 {
   if( actuator == NULL ) return;
     
-  Motors.Reset( actuator->motor );
+  Motor_Reset( actuator->motor );
   
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
-    Sensors.Reset( actuator->sensorsList[ sensorIndex ] );
+    Sensor_Reset( actuator->sensorsList[ sensorIndex ] );
   
   Kalman_Reset( actuator->sensorFilter );
 }
@@ -164,12 +166,12 @@ bool Actuator_SetControlState( Actuator actuator, enum ActuatorState newState )
   
   if( newState >= ACTUATOR_STATES_NUMBER ) return false;
 
-  enum SignalProcessingPhase sensorsState = SIGNAL_PROCESSING_PHASE_MEASUREMENT;
-  if( newState == ACTUATOR_OFFSET ) sensorsState = SIGNAL_PROCESSING_PHASE_OFFSET;
-  else if( newState == ACTUATOR_CALIBRATION ) sensorsState = SIGNAL_PROCESSING_PHASE_CALIBRATION;
+  enum SigProcState sensorsState = SIG_PROC_STATE_MEASUREMENT;
+  if( newState == ACTUATOR_OFFSET ) sensorsState = SIG_PROC_STATE_OFFSET;
+  else if( newState == ACTUATOR_CALIBRATION ) sensorsState = SIG_PROC_STATE_CALIBRATION;
   
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
-    Sensors.SetState( actuator->sensorsList[ sensorIndex ], sensorsState );
+    Sensor_SetState( actuator->sensorsList[ sensorIndex ], sensorsState );
   
   actuator->controlState = newState;
   
@@ -180,18 +182,18 @@ bool Actuator_IsEnabled( Actuator actuator )
 {
   if( actuator == NULL ) return false;
     
-  return Motors.IsEnabled( actuator->motor );
+  return Motor_IsEnabled( actuator->motor );
 }
 
 bool Actuator_HasError( Actuator actuator )
 {
   if( actuator == NULL ) return false;
     
-  if( Motors.HasError( actuator->motor ) ) return true;
+  if( Motor_HasError( actuator->motor ) ) return true;
   
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
   {
-    if( Sensors.HasError( actuator->sensorsList[ sensorIndex ] ) ) return true;
+    if( Sensor_HasError( actuator->sensorsList[ sensorIndex ] ) ) return true;
   }
   
   return false;
@@ -208,14 +210,14 @@ ActuatorVariables* Actuator_UpdateMeasures( Actuator actuator, ActuatorVariables
 {
   if( actuator == NULL ) return NULL;
   
-  DEBUG_UPDATE( "reading measures from actuator %p", actuator );
+  //DEBUG_UPDATE( "reading measures from actuator %p", actuator );
   
   Kalman_SetPredictionFactor( actuator->sensorFilter, POSITION, VELOCITY, timeDelta );
   Kalman_SetPredictionFactor( actuator->sensorFilter, POSITION, ACCELERATION, timeDelta * timeDelta / 2.0 );
   Kalman_SetPredictionFactor( actuator->sensorFilter, VELOCITY, ACCELERATION, timeDelta );
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
   {
-    double sensorMeasure = Sensors.Update( actuator->sensorsList[ sensorIndex ], NULL );
+    double sensorMeasure = Sensor_Update( actuator->sensorsList[ sensorIndex ], NULL );
     Kalman_SetInput( actuator->sensorFilter, sensorIndex, sensorMeasure );
   }
   (void) Kalman_Predict( actuator->sensorFilter, (double*) &(actuator->measures) );
@@ -250,8 +252,8 @@ double Actuator_RunControl( Actuator actuator, ActuatorVariables* ref_measures, 
   double motorSetpoint = ( (double*) &controlOutputs )[ actuator->controlMode ];
   
   // If the motor is being actually controlled, write its control output
-  if( Motors.IsEnabled( actuator->motor ) && actuator->controlState != ACTUATOR_OFFSET ) 
-    Motors.WriteControl( actuator->motor, motorSetpoint );
+  if( Motor_IsEnabled( actuator->motor ) && actuator->controlState != ACTUATOR_OFFSET ) 
+    Motor_WriteControl( actuator->motor, motorSetpoint );
   
   return motorSetpoint;
 }

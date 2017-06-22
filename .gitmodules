@@ -22,3 +22,9 @@
 [submodule "src/plugin_loader"]
 	path = src/plugin_loader
 	url = https://github.com/LabDin/Plugin-Loader
+[submodule "src/timing"]
+	path = src/timing
+	url = https://github.com/LabDin/Precise-Timing
+[submodule "src/debug"]
+	path = src/debug
+	url = https://github.com/LabDin/Simple-Data-Logging
