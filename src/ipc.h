@@ -45,14 +45,15 @@ typedef struct _IPCConnectionData IPCConnectionData;
 /// Opaque type to reference encapsulated IP connection structure
 typedef IPCConnectionData* IPCConnection;                
 
+#define IPC_INVALID_CONNECTION NULL      ///< Connection identifier to be returned on initialization errors
+#define IPC_REMOTE_ID_NONE (RemoteID*) 0xFFFFFF
+
 #define IPC_SERVER 0x01                  ///< IPC server connection creation flag
 #define IPC_CLIENT 0x02                  ///< IPC client connection creation flag
 
 #define IPC_TCP 0x10                     ///< IP TCP (stream) connection creation flag
 #define IPC_UDP 0x20                     ///< IP UDP (datagram) connection creation flag
 #define IPC_SHM 0x30                     ///< Shared Memory connection creation flag
-
-//const IPCConnection IPC_INVALID_CONNECTION = NULL;      ///< Connection identifier to be returned on initialization errors
 
 
 /// @brief Creates a new IP connection structure (with defined properties) and add it to the asynchronous connections list                              

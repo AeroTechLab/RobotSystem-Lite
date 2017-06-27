@@ -36,9 +36,9 @@ struct _IPCConnectionData
   size_t messageLength;
 };
 
-void* context = NULL;
+static void* context = NULL;
 
-int activeConnectionsNumber = 0;
+static int activeConnectionsNumber = 0;
 
 size_t IPC_GetActivesNumber()
 {
@@ -61,13 +61,15 @@ IPCConnection IPC_OpenConnection( Byte flags, const char* host, uint16_t channel
     sprintf( zmqAddress, "tcp://%s:%u", ( host != NULL ) ? host : "*", channel );
     newConnection->poller.socket = zmq_socket( context, ZMQ_STREAM );
   }
-#ifdef ZMQ_BUILD_DRAFT_API
   else if( (flags & TRANSPORT_MASK) == IPC_UDP )
   {
+#ifdef ZMQ_BUILD_DRAFT_API
     sprintf( zmqAddress, "udp://%s:%u", ( host != NULL ) ? host : "*", channel );
     newConnection->poller.socket = zmq_socket( context, ZMQ_DGRAM );    
-  }
+#else
+    fprintf( stderr, "For UDP connections, build with ZMQ_BUILD_DRAFT_API set\n" );
 #endif
+  }
   
   printf( "socket created on port %u: %p\n", channel, newConnection->poller.socket );
   
@@ -76,6 +78,9 @@ IPCConnection IPC_OpenConnection( Byte flags, const char* host, uint16_t channel
     free( newConnection );
     return NULL;
   }
+  
+  int ipv6On = 0;
+  zmq_setsockopt( newConnection->poller.socket, ZMQ_IPV6, &ipv6On, sizeof(ipv6On) );
   
   int status = 0;
   if( (flags & ROLE_MASK) == IPC_SERVER ) status = zmq_bind( newConnection->poller.socket, zmqAddress );
@@ -94,6 +99,7 @@ IPCConnection IPC_OpenConnection( Byte flags, const char* host, uint16_t channel
   newConnection->remoteIDsList = NULL;
   newConnection->remotesCount = 0;
   
+  newConnection->identityLength = IPC_MAX_ID_LENGTH;
   newConnection->messageLength = IPC_MAX_MESSAGE_LENGTH;
   
   int multicastHops;
@@ -108,10 +114,10 @@ IPCConnection IPC_OpenConnection( Byte flags, const char* host, uint16_t channel
     zmq_getsockopt( newConnection->poller.socket, ZMQ_IDENTITY, &(newConnection->remoteIDsList[ 0 ]), &(newConnection->identityLength) );
   }
   
-  char address[ 256 ];
-  size_t addrLength = 256;
-  zmq_getsockopt( newConnection->poller.socket, ZMQ_LAST_ENDPOINT, address, &addrLength );
-  printf( "socket %p address: %s\n", newConnection->poller.socket, address );
+  //char address[ IPC_MAX_ID_LENGTH ];
+  //size_t addrLength = IPC_MAX_ID_LENGTH;
+  //zmq_getsockopt( newConnection->poller.socket, ZMQ_LAST_ENDPOINT, address, &addrLength );
+  //printf( "socket %p address: %s\n", newConnection->poller.socket, address );
   
   activeConnectionsNumber++;
   
@@ -162,14 +168,12 @@ bool IPC_ReadMessage( IPCConnection connection, Byte* message, RemoteID* ref_rem
   
   if( zmq_poll( &(connection->poller), 1, 0 ) <= 0 ) return false;
   
-  if( connection->poller.revents != ZMQ_POLLIN ) return false;
+  if( (connection->poller.revents & ZMQ_POLLIN) == 0 ) return false;
   
-  printf( "reading from socket %p\r", connection->poller.socket );
-  
-  if( zmq_recv( connection->poller.socket, ref_remoteID, connection->identityLength, 0 ) <= 0 ) return false;
+  if( (connection->identityLength = zmq_recv( connection->poller.socket, ref_remoteID, IPC_MAX_ID_LENGTH, 0 )) <= 0 ) return false;
   if( zmq_recv( connection->poller.socket, message, connection->messageLength, 0 ) <= 0 ) return false;
   
-  printf( "%x\r", message[ 0 ] );
+  printf( "received from identity of length %lu\n", connection->identityLength );
   
   for( size_t remoteIndex = 0; remoteIndex < connection->remotesCount; remoteIndex++ )
   {
@@ -187,13 +191,14 @@ bool IPC_ReadMessage( IPCConnection connection, Byte* message, RemoteID* ref_rem
 }
 
 bool IPC_WriteMessage( IPCConnection connection, const Byte* message, const RemoteID* ref_remoteID )
-{ 
+{   
   if( connection == NULL ) return false;
   
-  if( ref_remoteID != NULL )
+  if( ref_remoteID != IPC_REMOTE_ID_NONE )
   {
-    if( zmq_send( connection->poller.socket, ref_remoteID, connection->identityLength, ZMQ_SNDMORE ) < 0 ) return false;
-    if( zmq_send( connection->poller.socket, message, strlen( (const char*) message ), 0 ) < 0 ) return false;
+    if( zmq_send( connection->poller.socket, ref_remoteID, connection->identityLength, ZMQ_SNDMORE ) < 0 ) /*return false;*/
+      printf( "error sending identity: %d\n", errno );
+    if( zmq_send( connection->poller.socket, message, connection->messageLength, 0 ) < 0 ) return false;
   }
   else
   {
