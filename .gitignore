@@ -5,3 +5,15 @@
 *.def
 *.exp
 src/timing_cvi_rt.c
+*.obj
+*.cvidefprots
+*.bat
+*.txt
+src/main_cvi_rt.c
+src/zmq.h
+src/zmq_utils.h
+*.rc
+cvibuild.RobRehabControlRT/Release/Jamfile_instr
+*.in
+cvibuild.RobRehabControlRT/Release/Jamfile
+*.xml
