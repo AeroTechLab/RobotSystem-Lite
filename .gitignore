@@ -4,3 +4,4 @@
 *.lib
 *.def
 *.exp
+src/timing_cvi_rt.c
