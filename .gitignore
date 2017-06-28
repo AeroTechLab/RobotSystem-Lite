@@ -17,3 +17,5 @@ cvibuild.RobRehabControlRT/Release/Jamfile_instr
 *.in
 cvibuild.RobRehabControlRT/Release/Jamfile
 *.xml
+*.res
+*.out

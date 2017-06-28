@@ -70,9 +70,12 @@
 #ifndef SENSORS_H
 #define SENSORS_H
 
-#include "data_io.h"
 
 #include "signal_processing/signal_processing.h"
+
+#include "data_io.h" 
+
+#include <stdbool.h>
 
 
 typedef struct _SensorData SensorData;    ///< Single sensor internal data structure    
