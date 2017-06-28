@@ -1,2 +1,6 @@
 *.prj
 *.cws
+*.dll
+*.lib
+*.def
+*.exp
