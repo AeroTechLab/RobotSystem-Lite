@@ -19,3 +19,6 @@ cvibuild.RobRehabControlRT/Release/Jamfile
 *.xml
 *.res
 *.out
+*.log
+cvibuild.SimpleJointPlugin/Release/Jamfile
+cvibuild.SimpleJointPlugin/Release/Jamfile_instr
