@@ -20,41 +20,16 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 
-#include "actuator_control/interface.h"
+/// @file actuator_control_interface.h
+/// @brief Generic actuator control functions.
+///
+/// Common actuator control interface to be implemented by plugins. Follows definitions by control_definitions.h.
 
-#include <string.h>
+#ifndef ACTUATOR_CONTROL_INTERFACE_H
+#define ACTUATOR_CONTROL_INTERFACE_H
 
-typedef struct _ControlData
-{
-  double outputsList[ CONTROL_MODES_NUMBER ];
-}
-ControlData;
 
-DECLARE_MODULE_INTERFACE( ACTUATOR_CONTROL_INTERFACE );
 
-Controller InitController( void )
-{
-  void* newController = malloc( sizeof(ControlData) );
-  memset( newController, 0, sizeof(ControlData) );
-  
-  return (Controller) newController;
-}
 
-double* RunControlStep( Controller controller, double* measuresList, double* setpointsList, double* ref_error )
-{ 
-  if( controller == NULL ) return NULL;
-  
-  ControlData* controlData = (ControlData*) controller;
 
-  controlData->outputsList[ CONTROL_POSITION ] = setpointsList[ CONTROL_POSITION ];
-  controlData->outputsList[ CONTROL_VELOCITY ] = setpointsList[ CONTROL_VELOCITY ];
-  controlData->outputsList[ CONTROL_FORCE ] = setpointsList[ CONTROL_FORCE ];
-  controlData->outputsList[ CONTROL_ACCELERATION ] = setpointsList[ CONTROL_ACCELERATION ];
-
-  return (double*) controlData->outputsList;
-}
-
-void EndController( Controller controller )
-{
-  free( (void*) controller );
-}
+#endif  // ACTUATOR_CONTROL_INTERFACE_H

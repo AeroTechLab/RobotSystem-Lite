@@ -22,13 +22,12 @@
 
 #include "actuators.h"
 
-#include "actuator_control/interface.h"
+#include "actuator_control_interface.h"
 
 #include "motors.h"
 #include "sensors.h"
 #include "kalman/kalman_filters.h"
 
-//#include "utils/debug/async_debug.h"
 //#include "utils/debug/data_logging.h"
 
 #include <stdio.h>
@@ -40,16 +39,12 @@ enum ControlVariable { POSITION, VELOCITY, FORCE, ACCELERATION, CONTROL_VARS_NUM
 
 struct _ActuatorData
 {
-  DECLARE_MODULE_INTERFACE_REF( ACTUATOR_CONTROL_INTERFACE );
-  ActuatorController controller;
   enum ActuatorState controlState;
   enum ControlVariable controlMode;
   Motor motor;
   Sensor* sensorsList;
   size_t sensorsNumber;
   KFilter sensorFilter;
-  ActuatorVariables measures;//double measuresList[ CONTROL_MODES_NUMBER ];
-  ActuatorVariables setpoints;//double setpointsList[ CONTROL_MODES_NUMBER ];
 };
 
 
@@ -100,10 +95,6 @@ Actuator Actuator_Init( DataHandle configuration )
     if( strcmp( controlModeName, CONTROL_MODE_NAMES[ newActuator->controlMode ] ) == 0 ) break;
   }
   
-  sprintf( filePath, NAME_STRING( ACTUATOR_CONTROL_MODULES_PATH ) "/%s", DataIO_GetStringValue( configuration, "", "controller" ) );
-  LOAD_MODULE_IMPLEMENTATION( ACTUATOR_CONTROL_INTERFACE, filePath, newActuator, &loadSuccess );
-  if( loadSuccess ) newActuator->controller = newActuator->InitController();
-  
   newActuator->controlState = ACTUATOR_OPERATION;
   
   if( actuatorName != NULL ) DataIO_UnloadData( configuration );
@@ -122,8 +113,6 @@ Actuator Actuator_Init( DataHandle configuration )
 void Actuator_End( Actuator actuator )
 {
   if( actuator == NULL ) return;
-  
-  actuator->EndController( actuator->controller );
   
   Kalman_DiscardFilter( actuator->sensorFilter );
   
@@ -199,14 +188,8 @@ bool Actuator_HasError( Actuator actuator )
   return false;
 }
 
-void Actuator_SetSetpoints( Actuator actuator, ActuatorVariables* ref_setpoints )
-{
-  if( actuator == NULL ) return; 
-  
-  actuator->setpoints = *ref_setpoints;
-}
 
-ActuatorVariables* Actuator_UpdateMeasures( Actuator actuator, ActuatorVariables* ref_measures, double timeDelta )
+ActuatorVariables* Actuator_GetMeasures( Actuator actuator, ActuatorVariables* ref_measures, double timeDelta )
 {
   if( actuator == NULL ) return NULL;
   
@@ -220,36 +203,19 @@ ActuatorVariables* Actuator_UpdateMeasures( Actuator actuator, ActuatorVariables
     double sensorMeasure = Sensor_Update( actuator->sensorsList[ sensorIndex ], NULL );
     Kalman_SetInput( actuator->sensorFilter, sensorIndex, sensorMeasure );
   }
-  (void) Kalman_Predict( actuator->sensorFilter, (double*) &(actuator->measures) );
-  (void) Kalman_Update( actuator->sensorFilter, NULL, (double*) &(actuator->measures) );
+  (void) Kalman_Predict( actuator->sensorFilter, (double*) ref_measures );
+  (void) Kalman_Update( actuator->sensorFilter, NULL, (double*) ref_measures );
   
-  //DEBUG_PRINT( "p: %.3f, v: %.3f, f: %.3f", actuator->measures.position, actuator->measures.velocity, actuator->measures.force );
-  
-  if( ref_measures == NULL ) return &(actuator->measures);
-  
-  ref_measures->position = actuator->measures.position;
-  ref_measures->velocity = actuator->measures.velocity;
-  ref_measures->acceleration = actuator->measures.acceleration;
-  ref_measures->force = actuator->measures.force;
+  //DEBUG_PRINT( "p: %.3f, v: %.3f, f: %.3f", measures.position, measures.velocity, measures.force );
   
   return ref_measures;
 }
 
-double Actuator_RunControl( Actuator actuator, ActuatorVariables* ref_measures, ActuatorVariables* ref_setpoints, double timeDelta )
+double Actuator_SetSetpoints( Actuator actuator, ActuatorVariables* ref_setpoints )
 {
   if( actuator == NULL ) return 0.0;
   
-  if( ref_measures == NULL ) ref_measures = &(actuator->measures);
-  if( ref_setpoints == NULL ) ref_setpoints = &(actuator->setpoints);
-  
-  ActuatorVariables controlOutputs = actuator->RunControlStep( actuator->controller, ref_measures, ref_setpoints, timeDelta );
-  
-  //DataLogging.RegisterValues( actuator->log, 8, Timing.GetExecTimeSeconds(), 
-  //                                              measuresList[ CONTROL_POSITION ], measuresList[ CONTROL_VELOCITY ], measuresList[ CONTROL_FORCE ],
-  //                                              setpointsList[ CONTROL_POSITION ], setpointsList[ CONTROL_VELOCITY ], setpointsList[ CONTROL_FORCE ],
-  //                                              controlOutputsList[ actuator->controlMode ] );
-  
-  double motorSetpoint = ( (double*) &controlOutputs )[ actuator->controlMode ];
+  double motorSetpoint = ( (double*) ref_setpoints )[ actuator->controlMode ];
   
   // If the motor is being actually controlled, write its control output
   if( Motor_IsEnabled( actuator->motor ) && actuator->controlState != ACTUATOR_OFFSET ) 

@@ -359,7 +359,7 @@ static void* AsyncControl( void* ref_robot )
     execTime = Time_GetExecSeconds();
     
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
-      (void) Actuator_UpdateMeasures( robot->jointsList[ jointIndex ]->actuator, (ActuatorVariables*) robot->jointMeasuresList[ jointIndex ], elapsedTime );
+      (void) Actuator_GetMeasures( robot->jointsList[ jointIndex ]->actuator, (ActuatorVariables*) robot->jointMeasuresList[ jointIndex ], elapsedTime );
     
     robot->RunControlStep( robot->controller, robot->jointMeasuresList, robot->axisMeasuresList, robot->jointSetpointsList, robot->axisSetpointsList, elapsedTime );
     
@@ -376,8 +376,7 @@ static void* AsyncControl( void* ref_robot )
       
       if( Actuator_HasError( robot->jointsList[ jointIndex ]->actuator ) ) Actuator_Reset( robot->jointsList[ jointIndex ]->actuator );
       
-      (void) Actuator_RunControl( robot->jointsList[ jointIndex ]->actuator, (ActuatorVariables*) robot->jointMeasuresList[ jointIndex ], 
-                                                                              (ActuatorVariables*) robot->jointSetpointsList[ jointIndex ], elapsedTime );
+      (void) Actuator_SetSetpoints( robot->jointsList[ jointIndex ]->actuator, (ActuatorVariables*) robot->jointSetpointsList[ jointIndex ] );
     }
     
     elapsedTime = Time_GetExecSeconds() - execTime;

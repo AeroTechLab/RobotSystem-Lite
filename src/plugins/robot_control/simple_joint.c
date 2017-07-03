@@ -21,7 +21,7 @@
 
 #include <string.h>
 
-#include "robot_control/interface.h"
+#include "robot_control_interface.h"
 
 #define DOFS_NUMBER 1
 

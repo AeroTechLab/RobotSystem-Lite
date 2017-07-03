@@ -22,7 +22,7 @@
 
 #include "motors.h"
 
-#include "signal_io/interface.h"
+#include "signal_io_interface.h"
 
 #include "data_io.h"
 

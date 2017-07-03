@@ -21,7 +21,7 @@
 
 #include "system.h"
 
-#include "ipc.h"
+#include "ipc/ipc.h"
 
 #include "shared_robot_control.h"
 #include "shared_dof_variables.h"
@@ -125,10 +125,9 @@ void System_End()
 void UpdateEvents()
 {
   static Byte messageBuffer[ IPC_MAX_MESSAGE_LENGTH ];
-  static RemoteID messageSenderID;
 
   Byte* messageIn = (Byte*) messageBuffer;
-  if( IPC_ReadMessage( robotEventsConnection, messageIn, (RemoteID*) &messageSenderID ) == true ) 
+  if( IPC_ReadMessage( robotEventsConnection, messageIn ) ) 
   {
     Byte robotCommand = (Byte) *(messageIn++);
     
@@ -151,7 +150,7 @@ void UpdateEvents()
       //DEBUG_PRINT( "New user name: %s", userName );
     }
     
-    IPC_WriteMessage( robotEventsConnection, messageOut, (const RemoteID*) &messageSenderID );
+    IPC_WriteMessage( robotEventsConnection, messageOut );
   }   
 }
 
@@ -159,9 +158,9 @@ void UpdateAxes()
 {
   static Byte message[ IPC_MAX_MESSAGE_LENGTH ];
 
-  if( IPC_ReadMessage( robotAxesConnection, (Byte*) message, NULL ) ) 
+  Byte* messageIn = (Byte*) message;
+  if( IPC_ReadMessage( robotAxesConnection, messageIn ) ) 
   {
-    Byte* messageIn = (Byte*) message;
     size_t setpointBlocksNumber = (size_t) *(messageIn++);
     Log_PrintString( NULL, "received message for %lu axes", setpointBlocksNumber );
     for( size_t setpointBlockIndex = 0; setpointBlockIndex < setpointBlocksNumber; setpointBlockIndex++ )
@@ -171,12 +170,12 @@ void UpdateAxes()
 
       if( axisIndex >= dofsNumber ) continue;      
       
-        float* axisSetpointsList = (float*) messageIn;
+      float* axisSetpointsList = (float*) messageIn;
       RobotVariables axisSetpoints = { .position = axisSetpointsList[ DOF_POSITION ], .velocity = axisSetpointsList[ DOF_VELOCITY ],
                                        .acceleration = axisSetpointsList[ DOF_ACCELERATION ], .force = axisSetpointsList[ DOF_FORCE ],
                                        .inertia = axisSetpointsList[ DOF_INERTIA ],
                                        .stiffness = axisSetpointsList[ DOF_STIFFNESS ], .damping = axisSetpointsList[ DOF_DAMPING ] };
-        Robot_SetAxisSetpoints( axis, &axisSetpoints );
+      Robot_SetAxisSetpoints( axis, &axisSetpoints );
 
       messageIn += DOF_DATA_BLOCK_SIZE;
     }
@@ -213,7 +212,7 @@ void UpdateAxes()
   if( message[ 0 ] > 0 )
   {
     Log_PrintString( NULL, "sending measures from %lu axes", message[ 0 ] );
-    IPC_WriteMessage( robotAxesConnection, (const Byte*) message, IPC_REMOTE_ID_NONE );
+    IPC_WriteMessage( robotAxesConnection, (const Byte*) message );
   }
 }
 
@@ -250,14 +249,14 @@ void UpdateJoints()
   if( messageOut[ 0 ] > 0 )
   {
     //DEBUG_UPDATE( "sending measures for %u joints", messageOut[ 0 ] );
-    IPC_WriteMessage( robotJointsConnection, (const Byte*) messageOut, IPC_REMOTE_ID_NONE );
+    IPC_WriteMessage( robotJointsConnection, (const Byte*) messageOut );
   }
 }
 
 void System_Update()
 { 
-  UpdateAxes();
   UpdateEvents();
+  UpdateAxes();
   UpdateJoints();
 }
 
@@ -266,6 +265,7 @@ void RefreshRobotsInfo( const char* robotName, char* sharedControlsString )
 { 
   if( robotName != NULL )
   {     
+    if( robotController != NULL ) Robot_End( robotController );
     robotController = Robot_Init( robotName );
     if( robotController != NULL )
     {
@@ -276,7 +276,7 @@ void RefreshRobotsInfo( const char* robotName, char* sharedControlsString )
       
       size_t axesNumber = Robot_GetAxesNumber( robotController ); 
       axesList = (Axis*) realloc( axesList, axesNumber * sizeof(Axis) );
-      
+
       for( size_t axisIndex = 0; axisIndex < axesNumber; axisIndex++ )
       {
         const char* axisName = Robot_GetAxisName( robotController, axisIndex );
@@ -289,6 +289,7 @@ void RefreshRobotsInfo( const char* robotName, char* sharedControlsString )
       
       size_t jointsNumber = Robot_GetJointsNumber( robotController );
       jointsList = (Joint*) realloc( jointsList, jointsNumber * sizeof(Joint) );
+
       for( size_t jointIndex = 0; jointIndex < jointsNumber; jointIndex++ )
       {
         const char* jointName = Robot_GetJointName( robotController, jointIndex );
@@ -305,7 +306,7 @@ void RefreshRobotsInfo( const char* robotName, char* sharedControlsString )
   {
     char* robotControlsString = DataIO_GetDataString( robotInfo );
     Log_PrintString( NULL, "robots info string: %s", robotControlsString );
-    strncpy( sharedControlsString, robotControlsString, IPC_MAX_MESSAGE_LENGTH );
+    strncpy( sharedControlsString, robotControlsString, strlen( robotControlsString ) );
     free( robotControlsString );
   }
 }

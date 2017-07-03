@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 
-#include "signal_io/interface.h"
+#include "signal_io_interface.h"
 
 DECLARE_MODULE_INTERFACE( SIGNAL_IO_INTERFACE );
 

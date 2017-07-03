@@ -46,15 +46,14 @@
 ///   "motor": {                          // Actuation motor used on configured actuator
 ///     "output_variable": "VELOCITY",      // Controlled dimension/variable (POSITION, VELOCITY, FORCE or ACCELERATION)
 ///     "config": "<motor_identifier>"      // Motor string identifier (configuration file path) or inline configuration object 
-///   },
-///   "controller": "<library_name>"        // Path (without extension, relative to MODULES_DIR/actuator_control/) to plugin with actuator controller implementation
+///   }
 /// }
 /// @endcode
 
 #ifndef ACTUATOR_H
 #define ACTUATOR_H 
 
-#include "actuator_control/interface.h"
+#include "actuator_control_interface.h"
 
 #include "data_io.h"
 
@@ -67,6 +66,12 @@ enum ActuatorState
   ACTUATOR_STATES_NUMBER       ///< Total number of control states 
 };
 
+/// Control used variables list indexes enumeration
+typedef struct ActuatorVariables
+{
+  double position, velocity, force, acceleration;
+}
+ActuatorVariables;
 
 typedef struct _ActuatorData ActuatorData;      ///< Single actuator internal data structure    
 typedef ActuatorData* Actuator;                 ///< Opaque reference to actuator internal data structure
@@ -114,15 +119,13 @@ bool Actuator_SetControlState( Actuator actuator, enum ActuatorState controlStat
 /// @param[out] ref_measures pointer to array big enough to hold the ControlVariable list of measures (NULL if not needed)
 /// @param[in] timeDelta desired time interval reference for control
 /// @return pointer to ControlVariable array of measured values (measuredBuffer or internal one, if NULL)
-ActuatorVariables* Actuator_UpdateMeasures( Actuator actuator, ActuatorVariables* ref_measures, double timeDelta );
+ActuatorVariables* Actuator_GetMeasures( Actuator actuator, ActuatorVariables* ref_measures, double timeDelta );
 
 /// @brief Calls underlying actuator control (plugin) implementation with provided data, for given actuator       
 /// @param[in] actuator reference to actuator
-/// @param[in] ref_measures pointer to ControlVariable array of actuator measures
 /// @param[in] ref_setpoints pointer to ControlVariable array of actuator setpoints
-/// @param[in] timeDelta desired time interval reference for control
 /// @return control action applied on motor of given actuator (dimension specified in @ref actuator_config)
-double Actuator_RunControl( Actuator actuator, ActuatorVariables* ref_measures, ActuatorVariables* ref_setpoints, double timeDelta );
+double Actuator_SetSetpoints( Actuator actuator, ActuatorVariables* ref_setpoints );
 
 
 #endif // ACTUATOR_H

@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 
-/// @file robot_control/interface.h
+/// @file robot_control_interface.h
 /// @brief Generic robot control functions.
 ///
 /// Common robot control interface to be implemented by plugins. Follows definitions by control_definitions.h.

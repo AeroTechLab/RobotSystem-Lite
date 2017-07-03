@@ -28,3 +28,6 @@
 [submodule "src/debug"]
 	path = src/debug
 	url = https://github.com/LabDin/Simple-Data-Logging
+[submodule "src/ipc"]
+	path = src/ipc
+	url = https://github.com/LabDin/Simple-Async-IPC

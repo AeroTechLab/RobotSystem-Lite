@@ -20,7 +20,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-/// @file signal_io/interface.h
+/// @file signal_io_interface.h
 /// @brief Signal aquisition/generation functions
 ///
 /// Physical/virtual signal aquisition and generation interface to be implemented by hardware specific plugins
