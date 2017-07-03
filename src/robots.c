@@ -142,7 +142,7 @@ Robot Robot_Init( const char* configFileName )
   }
   
   // temp
-  //Robot_Enable( newRobot ); 
+  Robot_Enable( newRobot ); 
   
   return newRobot;
 }

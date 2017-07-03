@@ -127,7 +127,7 @@ void UpdateEvents()
   static Byte messageBuffer[ IPC_MAX_MESSAGE_LENGTH ];
 
   Byte* messageIn = (Byte*) messageBuffer;
-  if( IPC_ReadMessage( robotEventsConnection, messageIn ) ) 
+  while( IPC_ReadMessage( robotEventsConnection, messageIn ) ) 
   {
     Byte robotCommand = (Byte) *(messageIn++);
     
@@ -159,7 +159,7 @@ void UpdateAxes()
   static Byte message[ IPC_MAX_MESSAGE_LENGTH ];
 
   Byte* messageIn = (Byte*) message;
-  if( IPC_ReadMessage( robotAxesConnection, messageIn ) ) 
+  while( IPC_ReadMessage( robotAxesConnection, messageIn ) ) 
   {
     size_t setpointBlocksNumber = (size_t) *(messageIn++);
     Log_PrintString( NULL, "received message for %lu axes", setpointBlocksNumber );
