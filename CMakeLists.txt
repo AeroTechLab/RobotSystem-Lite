@@ -16,17 +16,6 @@ set( SIGNAL_IO_MODULES_PATH ${MODULES_DIR}/signal_io )
 set( ACTUATOR_CONTROL_MODULES_PATH ${MODULES_DIR}/actuator_control )
 set( ROBOT_CONTROL_MODULES_PATH ${MODULES_DIR}/robot_control )
 
-# Find ZeroMQ libraries
-
-## load in pkg-config support
-find_package( PkgConfig )
-## use pkg-config to get hints for 0mq locations
-pkg_check_modules( PC_ZeroMQ QUIET zmq )
-## use the hint from above to find where 'zmq.hpp' is located
-find_path( ZeroMQ_INCLUDE_DIR NAMES zmq.hpp PATHS ${PC_ZeroMQ_INCLUDE_DIRS} )
-## use the hint from about to find the location of libzmq
-find_library( ZeroMQ_LIBRARY NAMES zmq PATHS ${PC_ZeroMQ_LIBRARY_DIRS} )
-
 include( ${SOURCES_DIR}/debug/CMakeLists.txt )
 include( ${SOURCES_DIR}/curves/CMakeLists.txt )
 include( ${SOURCES_DIR}/json/CMakeLists.txt )
@@ -43,8 +32,7 @@ link_directories( ${LIBRARY_DIR} )
 # (REAL-TIME) CONTROL APPLICATION
 add_executable( RobotControl ${SOURCES_DIR}/main.c ${SOURCES_DIR}/system.c ${SOURCES_DIR}/robots.c ${SOURCES_DIR}/actuators.c ${SOURCES_DIR}/sensors.c ${SOURCES_DIR}/motors.c ${SOURCES_DIR}/data_io.c )
 target_compile_definitions( RobotControl PUBLIC -DDEBUG -DZMQ_BUILD_DRAFT_API -DSIGNAL_IO_MODULES_PATH=${SIGNAL_IO_MODULES_PATH} -DACTUATOR_CONTROL_MODULES_PATH=${ACTUATOR_CONTROL_MODULES_PATH} -DROBOT_CONTROL_MODULES_PATH=${ROBOT_CONTROL_MODULES_PATH} )
-target_include_directories( RobotControl PUBLIC ${ZeroMQ_INCLUDE_DIR} )
-target_link_libraries( RobotControl DataLogging FunctionCurves SimpleJSON KalmanFilters SignalProcessing AsyncIPC MultiThreading Timing ${CMAKE_DL_LIBS} ${ZeroMQ_LIBRARY} )
+target_link_libraries( RobotControl DataLogging FunctionCurves SimpleJSON KalmanFilters SignalProcessing AsyncIPC MultiThreading Timing ${CMAKE_DL_LIBS} )
 
 # PLUGINS/MODULES
 
