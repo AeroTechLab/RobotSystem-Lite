@@ -22,13 +22,11 @@
 
 #include "actuators.h"
 
-#include "actuator_control_interface.h"
-
 #include "motors.h"
 #include "sensors.h"
 #include "kalman/kalman_filters.h"
 
-//#include "utils/debug/data_logging.h"
+#include "debug/data_logging.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -206,7 +204,7 @@ ActuatorVariables* Actuator_GetMeasures( Actuator actuator, ActuatorVariables* r
   (void) Kalman_Predict( actuator->sensorFilter, (double*) ref_measures );
   (void) Kalman_Update( actuator->sensorFilter, NULL, (double*) ref_measures );
   
-  //DEBUG_PRINT( "p: %.3f, v: %.3f, f: %.3f", measures.position, measures.velocity, measures.force );
+  //Log_PrintString( NULL, "p: %.3f, v: %.3f, f: %.3f", ref_measures->position, ref_measures->velocity, ref_measures->force );
   
   return ref_measures;
 }

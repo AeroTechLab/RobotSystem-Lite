@@ -1,0 +1,8 @@
+{
+  "sensors": [
+    { "input_variable": "POSITION", "config": "sensor_position_2" },
+    { "input_variable": "VELOCITY", "config": "sensor_velocity_2" },
+    { "input_variable": "FORCE", "config": "sensor_torque_2" }
+  ],
+  "motor": { "output_variable": "FORCE", "config": "motor_2_force" },
+}

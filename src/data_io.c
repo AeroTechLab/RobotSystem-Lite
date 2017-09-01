@@ -216,7 +216,7 @@ bool DataIO_HasKey( DataHandle data, const char* pathFormat, ... )
   return true;
 }
 
-static JSONNode AddNode( JSONNode parentNode, const char* key, long type )
+static JSONNode AddNode( JSONNode parentNode, const char* key, enum JSONNodeType type )
 {
   if( parentNode == NULL ) return NULL;
   

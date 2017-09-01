@@ -53,8 +53,6 @@
 #ifndef ACTUATOR_H
 #define ACTUATOR_H 
 
-#include "actuator_control_interface.h"
-
 #include "data_io.h"
 
 /// Defined possible control states enumeration. Passed to generic or plugin specific robot control implementations

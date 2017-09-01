@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016 Leonardo JosÃ© Consoni                                  //
+//  Copyright (c) 2016 Leonardo José Consoni                                  //
 //                                                                            //
 //  This file is part of RobRehabSystem.                                      //
 //                                                                            //
@@ -20,18 +20,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "utils/data_io.h"
-
-#include "utils/debug/async_debug.h"
-
-#include <stdlib.h>
-#include <math.h> 
-
 #include "emg_processing.h"
 
-#include "robot_control/interface.h"
+#include "robot_control_interface.h"
 
-const unsigned long UPDATE_INTERVAL_MS = 5;
+#include "debug/data_logging.h"
+
+#include "utils/data_io.h"
+
+#include <stdlib.h>
+#include <math.h>
+#include <string.h> 
 
 
 typedef struct _ControlData 

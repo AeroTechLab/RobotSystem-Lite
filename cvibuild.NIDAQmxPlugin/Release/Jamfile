@@ -1,0 +1,66 @@
+HDRS = 	"c:\\Users\\Adriano\\Documents\\Leonardo Jose\\Signal-IO-NIDAQmx"
+	"C:\\Users\\Public\\Documents\\National Instruments\\TestStand 2014 (32-bit)\\AdapterSupport\\CVI"
+	"C:\\Program Files (x86)\\National Instruments\\TestStand 2014\\API\\DLLInterfaces"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\instr\\TestStand\\API"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\activex\\word"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\activex\\excel"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\custctrl"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\custctrl\\custsupp"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\cvirtsup"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\datasock"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\daqUtil"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\printing"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\toolbox"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\reportgen"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\localui"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\instr"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\toolslib\\custctrl"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\toolslib\\custctrl\\custsupp"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\instr"
+	"C:\\ProgramData\\National Instruments\\CVI2013\\instr"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\include"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\include"
+	"C:\\ProgramData\\National Instruments\\CVI2013\\include"
+	"C:\\ProgramData\\National Instruments\\CVI\\include"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\include\\ansi"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\include\\clang\\2.9"
+	"C:\\Program Files (x86)\\IVI Foundation\\IVI\\Include"
+	"C:\\Program Files (x86)\\IVI Foundation\\VISA\\winnt\\include"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\sdk\\include"
+	"c:\\Program Files (x86)\\National Instruments\\CVI2013\\bin"
+	"c:\\ProgramData\\National Instruments\\CVI2013\\bin"
+	"c:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\Bin"
+	;
+include Jamfile_instr ;
+LOCATE on "ni_daqmx.c" = "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\Signal-IO-NIDAQmx" ;
+LOCATE on "semaphores.c" = "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\Signal-IO-NIDAQmx\\threads" ;
+LOCATE on "signal_io_interface.h" = "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\Signal-IO-NIDAQmx" ;
+LOCATE on "threads.c" = "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\Signal-IO-NIDAQmx\\threads" ;
+LOCATE on "threads.h" = "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\Signal-IO-NIDAQmx\\threads" ;
+Object "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\ni_daqmx.obj" : "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\Signal-IO-NIDAQmx\\ni_daqmx.c" ;
+FILENUM on "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\ni_daqmx.obj" = 1 ;
+DEFPROTS on "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\ni_daqmx.obj" = "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\ni_daqmx.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\ni_daqmx.obj" = "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\ni_daqmx.obj.out" ;
+PrjObjects += "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\ni_daqmx.obj" ;
+Object "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\semaphores.obj" : "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\Signal-IO-NIDAQmx\\threads\\semaphores.c" ;
+FILENUM on "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\semaphores.obj" = 2 ;
+DEFPROTS on "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\semaphores.obj" = "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\semaphores.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\semaphores.obj" = "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\semaphores.obj.out" ;
+PrjObjects += "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\semaphores.obj" ;
+Object "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\threads.obj" : "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\Signal-IO-NIDAQmx\\threads\\threads.c" ;
+FILENUM on "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\threads.obj" = 3 ;
+DEFPROTS on "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\threads.obj" = "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\threads.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\threads.obj" = "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\threads.obj.out" ;
+PrjObjects += "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\threads.obj" ;
+PreLinkInputs += "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\resources.in.rc" ;
+PreLinkInputs += $(PrjObjects) $(InstrObjects) ;
+PreLinkOutputs += "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\resources.out.rc" ;
+PreLink $(PreLinkOutputs) : $(PreLinkInputs) ;
+Object "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\resources.res" : "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\resources.out.rc" ;
+Depends "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\resources.res" : $(PreLinkOutputs) ;
+Depends "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\resources.res" "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\resources.out.rc" : $(PrjObjects) $(InstrObjects) ;
+Depends "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\resources.res" : "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\manifest.xml" ;
+MainFromObjects "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\NIDAQmx.dll" : $(PrjObjects) $(InstrObjects) ;
+Depends "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\NIDAQmx.dll" : "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\link_options.txt" ;
+Depends "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\NIDAQmx.dll" : "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\resources.res" ;
+Depends all : "c:\\Users\\Adriano\\Documents\\Leonardo Jose\\RobotSystem-Lite\\cvibuild.NIDAQmxPlugin\\Release\\NIDAQmx.dll" ;

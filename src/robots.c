@@ -72,7 +72,7 @@ struct _RobotData
 };
 
 
-const double CONTROL_PASS_INTERVAL = 0.005;
+const double CONTROL_PASS_INTERVAL = 0.001;//0.005;
 
 static void* AsyncControl( void* );
 
@@ -306,7 +306,7 @@ bool Robot_GetAxisMeasures( Axis axis, RobotVariables* ref_measures )
   
   *ref_measures = axis->measures;
   
-  return measuresChanged;
+  return /*measuresChanged*/true;
 }
 
 void Robot_SetJointSetpoints( Joint joint, RobotVariables* ref_setpoints )

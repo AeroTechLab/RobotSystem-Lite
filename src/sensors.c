@@ -23,7 +23,7 @@
 #include "sensors.h"
 
 #include "signal_io_interface.h"
-#include "curves/curves.h"
+#include "curve_loader.h"
 
 //#include "debug/async_debug.h"
 #include "debug/data_logging.h"
@@ -96,11 +96,11 @@ Sensor Sensor_Init( DataHandle configuration )
       inputGain /= DataIO_GetNumericValue( configuration, 1.0, "input_gain.divisor" );
       SignalProcessor_SetInputGain( newSensor->processor, inputGain );
       
-      double relativeCutFrequency = DataIO_GetNumericValue( configuration, 0.0, "signal_processing.low_pass_frequency" );
-      SignalProcessor_SetMaxFrequency( newSensor->processor, relativeCutFrequency );
+      //double relativeCutFrequency = DataIO_GetNumericValue( configuration, 0.0, "signal_processing.low_pass_frequency" );
+      //SignalProcessor_SetMaxFrequency( newSensor->processor, relativeCutFrequency );
       
       DataHandle curveConfiguration = DataIO_GetSubData( configuration, "conversion_curve" );
-      newSensor->measurementCurve = LoadMeasurementCurve( curveConfiguration );
+      newSensor->measurementCurve = Curve_Load( curveConfiguration );
       
       const char* logFileName = DataIO_GetStringValue( configuration, NULL, "log" );
       if( logFileName != NULL )
@@ -163,9 +163,9 @@ double Sensor_Update( Sensor sensor, double* rawBuffer )
   
   double sensorMeasure = Curve_GetValue( sensor->measurementCurve, sensorOutput, sensorOutput );
   
-  Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
-  Log_RegisterList( sensor->log, sensor->maxInputSamplesNumber, sensor->inputBuffer );
-  Log_RegisterValues( sensor->log, 3, sensorOutput, referenceOutput, sensorMeasure );
+  //Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
+  //Log_RegisterList( sensor->log, sensor->maxInputSamplesNumber, sensor->inputBuffer );
+  //Log_RegisterValues( sensor->log, 3, sensorOutput, referenceOutput, sensorMeasure );
   
   return sensorMeasure;
 }
@@ -198,51 +198,4 @@ void Sensor_SetState( Sensor sensor, enum SigProcState newProcessingState )
   
   SignalProcessor_SetState( sensor->processor, newProcessingState );
   Sensor_SetState( sensor->reference, newProcessingState );
-}
-
-
-Curve LoadMeasurementCurve( DataHandle curveData )
-{
-  static char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
-  
-  if( curveData == NULL ) return NULL;
-  
-  const char* curveName = DataIO_GetStringValue( curveData, NULL, "" );
-  if( curveName != NULL )
-  {
-    sprintf( filePath, "curves/%s", curveName );
-    if( (curveData = DataIO_LoadFileData( filePath )) == NULL ) return NULL;
-  }
-  
-  Curve newCurve = Curve_Create();
-  
-  Curve_SetScale( newCurve, DataIO_GetNumericValue( curveData, 1.0, "scale_factor" ) );
-  Curve_SetMaxAmplitude( newCurve, DataIO_GetNumericValue( curveData, -1.0, "max_amplitude" ) );
-
-  size_t segmentsNumber = DataIO_GetListSize( curveData, "segments" );
-
-  for( size_t segmentIndex = 0; segmentIndex < segmentsNumber; segmentIndex++ )
-  {
-    double curveBounds[ 2 ];
-    curveBounds[ 0 ] = DataIO_GetNumericValue( curveData, 0.0, "segments.%lu.bounds.0", segmentIndex );
-    curveBounds[ 1 ] = DataIO_GetNumericValue( curveData, 1.0, "segments.%lu.bounds.1", segmentIndex );
-
-    int parametersNumber = (int) DataIO_GetListSize( curveData, "segments.%lu.parameters", segmentIndex );
-
-    double* curveParameters = (double*) calloc( parametersNumber, sizeof(double) );
-    for( int parameterIndex = 0; parameterIndex < parametersNumber; parameterIndex++ )
-      curveParameters[ parametersNumber - parameterIndex - 1 ] = DataIO_GetNumericValue( curveData, 0.0, "segments.%lu.parameters.%d", segmentIndex, parameterIndex );
-
-    const char* curveType = DataIO_GetStringValue( curveData, "", "segments.%lu.type", segmentIndex );
-    if( strcmp( curveType, "cubic_spline" ) == 0 && parametersNumber == SPLINE3_COEFFS_NUMBER ) 
-      Curve_AddSpline3Segment( newCurve, curveParameters, curveBounds );
-    else if( strcmp( curveType, "polynomial" ) == 0 ) 
-      Curve_AddPolySegment( newCurve, curveParameters, parametersNumber, curveBounds );
-
-    free( curveParameters );
-  }
-
-  if( curveName != NULL ) DataIO_UnloadData( curveData );
-  
-  return newCurve;
 }
