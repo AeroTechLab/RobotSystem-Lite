@@ -22,6 +22,7 @@
 
 #include "emg_processing.h"
 
+#include "sensors.h" 
 #include "robot_control_interface.h"
 
 #include "debug/data_logging.h"
@@ -36,10 +37,11 @@
 typedef struct _ControlData 
 {
   enum RobotState currentControlState;
-  JointID* jointIDsList;
-  EMGJointSampler* jointSamplersList;
-  char** jointNamesList;
-  size_t jointsNumber;
+  EMGModel emgModel;
+  EMGSamplingData samplingData;
+  Sensor* emgSensorsList;
+  size_t jointsNumber, musclesNumber;
+  bool isLogging;
 }
 ControlData;
 
@@ -49,13 +51,12 @@ DECLARE_MODULE_INTERFACE( ROBOT_CONTROL_INTERFACE );
 
 RobotController InitController( const char* configurationString )
 {
-  DEBUG_PRINT( "Trying to load robot control config %s", configurationString );
+  static char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
   
-  DataIO.SetDataType( "JSON" );
+  //DEBUG_PRINT( "Trying to load robot control config %s", configurationString );
 
   DataLogging.SetBaseDirectory( "test" );
   
-  DataHandle configuration = DataIO.GetDataHandler()->LoadStringData( configurationString );
   if( configuration != NULL )
   {
     ControlData* newController = (ControlData*) malloc( sizeof(ControlData) );
@@ -63,34 +64,34 @@ RobotController InitController( const char* configurationString )
     
     newController->currentControlState = ROBOT_PASSIVE;
   
-    newController->jointsNumber = DataIO.GetDataHandler()->GetListSize( configuration, "joints" );
-    newController->jointIDsList = (JointID*) calloc( newController->jointsNumber, sizeof(JointID) );
-    newController->jointSamplersList = (EMGJointSampler*) calloc( newController->jointsNumber, sizeof(EMGJointSampler) );
-    newController->jointNamesList = (char**) calloc( newController->jointsNumber, sizeof(char*) );
+    newController->emgModel = EMGProcessing_InitModel( configurationString );
     
-    for( size_t jointIndex = 0; jointIndex < newController->jointsNumber; jointIndex++ )
+    newController->jointsNumber = EMGProcessing_GetJointsCount( newController->emgModel );
+    const char** jointNamesList = EMGProcessing_GetJointNames( newController->emgModel );
+    
+    newController->musclesNumber = EMGProcessing_GetMusclesCount( newController->emgModel );
+    newController->emgSensorsList = (Sensor*) calloc( newController->musclesNumber, sizeof(Sensor) );
+    const char** muscleNamesList = EMGProcessing_GetMuscleNames( newController->emgModel );
+    for( size_t muscleIndex = 0; muscleIndex < newController->musclesNumber; muscleIndex++ )
     {
-      newController->jointSamplersList[ jointIndex ] = (EMGJointSampler) malloc( sizeof(EMGJointSamplingData) );
-      EMGJointSampler newSampler = newController->jointSamplersList[ jointIndex ];
-      
-      newController->jointNamesList[ jointIndex ] = DataIO.GetDataHandler()->GetStringValue( configuration, "", "joints.%lu", jointIndex );
-      newController->jointIDsList[ jointIndex ] = EMGProcessing.InitJoint( newController->jointNamesList[ jointIndex ] );
-      if( newController->jointIDsList[ jointIndex ] != EMG_JOINT_INVALID_ID )
-      {
-        newSampler->musclesCount = EMGProcessing.GetJointMusclesCount( newController->jointIDsList[ jointIndex ] );
-
-        char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
-        snprintf( filePath, LOG_FILE_PATH_MAX_LEN, "joints/%s_protocol", newController->jointNamesList[ jointIndex ] );
-        newSampler->protocolLog = DataLogging.InitLog( filePath, 1 + 2 * newSampler->musclesCount + 5, 6 );
-        newSampler->isLogging = false;
-        
-        DEBUG_PRINT( "Got new shared joint with ID %d and %u muscles", newController->jointIDsList[ jointIndex ], newSampler->musclesCount );
-      }
+      snprintf( filePath, DATA_IO_MAX_FILE_PATH_LENGTH, "emg/%s", muscleNamesList[ muscleIndex ] );
+      DataHandle sensorData = DataIO_LoadFileData( filePath );
+      newController->emgSensorsList[ muscleIndex ] = Sensor_Init( sensorData );
+      DataIO_UnloadData( sensorData );
+      //if( newModel->musclesList[ muscleIndex ]->emgSensor != NULL )
+      //{
+      //  newController->musclesList[ muscleIndex ]->emgRawBufferLength = Sensor_GetInputBufferLength( newModel->musclesList[ muscleIndex ]->emgSensor );
+      //  newController->musclesList[ muscleIndex ]->emgRawBuffer = (double*) calloc( newModel->musclesList[ muscleIndex ]->emgRawBufferLength, sizeof(double) );
+      //  emgRawSamplesNumber += newModel->musclesList[ muscleIndex ]->emgRawBufferLength;
+      //}
     }
     
-    DataIO.GetDataHandler()->UnloadData( configuration );
+    //snprintf( filePath, LOG_FILE_PATH_MAX_LEN, "joints/%s_protocol", newController->jointNamesList[ jointIndex ] );
+    //newSampler->protocolLog = DataLogging.InitLog( filePath, 1 + 2 * newSampler->musclesCount + 5, 6 );
+    
+    newController->isLogging = false;
 
-    DEBUG_PRINT( "robot control config %s loaded", configurationString );
+    //DEBUG_PRINT( "robot control config %s loaded", configurationString );
     
     return (RobotController) newController;
   }
@@ -104,23 +105,21 @@ void EndController( RobotController genericController )
   
   ControlData* controller = (ControlData*) genericController;
   
-  DEBUG_PRINT( "ending robot controller %p", controller );
+  //DEBUG_PRINT( "ending robot controller %p", controller );
   
   for( size_t jointIndex = 0; jointIndex < controller->jointsNumber; jointIndex++ )
   {
-    DEBUG_PRINT( "ending joint control %lu", jointIndex ); 
+    //DEBUG_PRINT( "ending joint control %lu", jointIndex ); 
       
-    EMGProcessing.EndJoint( controller->jointIDsList[ jointIndex ] );
+    EMGProcessing_EndJoint( controller->jointIDsList[ jointIndex ] );
     
-    DataLogging.EndLog( controller->jointSamplersList[ jointIndex ]->protocolLog );
-    free( controller->jointSamplersList[ jointIndex ] );
+    DataLogging.EndLog( controller->samplingData[ jointIndex ]->protocolLog );
+    free( controller->samplingData[ jointIndex ] );
     
     free( controller->jointNamesList[ jointIndex ] );
   }
   
   free( controller->jointNamesList );
-  free( controller->jointIDsList );
-  free( controller->jointSamplersList );
 }
 
 size_t GetJointsNumber( RobotController genericController )
@@ -129,7 +128,7 @@ size_t GetJointsNumber( RobotController genericController )
   
   ControlData* controller = (ControlData*) genericController;
   
-  return controller->jointsNumber;
+  return EMGProcessing_GetJointsCount( controller->emgModel );
 }
 
 const char** GetJointNamesList( RobotController genericController )
@@ -147,7 +146,7 @@ size_t GetAxesNumber( RobotController genericController )
   
   ControlData* controller = (ControlData*) genericController;
   
-  return controller->jointsNumber;
+  return EMGProcessing_GetJointsCount( controller->emgModel );   
 }
 
 const char** GetAxisNamesList( RobotController genericController )
@@ -165,60 +164,59 @@ void SetControlState( RobotController genericController, enum RobotState newCont
   
   ControlData* controller = (ControlData*) genericController;
   
-  DEBUG_PRINT( "setting new control state: %d", newControlState );
+  //DEBUG_PRINT( "setting new control state: %d", newControlState );
   
-  for( size_t jointIndex = 0; jointIndex < controller->jointsNumber; jointIndex++ )
+  enum SignalProcessingPhase signalProcessingPhase = SIGNAL_PROCESSING_PHASE_MEASUREMENT;
+  
+  if( newControlState == ROBOT_OFFSET )
   {
-    JointID jointID = controller->jointIDsList[ jointIndex ];
-    EMGJointSampler sampler = controller->jointSamplersList[ jointIndex ];
-
-    if( newControlState == ROBOT_OFFSET )
-    {
-      DEBUG_PRINT( "starting offset phase for joint %d", jointID );
-      EMGProcessing.SetJointProcessingPhase( jointID, EMG_PROCESSING_OFFSET );
-    }
-    else if( newControlState == ROBOT_CALIBRATION )
-    {
-      DEBUG_PRINT( "starting calibration for joint %d", jointID );
-      EMGProcessing.SetJointProcessingPhase( jointID, EMG_PROCESSING_CALIBRATION );
-    }
-    else if( newControlState == ROBOT_PREPROCESSING )
-    {
-      DEBUG_PRINT( "reseting sampling count for joint %d", jointID );
-      EMGProcessing.SetJointProcessingPhase( jointID, EMG_PROCESSING_SAMPLING );
-      sampler->samplesCount = 0;
-    }
-    else 
-    {
-      if( newControlState == ROBOT_OPERATION )
-      {
-        if( controller->currentControlState == ROBOT_PREPROCESSING && sampler->samplesCount > 0 )
-        {
-          DEBUG_PRINT( "starting optimization for shared joint %d", jointID );
-          EMGProcessing.FitJointParameters( jointID, sampler );
-        }
-      }
-      
-      EMGProcessing.SetJointProcessingPhase( jointID, EMG_PROCESSING_MEASUREMENT );
-    }
+    //DEBUG_PRINT( "starting offset phase for joint %d", jointID );
+    signalProcessingPhase = SIGNAL_PROCESSING_PHASE_OFFSET;
   }
+  else if( newControlState == ROBOT_CALIBRATION )
+  {
+    //DEBUG_PRINT( "starting calibration for joint %d", jointID );
+    signalProcessingPhase = SIGNAL_PROCESSING_PHASE_CALIBRATION;
+  }
+  else if( newControlState == ROBOT_PREPROCESSING )
+  {
+    //DEBUG_PRINT( "reseting sampling count for joint %d", jointID );
+    controller->samplingData.samplesCount = 0;
+  }
+  //else 
+  //{
+  //  if( newControlState == ROBOT_OPERATION )
+  //  {
+  //    if( controller->currentControlState == ROBOT_PREPROCESSING && sampler->samplesCount > 0 )
+  //    {
+        //DEBUG_PRINT( "starting optimization for shared joint %d", jointID );
+  //      EMGProcessing_FitJointParameters( jointID, sampler );
+  //    }
+  //  }
+  //}
+  
+  for( size_t muscleIndex = 0; muscleIndex < controller->musclesNumber; muscleIndex++ )
+    Sensor_SetState( controller->emgSensorsList[ muscleIndex ], signalProcessingPhase );
   
   controller->currentControlState = newControlState;
 }
 
 void RunControlStep( RobotController genericController, RobotVariables** jointMeasuresTable, RobotVariables** axisMeasuresTable, RobotVariables** jointSetpointsTable, RobotVariables** axisSetpointsTable, double timeDelta )
 {
-  static double jointMuscleSignalsList[ EMG_JOINT_MAX_MUSCLES_NUMBER ];
-  static double jointMuscleTorquesList[ EMG_JOINT_MAX_MUSCLES_NUMBER ];
+  static double muscleActivationsList[ EMG_MAX_MUSCLES_NUMBER ];
+  static double jointAnglesList[ EMG_MAX_JOINTS_NUMBER ], jointTorquesList[ EMG_MAX_JOINTS_NUMBER ], jointStiffnessesList[ EMG_MAX_JOINTS_NUMBER ];
   
   if( genericController == NULL ) return;
   
   ControlData* controller = (ControlData*) genericController;
   
+  for( size_t muscleIndex = 0; muscleIndex < controller->musclesNumber; muscleIndex++ )
+    muscleActivationsList[ muscleIndex ] = Sensor_Update( controller->emgSensorsList[ muscleIndex ], /*controller->emgRawBuffersList[ muscleIndex ]*/NULL );
+  
   for( size_t jointIndex = 0; jointIndex < controller->jointsNumber; jointIndex++ )
   {
-    double jointMeasuredAngle = jointMeasuresTable[ jointIndex ]->position * 360.0;
-    double jointExternalTorque = jointMeasuresTable[ jointIndex ]->force;
+    jointAnglesList[ jointIndex ] = jointMeasuresTable[ jointIndex ]->position * 360.0;
+    jointTorquesList[ jointIndex ] = jointMeasuresTable[ jointIndex ]->force;
 
     axisMeasuresTable[ jointIndex ]->position = jointMeasuresTable[ jointIndex ]->position;
     axisMeasuresTable[ jointIndex ]->velocity = jointMeasuresTable[ jointIndex ]->velocity;
@@ -227,53 +225,25 @@ void RunControlStep( RobotController genericController, RobotVariables** jointMe
     jointSetpointsTable[ jointIndex ]->position = axisSetpointsTable[ jointIndex ]->position;
     jointSetpointsTable[ jointIndex ]->velocity = axisSetpointsTable[ jointIndex ]->velocity;
     jointSetpointsTable[ jointIndex ]->acceleration = axisSetpointsTable[ jointIndex ]->acceleration;
-    
-    double jointSetpointAngle = jointMeasuresTable[ jointIndex ]->position * 360.0;
-    
-    JointID jointID = controller->jointIDsList[ jointIndex ];
-    EMGJointSampler sampler = controller->jointSamplersList[ jointIndex ];
-    
-    EMGProcessing.GetJointMuscleSignals( jointID, jointMuscleSignalsList );
-    //for( size_t muscleIndex = 0; muscleIndex < sampler->musclesCount; muscleIndex++ )
-    //  jointMeasuresTable[ jointIndex ][ SHM_JOINT_EMG_1 + muscleIndex ] = jointMuscleSignalsList[ muscleIndex ];
-    
-    if( controller->currentControlState == ROBOT_PREPROCESSING )
-    {
-      if( sampler->samplesCount < EMG_MAX_SAMPLES_NUMBER )
-      {
-        double* currentSamplesList = sampler->muscleSignalsList[ sampler->samplesCount ];
 
-        sampler->sampleTimesList[ sampler->samplesCount ] = Timing.GetExecTimeSeconds();
-
-        for( size_t muscleIndex = 0; muscleIndex < sampler->musclesCount; muscleIndex++ ) 
-          currentSamplesList[ muscleIndex ] = jointMuscleSignalsList[ muscleIndex ];
-
-        sampler->measuredAnglesList[ sampler->samplesCount ] = jointMeasuredAngle;
-        sampler->setpointAnglesList[ sampler->samplesCount ] = jointSetpointAngle;
-        sampler->externalTorquesList[ sampler->samplesCount ] = jointExternalTorque;
-
-        //DEBUG_PRINT( "Saving sample %u: %.3f, %.3f", sampler->samplesCount, jointMeasuredAngle, jointExternalTorque );
-
-        sampler->samplesCount++;
-      }
-    }
-    
-    EMGProcessing.GetJointMuscleTorques( jointID, jointMuscleSignalsList, jointMeasuredAngle, jointExternalTorque, jointMuscleTorquesList );
-
-    //DEBUG_PRINT( "Joint pos: %.3f - force: %.3f - stiff: %.3f", jointMeasuredAngle, jointMeasuresTable[ jointIndex ][ CONTROL_FORCE ], jointMeasuresTable[ jointIndex ][ CONTROL_STIFFNESS ] );
+    //DEBUG_PRINT( "Joint pos: %.3f - force: %.3f - stiff: %.3f", jointAnglesList[ jointIndex ], jointMeasuresTable[ jointIndex ]->force, jointMeasuresTable[ jointIndex ]->stiffness );
     
     jointSetpointsTable[ jointIndex ]->force = axisSetpointsTable[ jointIndex ]->force;
     jointSetpointsTable[ jointIndex ]->stiffness = axisSetpointsTable[ jointIndex ]->stiffness ;
     jointSetpointsTable[ jointIndex ]->damping = axisSetpointsTable[ jointIndex ]->damping;
-
+  }
+  
+  EMGProcessing_RunStep( controller->emgModel, muscleActivationsList, jointAnglesList, jointTorquesList );
+  
+  {
     double setpointStiffness = jointSetpointsTable[ jointIndex ]->stiffness ;
     double positionError = jointSetpointsTable[ jointIndex ]->position - jointMeasuresTable[ jointIndex ]->position;
     
     if( controller->currentControlState != ROBOT_PREPROCESSING && controller->currentControlState != ROBOT_OPERATION ) setpointStiffness = 0.0;
     else if( controller->currentControlState == ROBOT_OPERATION )
     {
-       double jointEMGTorque = EMGProcessing.GetJointTorque( jointID, jointMuscleTorquesList );
-       double jointEMGStiffness = EMGProcessing.GetJointStiffness( jointID, jointMuscleTorquesList );
+       double jointEMGTorque = EMGProcessing_GetJointTorque( jointID, jointTorquesList );
+       double jointEMGStiffness = EMGProcessing_GetJointStiffness( jointID, jointTorquesList );
        
        axisMeasuresTable[ jointIndex ]->force = jointEMGTorque;
        axisMeasuresTable[ jointIndex ]->stiffness  = jointEMGStiffness;  
@@ -286,15 +256,34 @@ void RunControlStep( RobotController genericController, RobotVariables** jointMe
        if( controller->currentControlState == ROBOT_OPERATION )
        {
          DataLogging.RegisterValues( sampler->protocolLog, 1, Timing.GetExecTimeSeconds() );
-         DataLogging.RegisterList( sampler->protocolLog, sampler->musclesCount, jointMuscleSignalsList );
-         DataLogging.RegisterList( sampler->protocolLog, sampler->musclesCount, jointMuscleTorquesList );
+         DataLogging.RegisterList( sampler->protocolLog, sampler->musclesCount, muscleActivationsList );
+         DataLogging.RegisterList( sampler->protocolLog, sampler->musclesCount, jointTorquesList );
          DataLogging.RegisterValues( sampler->protocolLog, 5, jointMeasuredAngle, jointExternalTorque, jointEMGTorque, targetStiffness, jointEMGStiffness );
          sampler->isLogging = false; 
        }
        
-       DEBUG_PRINT( "emg:%.5f - t:%.5f - s:%.5f", jointEMGStiffness, targetStiffness, setpointStiffness );
+       //DEBUG_PRINT( "emg:%.5f - t:%.5f - s:%.5f", jointEMGStiffness, targetStiffness, setpointStiffness );
     }
     
     jointSetpointsTable[ jointIndex ]->force = setpointStiffness * positionError;
+  }
+  
+  if( controller->currentControlState == ROBOT_PREPROCESSING && controller->samplingData.samplesCount < EMG_MAX_SAMPLES_NUMBER )
+  {
+    sampler->sampleTimesList[ sampler->samplesCount ] = Time_GetExecSeconds();
+
+    for( size_t muscleIndex = 0; muscleIndex < sampler->musclesCount; muscleIndex++ ) 
+      controller->samplingData.muscleSignalsList[ muscleIndex ][ sampler->samplesCount ] = muscleActivationsList[ muscleIndex ];
+
+    for( size_t jointIndex = 0; jointIndex < controller->jointsNumber; jointIndex++ )
+    {
+      controller->samplingData.measuredAnglesList[ sampler->samplesCount ] = jointMeasuresTable[ jointIndex ]->position * 360.0;
+      controller->samplingData.setpointAnglesList[ sampler->samplesCount ] = jointMeasuresTable[ jointIndex ]->position * 360.0;
+      controller->samplingData.externalTorquesList[ sampler->samplesCount ] = jointMeasuresTable[ jointIndex ]->force;
+    }
+
+    //DEBUG_PRINT( "Saving sample %u: %.3f, %.3f", sampler->samplesCount, jointMeasuredAngle, jointExternalTorque );
+
+    controller->samplingData.samplesCount++;
   }
 }

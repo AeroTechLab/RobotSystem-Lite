@@ -22,7 +22,6 @@
 
 #include "emg_processing.h" 
 
-#include "sensors.h"
 #include "signal_processing.h"
 #include "curve_loader.h" 
 
@@ -59,12 +58,15 @@ EMGJointData;
 
 typedef EMGJointData* EMGJoint;
 
+typedef char EMGID[ 32 ];
+
 typedef struct _EMGModelData
 {
   EMGMuscle* musclesList;
-  char** muscleNamesList;
+  EMGID* muscleNamesList;
   size_t musclesNumber;
   EMGJoint* jointsList;
+  EMGID* jointNamesList;
   size_t jointsNumber;
   Log offsetLog, calibrationLog, samplingLog;
   Log currentLog;
@@ -72,7 +74,7 @@ typedef struct _EMGModelData
 }
 EMGModelData;
 
-typedef EMGJointData* EMGModel;
+typedef EMGModelData* EMGModel;
 
 
 const char* MUSCLE_CURVE_NAMES[ MUSCLE_CURVES_NUMBER ] = { "active_force", "passive_force", "moment_arm", "normalized_length" };
@@ -100,62 +102,59 @@ EMGModel EMGProcessing_InitModel( const char* configFileName )
 {
   static char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
   
-  DEBUG_PRINT( "Trying to load joint %s EMG data", configFileName );
+  //DEBUG_PRINT( "Trying to load joint %s EMG data", configFileName );
   
   EMGModel newModel = NULL;
   
   sprintf( filePath, "joints/%s", configFileName );
-  DataHandle configuration = DataIO_LoadFileData( filePath );
-  if( configuration != NULL )
+  DataHandle modelData = DataIO_LoadFileData( filePath );
+  if( modelData != NULL )
   {
     newModel = (EMGModel) malloc( sizeof(EMGModelData) );
     memset( newModel, 0, sizeof(EMGModelData) );
     
     bool loadError = false;
     size_t emgRawSamplesNumber = 0;
-    if( (newModel->musclesNumber = (size_t) DataIO_GetListSize( configuration, "muscles" )) > 0 )
+    if( (newModel->musclesNumber = (size_t) DataIO_GetListSize( modelData, "muscles" )) > 0 )
     {
-      DEBUG_PRINT( "%u muscles found for joint %s", newModel->musclesNumber, configFileName );
+      //DEBUG_PRINT( "%u muscles found for joint %s", newModel->musclesNumber, configFileName );
       
       newModel->musclesList = (EMGMuscle*) calloc( newModel->musclesNumber , sizeof(EMGMuscle) );
+      newModel->muscleNamesList = (EMGID*) calloc( newModel->musclesNumber , sizeof(EMGID) );
       for( size_t muscleIndex = 0; muscleIndex < newModel->musclesNumber; muscleIndex++ )
       {
-        DataHandle modelData = DataIO_GetSubData( configuration, "muscles.%lu.model_functions", muscleIndex );
-        newModel->musclesList[ muscleIndex ] = LoadEMGMuscleData( modelData );
-        if( newModel->musclesList[ muscleIndex ] != NULL )
-        {
-          DataHandle sensorData = DataIO_GetSubData( configuration, "muscles.%lu.emg_sensor", muscleIndex );
-          newModel->musclesList[ muscleIndex ]->emgSensor = Sensor_Init( sensorData );
-          if( newModel->musclesList[ muscleIndex ]->emgSensor != NULL )
-          {
-            newModel->musclesList[ muscleIndex ]->emgRawBufferLength = Sensor_GetInputBufferLength( newModel->musclesList[ muscleIndex ]->emgSensor );
-            newModel->musclesList[ muscleIndex ]->emgRawBuffer = (double*) calloc( newModel->musclesList[ muscleIndex ]->emgRawBufferLength, sizeof(double) );
-            emgRawSamplesNumber += newModel->musclesList[ muscleIndex ]->emgRawBufferLength;
-          }
-          else
-            loadError = true;
-        }
-        else loadError = true;
-      }
-      
-      char* logName = DataIO_GetStringValue( configuration, NULL, "log" );
-      if( logName != NULL )
-      {
-        size_t jointSampleValuesNumber = newModel->musclesNumber + 3;
-        
-        snprintf( filePath, LOG_FILE_PATH_MAX_LEN, "joints/%s_offset", logName );                                    
-        newModel->offsetLog = Log_Init( filePath, jointSampleValuesNumber, DATA_LOG_MAX_PRECISION );
-        snprintf( filePath, LOG_FILE_PATH_MAX_LEN, "joints/%s_calibration", logName );
-        newModel->calibrationLog = Log_Init( filePath, jointSampleValuesNumber, DATA_LOG_MAX_PRECISION );
-        snprintf( filePath, LOG_FILE_PATH_MAX_LEN, "joints/%s_sampling", logName );
-        newModel->samplingLog = Log_Init( filePath, jointSampleValuesNumber, DATA_LOG_MAX_PRECISION );
-        snprintf( filePath, LOG_FILE_PATH_MAX_LEN, "joints/%s_raw", logName );
-        newModel->emgRawLog = Log_Init( filePath, emgRawSamplesNumber + 1, 6 );
+        newModel->musclesList[ muscleIndex ] = LoadEMGMuscleData( DataIO_GetSubData( modelData, "muscles.%lu.model_functions", muscleIndex ) );
+        strncpy( (char*) &(newModel->muscleNamesList[ muscleIndex ]), DataIO_GetStringValue( modelData, "", "muscles.%lu.id", muscleIndex ), sizeof(EMGID) ); 
       }
     }
     else loadError = true;
     
-    DataIO_UnloadData( configuration );
+    if( (newModel->jointsNumber = (size_t) DataIO_GetListSize( modelData, "joints" )) > 0 )
+    {
+      newModel->jointsList = (EMGJoint*) calloc( newModel->jointsNumber , sizeof(EMGJoint) );
+      for( size_t jointIndex = 0; jointIndex < newModel->jointsNumber; jointIndex++ )
+      {
+        newModel->jointsList[ jointIndex ] = (EMGJoint) malloc( sizeof(EMGJointData) );
+        newController->jointNamesList[ jointIndex ] = DataIO_GetStringValue( configuration, "", "joints.%lu", jointIndex );
+    }
+    else loadError = true;
+    
+    char* logName = DataIO_GetStringValue( configuration, NULL, "log" );
+    if( logName != NULL )
+    {
+      size_t jointSampleValuesNumber = newModel->musclesNumber + 3;
+        
+      snprintf( filePath, LOG_FILE_PATH_MAX_LEN, "joints/%s_offset", logName );                                    
+      newModel->offsetLog = Log_Init( filePath, jointSampleValuesNumber, DATA_LOG_MAX_PRECISION );
+      snprintf( filePath, LOG_FILE_PATH_MAX_LEN, "joints/%s_calibration", logName );
+      newModel->calibrationLog = Log_Init( filePath, jointSampleValuesNumber, DATA_LOG_MAX_PRECISION );
+      snprintf( filePath, LOG_FILE_PATH_MAX_LEN, "joints/%s_sampling", logName );
+      newModel->samplingLog = Log_Init( filePath, jointSampleValuesNumber, DATA_LOG_MAX_PRECISION );
+      snprintf( filePath, LOG_FILE_PATH_MAX_LEN, "joints/%s_raw", logName );
+      newModel->emgRawLog = Log_Init( filePath, emgRawSamplesNumber + 1, 6 );
+    }
+    
+    DataIO_UnloadData( modelData );
     
     if( loadError )
     {
@@ -205,18 +204,13 @@ void EMGProcessing_SetMuscleSignals( EMGModel model, double* normalizedSignalsLi
   for( size_t muscleIndex = 0; muscleIndex < model->musclesNumber; muscleIndex++ )
     normalizedSignalsList[ muscleIndex ] = Sensor_Update( model->musclesList[ muscleIndex ]->emgSensor, model->musclesList[ muscleIndex ]->emgRawBuffer );
   
-  if( model->currentLog != NULL && model->emgRawLog != NULL )
-  {
-    Log_RegisterValues( model->emgRawLog, 1, Time_GetExecSeconds() );
-    for( size_t muscleIndex = 0; muscleIndex < model->musclesNumber; muscleIndex++ )
-      Log_RegisterList( model->emgRawLog, model->musclesList[ muscleIndex ]->emgRawBufferLength, model->musclesList[ muscleIndex ]->emgRawBuffer );
-  }
-}
-
-void EMGProcessing_GetMuscleForces( EMGModel model, double* normalizedSignalsList, double modelAngle, double modelExternalTorque, double* emgSamplesList )
-{
   
 }
+
+//void EMGProcessing_GetMuscleForces( EMGModel model, double* normalizedSignalsList, double modelAngle, double modelExternalTorque, double* emgSamplesList )
+//{
+//  
+//}
 
 void EMGProcessing_GetJointTorques( EMGModel model, double* jointTorquesList )
 {
@@ -268,7 +262,7 @@ void EMGProcessing_SetPhase( EMGModel model, enum EMGProcessingPhase processingP
   else // if( processingPhase == EMG_PROCESSING_MEASUREMENT )
     model->currentLog = NULL;
   
-  DEBUG_PRINT( "new EMG processing phase: %d (log: %p)", processingPhase, model->currentLog );
+  //DEBUG_PRINT( "new EMG processing phase: %d (log: %p)", processingPhase, model->currentLog );
   
   for( size_t muscleIndex = 0; muscleIndex < model->musclesNumber; muscleIndex++ )
     Sensor_SetState( model->musclesList[ muscleIndex ]->emgSensor, signalProcessingPhase );
@@ -331,11 +325,18 @@ void EMGProcessing_RunStep( EMGModel model, double* muscleActivationsList, doubl
 {
   if( model == NULL ) return NULL;  
   
-  if( model->currentLog != NULL )
-  {
-    Log_RegisterValues( model->currentLog, 3, Time_GetExecSeconds(), modelAngle, modelExternalTorque );
-    Log_RegisterList( model->currentLog, model->musclesNumber, normalizedSignalsList );
-  }
+//  if( model->currentLog != NULL )
+//  {
+//    Log_RegisterValues( model->currentLog, 3, Time_GetExecSeconds(), modelAngle, modelExternalTorque );
+//    Log_RegisterList( model->currentLog, model->musclesNumber, normalizedSignalsList );
+//  }
+  
+//  if( model->currentLog != NULL && model->emgRawLog != NULL )
+//  {
+//    Log_RegisterValues( model->emgRawLog, 1, Time_GetExecSeconds() );
+//    for( size_t muscleIndex = 0; muscleIndex < model->musclesNumber; muscleIndex++ )
+//      Log_RegisterList( model->emgRawLog, model->musclesList[ muscleIndex ]->emgRawBufferLength, model->musclesList[ muscleIndex ]->emgRawBuffer );
+//  }
   
   //DEBUG_PRINT( "Muscle signals: %.5f, %.5f, %.5f, %.5f, %.5f, %.5f", normalizedSignalsList[ 0 ], normalizedSignalsList[ 1 ], normalizedSignalsList[ 2 ], normalizedSignalsList[ 3 ], normalizedSignalsList[ 4 ], normalizedSignalsList[ 5 ] );
   
