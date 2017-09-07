@@ -33,7 +33,7 @@ void EMGProcessing_GetJointStiffnesses( EMGModel, double* );
 const char** EMGProcessing_GetJointNames( EMGModel );
 size_t EMGProcessing_GetJointsCount( EMGModel );
 void EMGProcessing_RunStep( EMGModel, double*, double*, double* );
-void EMGProcessing_FitParameters( EMGModel, EMGJointSamplingData* );
+void EMGProcessing_FitParameters( EMGModel, EMGSamplingData* );
 
 
 #endif // EMG_PROCESSING_H 
