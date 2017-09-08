@@ -28,8 +28,11 @@
 
 #include "debug/data_logging.h"
 
+#include <stdio.h>
 #include <math.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
 
 enum { MUSCLE_ACTIVE_FORCE, MUSCLE_PASSIVE_FORCE, MUSCLE_MOMENT_ARM, MUSCLE_NORM_LENGTH, MUSCLE_CURVES_NUMBER };
 
@@ -39,7 +42,7 @@ typedef struct _EMGMuscleData
   double activationFactor;
   double scalingFactor;
   double initialPenationAngle;
-  double fibersForce;
+  double fibersForce, fibersTorque;
 }
 EMGMuscleData;
 
@@ -47,8 +50,8 @@ typedef EMGMuscleData* EMGMuscle;
 
 typedef struct _EMGJointData
 {
-  double torque;
-  double stiffness;
+  double torque, stiffness;
+  double scalingFactor, offset;
 }
 EMGJointData;
 
@@ -93,12 +96,11 @@ static EMGMuscle LoadEMGMuscleData( DataHandle modelData )
 
 EMGModel EMGProcessing_InitModel( const char* configFileName )
 {
-  static char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
-  
   //DEBUG_PRINT( "Trying to load joint %s EMG data", configFileName );
   
   EMGModel newModel = NULL;
   
+  char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
   sprintf( filePath, "joints/%s", configFileName );
   DataHandle modelData = DataIO_LoadFileData( filePath );
   if( modelData != NULL )
@@ -107,7 +109,6 @@ EMGModel EMGProcessing_InitModel( const char* configFileName )
     memset( newModel, 0, sizeof(EMGModelData) );
     
     bool loadError = false;
-    size_t emgRawSamplesNumber = 0;
     if( (newModel->musclesNumber = (size_t) DataIO_GetListSize( modelData, "muscles" )) > 0 )
     {
       //DEBUG_PRINT( "%u muscles found for joint %s", newModel->musclesNumber, configFileName );
@@ -130,6 +131,7 @@ EMGModel EMGProcessing_InitModel( const char* configFileName )
       {
         newModel->jointsList[ jointIndex ] = (EMGJoint) malloc( sizeof(EMGJointData) );
         strncpy( (char*) &(newModel->jointNamesList[ jointIndex ]), DataIO_GetStringValue( modelData, "", "joints.%lu", jointIndex ), sizeof(EMGID) );
+      }
     }
     else loadError = true;
     
@@ -151,15 +153,14 @@ void EMGProcessing_EndModel( EMGModel model )
   
   for( size_t muscleIndex = 0; muscleIndex < model->musclesNumber; muscleIndex++ )
   {
-    
     for( size_t curveIndex = 0; curveIndex < MUSCLE_CURVES_NUMBER; curveIndex++ )
       Curve_Discard( model->musclesList[ muscleIndex ]->curvesList[ curveIndex ] );
-    free( model->musclesList[ muscleIndex ]->emgRawBuffer );
   }
   
-  
-  
+  free( model->jointsList );
   free( model->musclesList );
+  free( model->jointNamesList );
+  free( model->muscleNamesList );
   
   free( model );
 }
@@ -187,20 +188,16 @@ void EMGProcessing_GetJointTorques( EMGModel model, double* jointTorquesList )
 {
   if( model == NULL ) return;
   
-  double modelTorque = 0.0;
-
   for( size_t muscleIndex = 0; muscleIndex < model->musclesNumber; muscleIndex++ )
-    modelTorque += muscleTorquesList[ muscleIndex ];
+    jointTorquesList[ 0 ] += model->musclesList[ muscleIndex ]->fibersTorque;
 }
 
 void EMGProcessing_GetJointStiffnesses( EMGModel model, double* jointStiffnessesList )
 {
   if( model == NULL ) return;
   
-  double modelStiffness = 0.0;
-  
   for( size_t muscleIndex = 0; muscleIndex < model->musclesNumber; muscleIndex++ )
-    modelStiffness += fabs( muscleTorquesList[ muscleIndex ] );
+    jointStiffnessesList[ 0 ] += fabs( model->musclesList[ muscleIndex ]->fibersTorque );
 }
 
 const char** EMGProcessing_GetJointNames( EMGModel model )
@@ -262,20 +259,7 @@ void EMGProcessing_FitJointParameters( EMGModel model, EMGSamplingData* sampling
 
 void EMGProcessing_RunStep( EMGModel model, double* muscleActivationsList, double* jointAnglesList, double* externalTorquesList )
 {
-  if( model == NULL ) return NULL;  
-  
-//  if( model->currentLog != NULL )
-//  {
-//    Log_RegisterValues( model->currentLog, 3, Time_GetExecSeconds(), modelAngle, modelExternalTorque );
-//    Log_RegisterList( model->currentLog, model->musclesNumber, normalizedSignalsList );
-//  }
-  
-//  if( model->currentLog != NULL && model->emgRawLog != NULL )
-//  {
-//    Log_RegisterValues( model->emgRawLog, 1, Time_GetExecSeconds() );
-//    for( size_t muscleIndex = 0; muscleIndex < model->musclesNumber; muscleIndex++ )
-//      Log_RegisterList( model->emgRawLog, model->musclesList[ muscleIndex ]->emgRawBufferLength, model->musclesList[ muscleIndex ]->emgRawBuffer );
-//  }
+  if( model == NULL ) return;  
   
   //DEBUG_PRINT( "Muscle signals: %.5f, %.5f, %.5f, %.5f, %.5f, %.5f", normalizedSignalsList[ 0 ], normalizedSignalsList[ 1 ], normalizedSignalsList[ 2 ], normalizedSignalsList[ 3 ], normalizedSignalsList[ 4 ], normalizedSignalsList[ 5 ] );
   
@@ -295,8 +279,8 @@ void EMGProcessing_RunStep( EMGModel model, double* muscleActivationsList, doubl
     double penationAngle = asin( sin( muscle->initialPenationAngle ) / normalizedLength );
   
     double normalizedForce = activeForce * activation + passiveForce;
-    double resultingForce = muscle->scalingFactor * cos( penationAngle ) * normalizedForce;
+    muscle->fibersForce = muscle->scalingFactor * cos( penationAngle ) * normalizedForce;
   
-    muscle->fibersForce = resultingForce * momentArm;
+    muscle->fibersTorque = muscle->fibersForce * momentArm;
   }
 }

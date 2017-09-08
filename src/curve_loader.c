@@ -22,6 +22,10 @@
 
 #include "curve_loader.h"
 
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 Curve Curve_Load( DataHandle curveData )
 {
   static char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
