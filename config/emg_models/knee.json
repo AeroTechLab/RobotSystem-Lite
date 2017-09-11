@@ -2,8 +2,8 @@
   "joints": [ "knee" ],
   "muscles": [
     {
-      "emg_sensor": "emg/rectus_femoris",
-      "model_functions": {
+      "id": "rectus_femoris",
+      "curves": {
         "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 0.0000024859627, 0.0008362120588, 0.0733070643267, -5.0035780607403, 304.0991564701895 ] } ] },
         "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 0 ] } ] },
         "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 0.000000001647674, 0.000000444071660, 0.000026512054919, -0.005108653379953, 0.180689585104641 ] } ] },
@@ -12,8 +12,8 @@
       }
     },
     {
-      "emg_sensor": "emg/bisceps_femoris",
-      "model_functions": {
+      "id": "bisceps_femoris",
+      "curves": {
         "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 0.0000016482496, 0.0006218237359, 0.0509780008703, -2.8455161670440, 459.8069360594596 ] } ] },
         "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -0.0000043692566, -0.0006986472282, 0.0549839542013, 14.9947970062401, 759.7622273271148 ] } ] },
         "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -0.000000000473198, -0.000000362822946, -0.000037836137781, 0.002721467513227, 1.577088798768932 ] } ] },
@@ -22,8 +22,8 @@
       }
     },
     {
-      "emg_sensor": "emg/semitendinoso",
-      "model_functions": {
+      "id": "semitendinoso",
+      "curves": {
         "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 0.0000002288620, 0.0001156653160, 0.0091889263129, -1.2795306847476, 255.6601685810053 ] } ] },
         "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -0.000000003277005, -0.000000229643307, 0.000187649046107, 0.034564627934096, 1.868643860098547 ] } ] },
         "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 0.000000000429659, -0.000000056165652, -0.000013761419393, 0.002610213004973, 1.485657670550484 ] } ] },
@@ -32,8 +32,8 @@
       }
     },
     {
-      "emg_sensor": "emg/vastus_medialis",
-      "model_functions": {
+      "id": "vastus_medialis",
+      "curves": {
         "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 0.0000051786818, 0.0012771505161, 0.0063285914648, -11.5173259068777, 768.9294838185005 ] } ] },
         "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 0.000001531932468, 0.000107174001073, -0.000657038679970, -0.078087517842028, 0.000082139565578 ] } ] },
         "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -0.000000000304689, -0.000000043853437, -0.000007867934721, -0.007405454181249, 0.490445584301529 ] } ] },
@@ -42,8 +42,8 @@
       }
     },
     {
-      "emg_sensor": "emg/vastus_laterais",
-      "model_functions": {
+      "id": "vastus_laterais",
+      "curves": {
         "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 0.000012090533, 0.002882395043, 0.070861123136, -16.396036506706, 1076.544139775790 ] } ] },
         "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 0.000002021429455, 0.000098164891523, -0.004036818877823, -0.142134959783357, 0.202464772270565 ] } ] },
         "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 0.000000001038275, 0.000000314178212, 0.000019313025742, -0.007210875279879, 0.474735392439824 ] } ] },

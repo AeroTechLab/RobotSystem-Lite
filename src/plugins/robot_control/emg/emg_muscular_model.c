@@ -59,7 +59,7 @@ typedef EMGJointData* EMGJoint;
 
 typedef char EMGID[ 32 ];
 
-typedef struct _EMGModelData
+struct _EMGModelData
 {
   EMGMuscle* musclesList;
   EMGID* muscleNamesList;
@@ -67,10 +67,7 @@ typedef struct _EMGModelData
   EMGJoint* jointsList;
   EMGID* jointNamesList;
   size_t jointsNumber;
-}
-EMGModelData;
-
-typedef EMGModelData* EMGModel;
+};
 
 
 const char* MUSCLE_CURVE_NAMES[ MUSCLE_CURVES_NUMBER ] = { "active_force", "passive_force", "moment_arm", "normalized_length" };
@@ -101,7 +98,7 @@ EMGModel EMGProcessing_InitModel( const char* configFileName )
   EMGModel newModel = NULL;
   
   char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
-  sprintf( filePath, "joints/%s", configFileName );
+  sprintf( filePath, "emg_models/%s", configFileName );
   DataHandle modelData = DataIO_LoadFileData( filePath );
   if( modelData != NULL )
   {
@@ -117,7 +114,7 @@ EMGModel EMGProcessing_InitModel( const char* configFileName )
       newModel->muscleNamesList = (EMGID*) calloc( newModel->musclesNumber , sizeof(EMGID) );
       for( size_t muscleIndex = 0; muscleIndex < newModel->musclesNumber; muscleIndex++ )
       {
-        newModel->musclesList[ muscleIndex ] = LoadEMGMuscleData( DataIO_GetSubData( modelData, "muscles.%lu.model_functions", muscleIndex ) );
+        newModel->musclesList[ muscleIndex ] = LoadEMGMuscleData( DataIO_GetSubData( modelData, "muscles.%lu.curves", muscleIndex ) );
         strncpy( (char*) &(newModel->muscleNamesList[ muscleIndex ]), DataIO_GetStringValue( modelData, "", "muscles.%lu.id", muscleIndex ), sizeof(EMGID) ); 
       }
     }
