@@ -50,6 +50,7 @@ typedef struct _ControlData
   EMGModel emgModel;
   EMGSamplingData samplingData;
   EMGReader* emgReadersList;
+  bool* jointsChangedList;
   size_t jointsNumber, musclesNumber;
   Log offsetLog, calibrationLog, samplingLog;
   Log currentLog, emgRawLog;
@@ -62,7 +63,7 @@ DECLARE_MODULE_INTERFACE( ROBOT_CONTROL_INTERFACE );
 
 RobotController InitController( const char* configurationString )
 {
-  //DEBUG_PRINT( "Trying to load robot control config %s", configurationString );
+  Log_PrintString( NULL, "Trying to load EMG control config %s", configurationString );
 
   Log_SetBaseDirectory( "test" );
   
@@ -78,14 +79,16 @@ RobotController InitController( const char* configurationString )
   }
     
   newController->jointsNumber = EMGProcessing_GetJointsCount( newController->emgModel );
+  newController->jointsChangedList = (bool*) calloc( newController->jointsNumber, sizeof(bool) );
     
   newController->musclesNumber = EMGProcessing_GetMusclesCount( newController->emgModel );
   newController->emgReadersList = (EMGReader*) calloc( newController->musclesNumber, sizeof(EMGReader) );
   const char** muscleNamesList = EMGProcessing_GetMuscleNames( newController->emgModel );
   for( size_t muscleIndex = 0; muscleIndex < newController->musclesNumber; muscleIndex++ )
   {
+    Log_PrintString( NULL, "initializing sensor for muscle %s", muscleNamesList[ muscleIndex ] );
     char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
-    snprintf( filePath, DATA_IO_MAX_FILE_PATH_LENGTH, "emg/%s", muscleNamesList[ muscleIndex ] );
+    snprintf( filePath, DATA_IO_MAX_FILE_PATH_LENGTH, "./config/sensors/emg/%s", muscleNamesList[ muscleIndex ] );
     DataHandle sensorData = DataIO_LoadFileData( filePath );
     newController->emgReadersList[ muscleIndex ].sensor = Sensor_Init( sensorData );
     DataIO_UnloadData( sensorData );
@@ -99,18 +102,18 @@ RobotController InitController( const char* configurationString )
   newController->emgRawLog = Log_Init( "joints/raw", 6 );
   newController->currentLog = NULL;
 
-  //DEBUG_PRINT( "robot control config %s loaded", configurationString );
+  Log_PrintString( NULL, "robot control config %s loaded", configurationString );
    
   return (RobotController) newController;
 }
 
-void EndController( RobotController genericController )
+void EndController( RobotController ref_controller )
 {
-  if( genericController == NULL ) return;
+  if( ref_controller == NULL ) return;
   
-  ControlData* controller = (ControlData*) genericController;
+  ControlData* controller = (ControlData*) ref_controller;
   
-  //DEBUG_PRINT( "ending robot controller %p", controller );
+  Log_PrintString( NULL, "ending robot controller %p", controller );
   
   EMGProcessing_EndModel( controller->emgModel );
   
@@ -127,47 +130,65 @@ void EndController( RobotController genericController )
   Log_End( controller->emgRawLog );
 }
 
-size_t GetJointsNumber( RobotController genericController )
+size_t GetJointsNumber( RobotController ref_controller )
 {
-  if( genericController == NULL ) return 0;
+  if( ref_controller == NULL ) return 0;
   
-  ControlData* controller = (ControlData*) genericController;
+  ControlData* controller = (ControlData*) ref_controller;
   
   return EMGProcessing_GetJointsCount( controller->emgModel );
 }
 
-const char** GetJointNamesList( RobotController genericController )
+const char** GetJointNamesList( RobotController ref_controller )
 {
-  if( genericController == NULL ) return 0;
+  if( ref_controller == NULL ) return 0;
   
-  ControlData* controller = (ControlData*) genericController;
+  ControlData* controller = (ControlData*) ref_controller;
   
   return EMGProcessing_GetJointNames( controller->emgModel );
 }
 
-size_t GetAxesNumber( RobotController genericController )
+const bool* GetJointsChangedList( RobotController ref_controller )
 {
-  if( genericController == NULL ) return 0;
+  if( ref_controller == NULL ) return 0;
   
-  ControlData* controller = (ControlData*) genericController;
+  ControlData* controller = (ControlData*) ref_controller;
+  
+  return (const bool*) controller->jointsChangedList;
+}
+
+size_t GetAxesNumber( RobotController ref_controller )
+{
+  if( ref_controller == NULL ) return 0;
+  
+  ControlData* controller = (ControlData*) ref_controller;
   
   return EMGProcessing_GetJointsCount( controller->emgModel );   
 }
 
-const char** GetAxisNamesList( RobotController genericController )
+const char** GetAxisNamesList( RobotController ref_controller )
 {
-  if( genericController == NULL ) return 0;
+  if( ref_controller == NULL ) return 0;
   
-  ControlData* controller = (ControlData*) genericController;
+  ControlData* controller = (ControlData*) ref_controller;
   
   return EMGProcessing_GetJointNames( controller->emgModel );
 }
 
-void SetControlState( RobotController genericController, enum RobotState newControlState )
+const bool* GetAxesChangedList( RobotController ref_controller )
 {
-  if( genericController == NULL ) return;
+  if( ref_controller == NULL ) return 0;
   
-  ControlData* controller = (ControlData*) genericController;
+  ControlData* controller = (ControlData*) ref_controller;
+  
+  return (const bool*) controller->jointsChangedList;
+}
+
+void SetControlState( RobotController ref_controller, enum RobotState newControlState )
+{
+  if( ref_controller == NULL ) return;
+  
+  ControlData* controller = (ControlData*) ref_controller;
   
   //DEBUG_PRINT( "setting new control state: %d", newControlState );
   
@@ -250,15 +271,15 @@ void RegisterValues( ControlData* controller, double* muscleActivationsList, dou
   }
 }
 
-void RunControlStep( RobotController genericController, RobotVariables** jointMeasuresTable, RobotVariables** axisMeasuresTable, RobotVariables** jointSetpointsTable, RobotVariables** axisSetpointsTable, double timeDelta )
+void RunControlStep( RobotController ref_controller, RobotVariables** jointMeasuresTable, RobotVariables** axisMeasuresTable, RobotVariables** jointSetpointsTable, RobotVariables** axisSetpointsTable, double timeDelta )
 {
   static double muscleActivationsList[ EMG_MAX_MUSCLES_NUMBER ];
   static double jointAnglesList[ EMG_MAX_JOINTS_NUMBER ], jointRefAnglesList[ EMG_MAX_JOINTS_NUMBER ];
   static double jointTorquesList[ EMG_MAX_JOINTS_NUMBER ], jointStiffnessesList[ EMG_MAX_JOINTS_NUMBER ];
   
-  if( genericController == NULL ) return;
+  if( ref_controller == NULL ) return;
   
-  ControlData* controller = (ControlData*) genericController;
+  ControlData* controller = (ControlData*) ref_controller;
   
   for( size_t muscleIndex = 0; muscleIndex < controller->musclesNumber; muscleIndex++ )
     muscleActivationsList[ muscleIndex ] = Sensor_Update( controller->emgReadersList[ muscleIndex ].sensor, controller->emgReadersList[ muscleIndex ].rawBuffer );
@@ -278,7 +299,7 @@ void RunControlStep( RobotController genericController, RobotVariables** jointMe
     
     jointRefAnglesList[ jointIndex ] = jointSetpointsTable[ jointIndex ]->position * 360.0;
 
-    //DEBUG_PRINT( "Joint pos: %.3f - force: %.3f - stiff: %.3f", jointAnglesList[ jointIndex ], jointMeasuresTable[ jointIndex ]->force, jointMeasuresTable[ jointIndex ]->stiffness );
+    //Log_PrintString( NULL, "joint pos: %.3f, force: %.3f", jointAnglesList[ jointIndex ], jointTorquesList[ jointIndex ] );
     
     jointSetpointsTable[ jointIndex ]->force = axisSetpointsTable[ jointIndex ]->force;
     jointSetpointsTable[ jointIndex ]->stiffness = axisSetpointsTable[ jointIndex ]->stiffness ;

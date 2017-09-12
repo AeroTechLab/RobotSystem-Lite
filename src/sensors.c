@@ -109,7 +109,7 @@ Sensor Sensor_Init( DataHandle configuration )
         newSensor->log = Log_Init( filePath, 4 );
       }
       
-      DataHandle referenceConfiguration = DataIO_GetSubData( configuration, "relative_to" );
+      DataHandle referenceConfiguration = DataIO_GetSubData( configuration, "reference" );
       newSensor->reference = Sensor_Init( referenceConfiguration );
       if( referenceConfiguration != NULL ) DataIO_UnloadData( referenceConfiguration );
       

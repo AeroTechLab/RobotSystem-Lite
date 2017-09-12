@@ -61,9 +61,9 @@ DataHandle DataIO_LoadFileData( const char* filePath )
   if( filePath == NULL ) return NULL;
   
   char filePathExt[ DATA_IO_MAX_FILE_PATH_LENGTH ];
-  sprintf( filePathExt, "%s/%s.json", baseDirectoryPath, filePath );
+  sprintf( filePathExt, "%s%s.json", baseDirectoryPath, filePath );
   
-  //DEBUG_PRINT( "looking for file: %s", filePathExt );
+  //fprintf( stderr, "looking for file: %s\n", filePathExt );
   
   FILE* configFile = fopen( filePathExt, "r" );
   if( configFile == NULL ) return NULL;
@@ -87,6 +87,7 @@ DataHandle DataIO_LoadFileData( const char* filePath )
 void DataIO_SetBaseFilePath( const char* directoryPath )
 {
   strncpy( baseDirectoryPath, ( directoryPath != NULL ) ? directoryPath : "", DATA_IO_MAX_FILE_PATH_LENGTH );
+  if( strlen( baseDirectoryPath ) > 0 ) strcat( baseDirectoryPath, "/" );
 }
 
 void DataIO_UnloadData( DataHandle data )

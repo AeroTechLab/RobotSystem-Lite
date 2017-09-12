@@ -34,7 +34,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-enum { MUSCLE_ACTIVE_FORCE, MUSCLE_PASSIVE_FORCE, MUSCLE_MOMENT_ARM, MUSCLE_NORM_LENGTH, MUSCLE_CURVES_NUMBER };
+enum { MUSCLE_ACTIVE_FORCE, MUSCLE_PASSIVE_FORCE, MUSCLE_MOMENT_ARM, MUSCLE_NORM_LENGTH, MUSCLE_VELOCITY_FORCE, MUSCLE_CURVES_NUMBER };
 
 typedef struct _EMGMuscleData
 {
@@ -51,83 +51,98 @@ typedef EMGMuscleData* EMGMuscle;
 typedef struct _EMGJointData
 {
   double torque, stiffness;
-  double scalingFactor, offset;
+  double stiffnessScalingFactor, stiffnessOffset;
 }
 EMGJointData;
 
 typedef EMGJointData* EMGJoint;
 
-typedef char EMGID[ 32 ];
+const size_t EMG_ID_MAX_LENGTH = 32;
 
 struct _EMGModelData
 {
   EMGMuscle* musclesList;
-  EMGID* muscleNamesList;
+  char** muscleNamesList;
   size_t musclesNumber;
   EMGJoint* jointsList;
-  EMGID* jointNamesList;
+  char** jointNamesList;
   size_t jointsNumber;
 };
 
 
-const char* MUSCLE_CURVE_NAMES[ MUSCLE_CURVES_NUMBER ] = { "active_force", "passive_force", "moment_arm", "normalized_length" };
-static EMGMuscle LoadEMGMuscleData( DataHandle modelData )
+const char* MUSCLE_CURVE_NAMES[ MUSCLE_CURVES_NUMBER ] = { "active_force", "passive_force", "moment_arm", "normalized_length", "force_vel" };
+static EMGMuscle LoadEMGMuscleData( DataHandle muscleData )
 {
-  if( modelData == NULL ) return NULL;
+  if( muscleData == NULL ) return NULL;
 
   EMGMuscle newMuscle = (EMGMuscle) malloc( sizeof(EMGMuscleData) );
     
   for( size_t curveIndex = 0; curveIndex < MUSCLE_CURVES_NUMBER; curveIndex++ )
   {
-    DataHandle curveData = DataIO_GetSubData( modelData, "%s", MUSCLE_CURVE_NAMES[ curveIndex ] );
+    DataHandle curveData = DataIO_GetSubData( muscleData, "%s", MUSCLE_CURVE_NAMES[ curveIndex ] );
     newMuscle->curvesList[ curveIndex ] = Curve_Load( curveData );
   }
 
-  newMuscle->activationFactor = DataIO_GetNumericValue( modelData, -2.0, "activation_factor" );
-  newMuscle->scalingFactor = DataIO_GetNumericValue( modelData, 1.0, "scaling_factor" );
-  newMuscle->initialPenationAngle = DataIO_GetNumericValue( modelData, 0.0, "initial_penation_angle" );
+  newMuscle->activationFactor = DataIO_GetNumericValue( muscleData, -2.0, "activation_factor" );
+  newMuscle->scalingFactor = DataIO_GetNumericValue( muscleData, 1.0, "scaling_factor" );
+  newMuscle->initialPenationAngle = DataIO_GetNumericValue( muscleData, 0.0, "initial_penation_angle" );
     
   return newMuscle;
+}
+
+static EMGJoint LoadEMGJointData( DataHandle jointData )
+{
+  if( jointData == NULL ) return NULL;
+
+  EMGJoint newJoint = (EMGJoint) malloc( sizeof(EMGJointData) );
+    
+  newJoint->stiffnessScalingFactor = DataIO_GetNumericValue( jointData, 1.0, "stiffness_scale" );
+  newJoint->stiffnessOffset = DataIO_GetNumericValue( jointData, 0.0, "stiffness_offset" );
+    
+  return newJoint;
 }
 
 
 EMGModel EMGProcessing_InitModel( const char* configFileName )
 {
-  //DEBUG_PRINT( "Trying to load joint %s EMG data", configFileName );
+  Log_PrintString( NULL, "Trying to load EMG model %s data", configFileName );
   
   EMGModel newModel = NULL;
   
   char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
-  sprintf( filePath, "emg_models/%s", configFileName );
+  sprintf( filePath, "./config/emg_models/%s", configFileName );
   DataHandle modelData = DataIO_LoadFileData( filePath );
+  Log_PrintString( NULL, "model %s data handle: %p", filePath, modelData );
   if( modelData != NULL )
   {
     newModel = (EMGModel) malloc( sizeof(EMGModelData) );
     memset( newModel, 0, sizeof(EMGModelData) );
     
     bool loadError = false;
-    if( (newModel->musclesNumber = (size_t) DataIO_GetListSize( modelData, "muscles" )) > 0 )
+    if( (newModel->musclesNumber = DataIO_GetListSize( modelData, "muscles" )) > 0 )
     {
-      //DEBUG_PRINT( "%u muscles found for joint %s", newModel->musclesNumber, configFileName );
-      
-      newModel->musclesList = (EMGMuscle*) calloc( newModel->musclesNumber , sizeof(EMGMuscle) );
-      newModel->muscleNamesList = (EMGID*) calloc( newModel->musclesNumber , sizeof(EMGID) );
+      newModel->musclesList = (EMGMuscle*) calloc( newModel->musclesNumber, sizeof(EMGMuscle) );
+      newModel->muscleNamesList = (char**) calloc( newModel->musclesNumber, sizeof(char*) );
       for( size_t muscleIndex = 0; muscleIndex < newModel->musclesNumber; muscleIndex++ )
       {
-        newModel->musclesList[ muscleIndex ] = LoadEMGMuscleData( DataIO_GetSubData( modelData, "muscles.%lu.curves", muscleIndex ) );
-        strncpy( (char*) &(newModel->muscleNamesList[ muscleIndex ]), DataIO_GetStringValue( modelData, "", "muscles.%lu.id", muscleIndex ), sizeof(EMGID) ); 
+        newModel->musclesList[ muscleIndex ] = LoadEMGMuscleData( DataIO_GetSubData( modelData, "muscles.%lu", muscleIndex ) );
+        newModel->muscleNamesList[ muscleIndex ] = (char*) calloc( EMG_ID_MAX_LENGTH, sizeof(char) );
+        strncpy( newModel->muscleNamesList[ muscleIndex ], DataIO_GetStringValue( modelData, "", "muscles.%lu.id", muscleIndex ), EMG_ID_MAX_LENGTH );
       }
     }
     else loadError = true;
     
-    if( (newModel->jointsNumber = (size_t) DataIO_GetListSize( modelData, "joints" )) > 0 )
+    if( (newModel->jointsNumber = DataIO_GetListSize( modelData, "joints" )) > 0 )
     {
-      newModel->jointsList = (EMGJoint*) calloc( newModel->jointsNumber , sizeof(EMGJoint) );
-      newModel->jointNamesList = (EMGID*) calloc( newModel->jointsNumber , sizeof(EMGID) );
+      Log_PrintString( NULL, "%lu joints found", newModel->jointsNumber ); 
+      
+      newModel->jointsList = (EMGJoint*) calloc( newModel->jointsNumber, sizeof(EMGJoint) );
+      newModel->jointNamesList = (char**) calloc( newModel->jointsNumber, sizeof(char*) );
       for( size_t jointIndex = 0; jointIndex < newModel->jointsNumber; jointIndex++ )
       {
-        newModel->jointsList[ jointIndex ] = (EMGJoint) malloc( sizeof(EMGJointData) );
-        strncpy( (char*) &(newModel->jointNamesList[ jointIndex ]), DataIO_GetStringValue( modelData, "", "joints.%lu", jointIndex ), sizeof(EMGID) );
+        newModel->jointsList[ jointIndex ] = LoadEMGJointData( DataIO_GetSubData( modelData, "joints.%lu", jointIndex ) );
+        newModel->jointNamesList[ jointIndex ] = (char*) calloc( EMG_ID_MAX_LENGTH, sizeof(char) );
+        strncpy( newModel->jointNamesList[ jointIndex ], DataIO_GetStringValue( modelData, "", "joints.%lu.id", jointIndex ), EMG_ID_MAX_LENGTH );
       }
     }
     else loadError = true;
@@ -152,12 +167,21 @@ void EMGProcessing_EndModel( EMGModel model )
   {
     for( size_t curveIndex = 0; curveIndex < MUSCLE_CURVES_NUMBER; curveIndex++ )
       Curve_Discard( model->musclesList[ muscleIndex ]->curvesList[ curveIndex ] );
+    free( model->musclesList[ muscleIndex ] );
+    free( model->muscleNamesList[ muscleIndex ] );
   }
   
-  free( model->jointsList );
   free( model->musclesList );
-  free( model->jointNamesList );
   free( model->muscleNamesList );
+  
+  for( size_t jointIndex = 0; jointIndex < model->jointsNumber; jointIndex++ )
+  {
+    free( model->jointsList[ jointIndex ] );
+    free( model->jointNamesList[ jointIndex ] );
+  }
+    
+  free( model->jointsList );
+  free( model->jointNamesList );
   
   free( model );
 }
@@ -193,8 +217,11 @@ void EMGProcessing_GetJointStiffnesses( EMGModel model, double* jointStiffnesses
 {
   if( model == NULL ) return;
   
+  double jointStiffness = 0.0;
   for( size_t muscleIndex = 0; muscleIndex < model->musclesNumber; muscleIndex++ )
-    jointStiffnessesList[ 0 ] += fabs( model->musclesList[ muscleIndex ]->fibersTorque );
+    jointStiffness += fabs( model->musclesList[ muscleIndex ]->fibersTorque );
+  
+  jointStiffnessesList[ 0 ] = jointStiffness * model->jointsList[ 0 ]->stiffnessScalingFactor + model->jointsList[ 0 ]->stiffnessOffset;
 }
 
 const char** EMGProcessing_GetJointNames( EMGModel model )
@@ -268,6 +295,7 @@ void EMGProcessing_RunStep( EMGModel model, double* muscleActivationsList, doubl
   
     double activeForce = Curve_GetValue( muscle->curvesList[ MUSCLE_ACTIVE_FORCE ], jointAnglesList[ 0 ], 0.0 );
     double passiveForce = Curve_GetValue( muscle->curvesList[ MUSCLE_PASSIVE_FORCE ], jointAnglesList[ 0 ], 0.0 );
+    double velocityForce = Curve_GetValue( muscle->curvesList[ MUSCLE_VELOCITY_FORCE ], jointAnglesList[ 0 ], 0.0 );
   
     double normalizedLength = Curve_GetValue( muscle->curvesList[ MUSCLE_NORM_LENGTH ], jointAnglesList[ 0 ], 0.0 );
     double momentArm = Curve_GetValue( muscle->curvesList[ MUSCLE_MOMENT_ARM ], jointAnglesList[ 0 ], 0.0 );
@@ -275,7 +303,7 @@ void EMGProcessing_RunStep( EMGModel model, double* muscleActivationsList, doubl
     if( normalizedLength == 0.0 ) normalizedLength = 1.0;
     double penationAngle = asin( sin( muscle->initialPenationAngle ) / normalizedLength );
   
-    double normalizedForce = activeForce * activation + passiveForce;
+    double normalizedForce = activeForce * velocityForce * activation + passiveForce;
     muscle->fibersForce = muscle->scalingFactor * cos( penationAngle ) * normalizedForce;
   
     muscle->fibersTorque = muscle->fibersForce * momentArm;

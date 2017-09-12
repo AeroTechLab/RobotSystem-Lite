@@ -80,7 +80,7 @@ Robot Robot_Init( const char* configFileName )
 {
   static char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
 
-  Log_PrintString( NULL, "Trying to create robot %s", configFileName );
+  Log_PrintString( NULL, "trying to create robot %s", configFileName );
   
   Robot newRobot = NULL;
   
@@ -97,7 +97,9 @@ Robot Robot_Init( const char* configFileName )
     if( loadSuccess )
     {
       const char* controllerConfigString = DataIO_GetStringValue( configuration, "", "controller.config" );
+      Log_PrintString( NULL, "loading controller config %s", controllerConfigString ); 
       newRobot->controller = newRobot->InitController( controllerConfigString );
+      Log_PrintString( NULL, "loaded controller handle %p", newRobot->controller );
       
       newRobot->controlTimeStep = DataIO_GetNumericValue( configuration, CONTROL_PASS_INTERVAL, "controller.time_step" );   
       
