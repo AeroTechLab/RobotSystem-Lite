@@ -1,0 +1,31 @@
+{
+  "input_interface": {
+    "type": "NIDAQmx",
+    "config": "EMGReadTask",
+    "channel": 3
+  },
+  "input_gain": {
+    "divisor": 1818
+  },
+  "signal_processing": {
+    "rectified": true,
+    "normalized": true,
+    "smoothing_frequency": 0.001
+  },
+  "reference": {
+    "input_interface": {
+      "type": "NIDAQmx",
+      "config": "EMGReadTask",
+      "channel": 4
+    },
+    "input_gain": {
+      "divisor": -1818
+    },
+    "signal_processing": {
+      "rectified": true,
+      "normalized": true,
+      "smoothing_frequency": 0.001
+    }
+  },
+  "log": "vastus_medialis"
+}
