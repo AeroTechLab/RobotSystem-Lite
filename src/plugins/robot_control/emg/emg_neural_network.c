@@ -57,21 +57,23 @@ struct _EMGModelData
 
 bool LoadVariableNames( DataHandle modelData, EMGModel model )
 {
-  if( (model->musclesNumber = (size_t) DataIO_GetListSize( modelData, "muscles" )) > 0 )
+  if( (model->musclesNumber = DataIO_GetListSize( modelData, "muscles" )) > 0 )
   {
     model->muscleNamesList = (EMGID*) calloc( model->musclesNumber , sizeof(EMGID) );
     for( size_t muscleIndex = 0; muscleIndex < model->musclesNumber; muscleIndex++ )
       strncpy( (char*) &(model->muscleNamesList[ muscleIndex ]), DataIO_GetStringValue( modelData, "", "muscles.%lu.id", muscleIndex ), sizeof(EMGID) ); 
   }
-  return false;
+  else
+    return false;
   
-  if( (model->jointsNumber = (size_t) DataIO_GetListSize( modelData, "joints" )) > 0 )
+  if( (model->jointsNumber = DataIO_GetListSize( modelData, "joints" )) > 0 )
   {
     model->jointNamesList = (EMGID*) calloc( model->jointsNumber , sizeof(EMGID) );
     for( size_t jointIndex = 0; jointIndex < model->jointsNumber; jointIndex++ )
       strncpy( (char*) &(model->jointNamesList[ jointIndex ]), DataIO_GetStringValue( modelData, "", "joints.%lu", jointIndex ), sizeof(EMGID) );
   }
-  return false;
+  else 
+    return false;
 }
 
 EMGModel EMGProcessing_InitModel( const char* configFileName )
@@ -187,11 +189,7 @@ void EMGProcessing_GetJointTorques( EMGModel model, double* jointTorquesList )
   if( model == NULL ) return;
   
   for( size_t jointIndex = 0; jointIndex < model->jointsNumber; jointIndex++ )
-  {
     jointTorquesList[ jointIndex ] = model->outputsList[ jointIndex ];
-    jointTorquesList[ jointIndex ] *= ( model->outputsMaxList[ jointIndex ] - model->outputsMinList[ jointIndex ] );
-    jointTorquesList[ jointIndex ] += model->outputsMinList[ jointIndex ];
-  }
 }
 
 void EMGProcessing_GetJointStiffnesses( EMGModel model, double* jointStiffnessesList )
@@ -199,11 +197,7 @@ void EMGProcessing_GetJointStiffnesses( EMGModel model, double* jointStiffnesses
   if( model == NULL ) return;
   
   for( size_t jointIndex = model->jointsNumber; jointIndex < 2 * model->jointsNumber; jointIndex++ )
-  {
     jointStiffnessesList[ jointIndex ] = model->outputsList[ jointIndex ];
-    jointStiffnessesList[ jointIndex ] *= ( model->outputsMaxList[ jointIndex ] - model->outputsMinList[ jointIndex ] );
-    jointStiffnessesList[ jointIndex ] += model->outputsMinList[ jointIndex ];
-  }
 }
 
 const char** EMGProcessing_GetJointNames( EMGModel model )
@@ -220,80 +214,7 @@ size_t EMGProcessing_GetJointsCount( EMGModel model )
   return model->jointsNumber;
 }
 
-
-double EMGProcessing_GetJointTorque( JointID jointID, double* muscleTorquesList )
-{
-  khint_t jointIndex = kh_get( JointInt, jointsList, (khint_t) jointID );
-  if( jointIndex == kh_end( jointsList ) ) return 0.0;
-  
-  EMGJoint joint = kh_value( jointsList, jointIndex );
-  
-  for( size_t neuronIndex = 0; neuronIndex < joint->neuronsNumber; neuronIndex++ )
-  {
-    EMGModel neuron = (EMGModel) &(joint->neuronsList[ neuronIndex ]);
-      
-    neuron->activation = 0.0;
-    for( size_t inputIndex = 0; inputIndex < joint->musclesNumber + 2; inputIndex++ )
-      neuron->activation += neuron->inputWeightsList[ inputIndex ] * muscleTorquesList[ inputIndex ];
-    
-    neuron->activation = 1.0 / ( 1.0 + exp( -neuron->activation ) );
-  }
-  
-  joint->neuronsList[ joint->neuronsNumber ].activation = -1.0;
-  
-  double outputActivation = 0.0;
-  for( size_t neuronIndex = 0; neuronIndex < joint->neuronsNumber + 1; neuronIndex++ )
-  {
-    EMGModel neuron = (EMGModel) &(joint->neuronsList[ neuronIndex ]);
-    outputActivation += neuron->outputWeightsList[ 0 ] * neuron->activation;
-  }
-  outputActivation = 1.0 / ( 1.0 + exp( -outputActivation ) );
-  
-  return outputActivation * ( joint->outputTorqueMax - joint->outputTorqueMin ) + joint->outputTorqueMin;
-}
-
-double EMGProcessing_GetJointStiffness( JointID jointID, double* muscleTorquesList )
-{
-  khint_t jointIndex = kh_get( JointInt, jointsList, (khint_t) jointID );
-  if( jointIndex == kh_end( jointsList ) ) return 0.0;
-  
-  EMGJoint joint = kh_value( jointsList, jointIndex );
-  
-  for( size_t neuronIndex = 0; neuronIndex < joint->neuronsNumber; neuronIndex++ )
-  {
-    EMGModel neuron = (EMGModel) &(joint->neuronsList[ neuronIndex ]);
-      
-    neuron->activation = 0.0;
-    for( size_t inputIndex = 0; inputIndex < joint->musclesNumber + 2; inputIndex++ )
-      neuron->activation += neuron->inputWeightsList[ inputIndex ] * muscleTorquesList[ inputIndex ];
-    
-    neuron->activation = 1.0 / ( 1.0 + exp( -neuron->activation ) );
-  }
-  
-  joint->neuronsList[ joint->neuronsNumber ].activation = -1.0;
-  
-  double outputActivation = 0.0;
-  for( size_t neuronIndex = 0; neuronIndex < joint->neuronsNumber + 1; neuronIndex++ )
-  {
-    EMGModel neuron = (EMGModel) &(joint->neuronsList[ neuronIndex ]);
-    outputActivation += neuron->outputWeightsList[ 1 ] * neuron->activation;
-  }
-  outputActivation = 1.0 / ( 1.0 + exp( -outputActivation ) );
-  
-  return outputActivation * ( joint->outputStiffnessMax - joint->outputStiffnessMin ) + joint->outputStiffnessMin;
-}
-
-size_t EMGProcessing_GetJointMusclesCount( JointID jointID )
-{
-  khint_t jointIndex = kh_get( JointInt, jointsList, (khint_t) jointID );
-  if( jointIndex == kh_end( jointsList ) ) return 0;
-  
-  EMGJoint joint = kh_value( jointsList, jointIndex );
-  
-  return joint->musclesNumber;
-}
-
-void EMGProcessing_FitJointParameters( JointID jointID, EMGJointSampler samplingData )
+void EMGProcessing_FitParameters( EMGModel network, EMGSamplingData* sampler )
 {
   /*khint_t jointIndex = kh_get( JointInt, jointsList, (khint_t) jointID );
   if( jointIndex == kh_end( jointsList ) ) return;
@@ -341,28 +262,40 @@ void EMGProcessing_RunStep( EMGModel network, double* muscleActivationsList, dou
   
   //DEBUG_PRINT( "Muscle signals: %.5f, %.5f, %.5f, %.5f, %.5f, %.5f", normalizedSignalsList[ 0 ], normalizedSignalsList[ 1 ], normalizedSignalsList[ 2 ], normalizedSignalsList[ 3 ], normalizedSignalsList[ 4 ], normalizedSignalsList[ 5 ] );
   
-  memcpy( network->inputsList, muscleActivationsList, network->inputsNumber * sizeof(double) );
-  memcpy( network->inputsList + network->inputsNumber * sizeof(double), jointAnglesList, network->jointsNumber * sizeof(double) );
-  memcpy( network->inputsList + ( network->inputsNumber + network->jointsNumber ) * sizeof(double), externalTorquesList, network->jointsNumber * sizeof(double) );
+  memcpy( network->inputsList, muscleActivationsList, network->musclesNumber * sizeof(double) );
+  memcpy( network->inputsList + network->musclesNumber, jointAnglesList, network->jointsNumber * sizeof(double) );
+  memcpy( network->inputsList + network->musclesNumber + network->jointsNumber, externalTorquesList, network->jointsNumber * sizeof(double) );
   
-  for( size_t muscleIndex = 0; muscleIndex < model->musclesNumber; muscleIndex++ )
+  for( size_t inputIndex = 0; inputIndex < network->inputsNumber; inputIndex++ )
   {
-    EMGMuscle muscle = model->musclesList[ muscleIndex ];
-    
-    double activation = ( exp( muscle->activationFactor * muscleActivationsList[ muscleIndex ] ) - 1 ) / ( exp( muscle->activationFactor ) - 1 );
+    network->inputsList[ inputIndex ] -= network->inputsMinList[ inputIndex ];
+    network->inputsList[ inputIndex ] /= ( network->inputsMaxList[ inputIndex ] - network->inputsMinList[ inputIndex ] );
+  }
   
-    double activeForce = Curve_GetValue( muscle->curvesList[ MUSCLE_ACTIVE_FORCE ], jointAnglesList[ 0 ], 0.0 );
-    double passiveForce = Curve_GetValue( muscle->curvesList[ MUSCLE_PASSIVE_FORCE ], jointAnglesList[ 0 ], 0.0 );
+  network->inputsList[ network->inputsNumber ] = -1.0;
   
-    double normalizedLength = Curve_GetValue( muscle->curvesList[ MUSCLE_NORM_LENGTH ], jointAnglesList[ 0 ], 0.0 );
-    double momentArm = Curve_GetValue( muscle->curvesList[ MUSCLE_MOMENT_ARM ], jointAnglesList[ 0 ], 0.0 );
+  for( size_t neuronIndex = 0; neuronIndex < network->hiddenNeuronsNumber; neuronIndex++ )
+  {
+    double neuronActivation = 0.0;
+    double* neuronInputWeightsList = network->inputWeightsTable + neuronIndex * ( network->inputsNumber + 1 );
+    for( size_t inputIndex = 0; inputIndex < network->inputsNumber + 1; inputIndex++ )
+      neuronActivation += neuronInputWeightsList[ inputIndex ] * network->inputsList[ inputIndex ];
+    network->hiddenOutputsList[ neuronIndex ] = 1.0 / ( 1.0 + exp( -neuronActivation ) );
+  }
+  network->hiddenOutputsList[ network->hiddenNeuronsNumber ] = -1.0;
   
-    if( normalizedLength == 0.0 ) normalizedLength = 1.0;
-    double penationAngle = asin( sin( muscle->initialPenationAngle ) / normalizedLength );
+  for( size_t outputIndex = 0; outputIndex < network->outputsNumber; outputIndex++ )
+  {
+    double outputActivation = 0.0;
+    double* neuronOutputWeightsList = network->outputWeightsTable + outputIndex * ( network->hiddenNeuronsNumber + 1 );
+    for( size_t neuronIndex = 0; neuronIndex < network->hiddenNeuronsNumber + 1; neuronIndex++ )
+      outputActivation += neuronOutputWeightsList[ neuronIndex ] * network->hiddenOutputsList[ neuronIndex ];
+    network->outputsList[ outputIndex ] = 1.0 / ( 1.0 + exp( -outputActivation ) );
+  }
   
-    double normalizedForce = activeForce * activation + passiveForce;
-    muscle->fibersForce = muscle->scalingFactor * cos( penationAngle ) * normalizedForce;
-  
-    muscle->fibersTorque = muscle->fibersForce * momentArm;
+  for( size_t outputIndex = 0; outputIndex < network->outputsNumber; outputIndex++ )
+  {
+    network->outputsList[ outputIndex ] -= network->outputsMinList[ outputIndex ];
+    network->outputsList[ outputIndex ] /= ( network->outputsMaxList[ outputIndex ] - network->outputsMinList[ outputIndex ] );
   }
 }
