@@ -126,7 +126,7 @@ bool Robot_GetAxisMeasures( Axis axis, RobotVariables* ref_measures );
 /// @brief Sets value of specified setpoint for given joint          
 /// @param[in] joint reference to joint
 /// @param[in] ref_setpoints index/identifier of updated variable
-void Robot_SetJointSetpoints( Joint joint, RobotVariables* ref_setpoints );
+//void Robot_SetJointSetpoints( Joint joint, RobotVariables* ref_setpoints );
 
 /// @brief Sets value of specified setpoint for given axis       
 /// @param[in] axis reference to axis

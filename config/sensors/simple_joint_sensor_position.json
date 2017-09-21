@@ -5,8 +5,8 @@
     "channel": 0
   },
   "input_gain": {
-    "multiplier": -1,
-    "divisor": 2000
+    "multiplier": -6.28,
+    "divisor": 2048
   },
   "log_data": false
 }

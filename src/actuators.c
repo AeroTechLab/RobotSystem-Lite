@@ -74,7 +74,8 @@ Actuator Actuator_Init( DataHandle configuration )
     for( size_t sensorIndex = 0; sensorIndex < newActuator->sensorsNumber; sensorIndex++ )
     {
       DataHandle sensorConfiguration = DataIO_GetSubData( configuration, "sensors.%lu.config", sensorIndex );
-      newActuator->sensorsList[ sensorIndex ] = Sensor_Init( sensorConfiguration ); 
+      newActuator->sensorsList[ sensorIndex ] = Sensor_Init( sensorConfiguration );
+      Sensor_Reset( newActuator->sensorsList[ sensorIndex ] );
       const char* sensorType = DataIO_GetStringValue( configuration, "", "sensors.%lu.input_variable", sensorIndex );
       for( int controlModeIndex = 0; controlModeIndex < CONTROL_VARS_NUMBER; controlModeIndex++ )
       {
@@ -204,7 +205,7 @@ ActuatorVariables* Actuator_GetMeasures( Actuator actuator, ActuatorVariables* r
   (void) Kalman_Predict( actuator->sensorFilter, (double*) ref_measures );
   (void) Kalman_Update( actuator->sensorFilter, NULL, (double*) ref_measures );
   
-  //Log_PrintString( NULL, "p: %.3f, v: %.3f, f: %.3f", ref_measures->position, ref_measures->velocity, ref_measures->force );
+  //DEBUG_PRINT( "p=%.5f, v=%.5f, f=%.5f", ref_measures->position, ref_measures->velocity, ref_measures->force );
   
   return ref_measures;
 }

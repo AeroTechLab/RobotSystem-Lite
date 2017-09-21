@@ -96,8 +96,8 @@ Sensor Sensor_Init( DataHandle configuration )
       inputGain /= DataIO_GetNumericValue( configuration, 1.0, "input_gain.divisor" );
       SignalProcessor_SetInputGain( newSensor->processor, inputGain );
       
-      //double relativeCutFrequency = DataIO_GetNumericValue( configuration, 0.0, "signal_processing.low_pass_frequency" );
-      //SignalProcessor_SetMaxFrequency( newSensor->processor, relativeCutFrequency );
+      double relativeCutFrequency = DataIO_GetNumericValue( configuration, 0.0, "signal_processing.smoothing_frequency" );
+      SignalProcessor_SetMaxFrequency( newSensor->processor, relativeCutFrequency );
       
       DataHandle curveConfiguration = DataIO_GetSubData( configuration, "conversion_curve" );
       newSensor->measurementCurve = Curve_Load( curveConfiguration );
@@ -158,7 +158,7 @@ double Sensor_Update( Sensor sensor, double* rawBuffer )
   double sensorOutput = SignalProcessor_UpdateSignal( sensor->processor, sensor->inputBuffer, aquiredSamplesNumber );
   
   double referenceOutput = Sensor_Update( sensor->reference, NULL );
-  //if( sensor->reference != NULL ) DEBUG_PRINT( "sensor: %g - reference: %g", sensorOutput, referenceOutput );
+  if( sensor->reference != NULL && sensor->measurementCurve != NULL ) DEBUG_PRINT( "sensor: %g - reference: %g", sensorOutput, referenceOutput );
   sensorOutput -= referenceOutput;
   
   double sensorMeasure = Curve_GetValue( sensor->measurementCurve, sensorOutput, sensorOutput );

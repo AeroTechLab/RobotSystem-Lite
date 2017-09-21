@@ -139,6 +139,7 @@ void UpdateEvents()
     if( robotCommand == 0x00 ) RefreshRobotsInfo( NULL, (char*) ( messageOut + 1 ) );
     else if( robotCommand == ROBOT_CMD_DISABLE ) messageOut[ 0 ] = Robot_Disable( robotController ) ? ROBOT_ST_DISABLED : 0x00;
     else if( robotCommand == ROBOT_CMD_ENABLE ) messageOut[ 0 ] = Robot_Enable( robotController ) ? ROBOT_ST_ENABLED : 0x00;
+    else if( robotCommand == ROBOT_CMD_PASSIVATE ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_PASSIVE ) ? ROBOT_ST_PASSIVE : 0x00;
     else if( robotCommand == ROBOT_CMD_OFFSET ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_OFFSET ) ? ROBOT_ST_OFFSETTING : 0x00;
     else if( robotCommand == ROBOT_CMD_CALIBRATE ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_CALIBRATION ) ? ROBOT_ST_CALIBRATING : 0x00;
     else if( robotCommand == ROBOT_CMD_PREPROCESS ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_PREPROCESSING ) ? ROBOT_ST_PREPROCESSING : 0x00;
@@ -166,9 +167,10 @@ void UpdateAxes()
     for( size_t setpointBlockIndex = 0; setpointBlockIndex < setpointBlocksNumber; setpointBlockIndex++ )
     {
       size_t axisIndex = (size_t) *(messageIn++);
-      Axis axis = axesList[ axisIndex ];
-
+      
       if( axisIndex >= axesNumber ) continue;      
+      
+      Axis axis = axesList[ axisIndex ];
       
       float* axisSetpointsList = (float*) messageIn;
       RobotVariables axisSetpoints = { .position = axisSetpointsList[ DOF_POSITION ], .velocity = axisSetpointsList[ DOF_VELOCITY ],
@@ -186,16 +188,16 @@ void UpdateAxes()
   size_t axisdataOffset = 1;
   for( size_t axisIndex = 0; axisIndex < axesNumber; axisIndex++ )
   {
-    message[ 0 ]++;
-    message[ axisdataOffset++ ] = (Byte) axisIndex;
-    
     Axis axis = axesList[ axisIndex ];
-    
-    float* axisMeasuresList = (float*) ( message + axisdataOffset );
     
     RobotVariables axisMeasures = { 0 };
     if( Robot_GetAxisMeasures( axis, &axisMeasures ) )
     {
+      message[ 0 ]++;
+      message[ axisdataOffset++ ] = (Byte) axisIndex;
+      
+      float* axisMeasuresList = (float*) ( message + axisdataOffset );
+      
       axisMeasuresList[ DOF_POSITION ] = (float) axisMeasures.position;
       axisMeasuresList[ DOF_VELOCITY ] = (float) axisMeasures.velocity;
       axisMeasuresList[ DOF_ACCELERATION ] = (float) axisMeasures.acceleration;
@@ -205,9 +207,9 @@ void UpdateAxes()
       axisMeasuresList[ DOF_DAMPING ] = (float) axisMeasures.damping;
       
       //if( axisIndex == 0 ) Log_PrintString( NULL, "measures: p: %+.5f, v: %+.5f, f: %+.5f", axisMeasuresList[ DOF_POSITION ], axisMeasuresList[ DOF_VELOCITY ], axisMeasuresList[ DOF_FORCE ] );
-    }
     
-    axisdataOffset += DOF_DATA_BLOCK_SIZE;
+      axisdataOffset += DOF_DATA_BLOCK_SIZE;
+    }
   }
   
   if( message[ 0 ] > 0 )

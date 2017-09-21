@@ -5,7 +5,7 @@
     "channel": 0
   },
   "input_gain": {
-    "multiplier": 1,
+    "multiplier": 6.28,
     "divisor": 614400
   },
   "log_data": false

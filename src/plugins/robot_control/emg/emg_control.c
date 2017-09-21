@@ -51,8 +51,10 @@ typedef struct _ControlData
   EMGSamplingData samplingData;
   EMGReader* emgReadersList;
   bool* jointsChangedList;
+  double* jointForceErrorsList;
+  double* jointVelocitySetpointsList;
   size_t jointsNumber, musclesNumber;
-  Log offsetLog, calibrationLog, samplingLog;
+  Log offsetLog, calibrationLog, samplingLog, operationLog;
   Log currentLog, emgRawLog;
 }
 ControlData;
@@ -80,6 +82,8 @@ RobotController InitController( const char* configurationString )
     
   newController->jointsNumber = EMGProcessing_GetJointsCount( newController->emgModel );
   newController->jointsChangedList = (bool*) calloc( newController->jointsNumber, sizeof(bool) );
+  newController->jointForceErrorsList = (double*) calloc( newController->jointsNumber, sizeof(double) );
+  newController->jointVelocitySetpointsList = (double*) calloc( newController->jointsNumber, sizeof(double) );
     
   newController->musclesNumber = EMGProcessing_GetMusclesCount( newController->emgModel );
   newController->emgReadersList = (EMGReader*) calloc( newController->musclesNumber, sizeof(EMGReader) );
@@ -99,6 +103,7 @@ RobotController InitController( const char* configurationString )
   newController->offsetLog = Log_Init( "joints/offset", DATA_LOG_MAX_PRECISION );
   newController->calibrationLog = Log_Init( "joints/calibration", DATA_LOG_MAX_PRECISION );
   newController->samplingLog = Log_Init( "joints/sampling", DATA_LOG_MAX_PRECISION );
+  newController->operationLog = Log_Init( "joints/operation", DATA_LOG_MAX_PRECISION );
   newController->emgRawLog = Log_Init( "joints/raw", 6 );
   newController->currentLog = NULL;
 
@@ -124,9 +129,14 @@ void EndController( RobotController ref_controller )
   }
   free( controller->emgReadersList );
   
+  free( controller->jointsChangedList );
+  free( controller->jointForceErrorsList );
+  free( controller->jointVelocitySetpointsList );
+  
   Log_End( controller->offsetLog );
   Log_End( controller->calibrationLog );
   Log_End( controller->samplingLog );
+  Log_End( controller->operationLog );
   Log_End( controller->emgRawLog );
 }
 
@@ -196,37 +206,42 @@ void SetControlState( RobotController ref_controller, enum RobotState newControl
   
   if( newControlState == ROBOT_OFFSET )
   {
-    //DEBUG_PRINT( "starting offset phase for joint %d", jointID );
+    DEBUG_PRINT( "starting offset phase for controller %p", ref_controller );
     controller->currentLog = controller->offsetLog;
     signalProcessingState = SIG_PROC_STATE_OFFSET;
   }
   else if( newControlState == ROBOT_CALIBRATION )
   {
-    //DEBUG_PRINT( "starting calibration for joint %d", jointID );
+    DEBUG_PRINT( "starting calibration for controller %p", ref_controller );
     controller->currentLog = controller->calibrationLog;
     signalProcessingState = SIG_PROC_STATE_CALIBRATION;
   }
   else if( newControlState == ROBOT_PREPROCESSING )
   {
-    //DEBUG_PRINT( "reseting sampling count for joint %d", jointID );
+    DEBUG_PRINT( "reseting sampling count for controller %p", ref_controller );
     controller->currentLog = controller->samplingLog;
     controller->samplingData.samplesCount = 0;
   }
   else 
   {
-  //  if( newControlState == ROBOT_OPERATION )
-  //  {
-  //    if( controller->currentControlState == ROBOT_PREPROCESSING && sampler->samplesCount > 0 )
-  //    {
-        //DEBUG_PRINT( "starting optimization for shared joint %d", jointID );
-  //      EMGProcessing_FitJointParameters( jointID, sampler );
-  //    }
-  //  }
+    if( newControlState == ROBOT_OPERATION )
+    {
+      DEBUG_PRINT( "starting operation for controller %p", ref_controller );
+      controller->currentLog = controller->operationLog;
+    //  if( controller->currentControlState == ROBOT_PREPROCESSING && controller->samplingData.samplesCount > 0 )
+    //  {
+        //DEBUG_PRINT( "starting optimization for controller %p", ref_controller );
+    //    EMGProcessing_FitParameters( controller->emgModel, &(controller->samplingData) );
+    //  }
+    }
     controller->currentLog = NULL;
   }
   
   for( size_t muscleIndex = 0; muscleIndex < controller->musclesNumber; muscleIndex++ )
     Sensor_SetState( controller->emgReadersList[ muscleIndex ].sensor, signalProcessingState );
+  
+  for( size_t jointIndex = 0; jointIndex < controller->jointsNumber; jointIndex++ )
+    controller->jointVelocitySetpointsList[ jointIndex ] = 0.0;
   
   controller->currentControlState = newControlState;
 }
@@ -265,10 +280,30 @@ void RegisterValues( ControlData* controller, double* muscleActivationsList, dou
     if( controller->emgRawLog != NULL )
     {
       Log_EnterNewLine( controller->emgRawLog, currentTime );
+      Log_RegisterList( controller->emgRawLog, controller->jointsNumber, jointRefAnglesList );
+      Log_RegisterList( controller->emgRawLog, controller->jointsNumber, jointAnglesList );
+      Log_RegisterList( controller->emgRawLog, controller->jointsNumber, jointExtTorquesList );
       for( size_t muscleIndex = 0; muscleIndex < controller->musclesNumber; muscleIndex++ )
         Log_RegisterList( controller->emgRawLog, controller->emgReadersList[ muscleIndex ].rawBufferLength, controller->emgReadersList[ muscleIndex ].rawBuffer );
     }
   }
+}
+
+void ControlJoint( RobotVariables* ref_jointMeasures, RobotVariables* ref_jointSetpoints, double* ref_previousForceError, double* ref_velocitySetpoint, double timeDelta )
+{
+  const double K_P = 370;// * 150 (reduction)
+  const double K_I = 3.5;// * 150 (reduction) 
+  
+  double positionError = ref_jointSetpoints->position - ref_jointMeasures->position;    // e_p = x_d - x
+  double velocityError = ref_jointSetpoints->velocity - ref_jointMeasures->velocity;    // e_v = xdot_d - xdot
+  // F_actuator = K * e_p + B * e_v - D * x_dot
+  ref_jointSetpoints->force = ref_jointSetpoints->stiffness * positionError - ref_jointSetpoints->damping * velocityError;
+  
+  double forceError = ref_jointSetpoints->force - ref_jointMeasures->force;
+  *ref_velocitySetpoint += K_P * ( forceError - (*ref_previousForceError) ) + K_I * timeDelta * forceError;
+  //DEBUG_PRINT( "control: %.3f + %g*(%.5f-%.5f) + %g*%.5f*%.5f = %.3f", ref_jointSetpoints->velocity, K_P, forceError, *ref_previousForceError, K_I, timeDelta, forceError, ref_jointSetpoints->velocity );
+  ref_jointSetpoints->velocity = *ref_velocitySetpoint;
+  *ref_previousForceError = forceError;
 }
 
 void RunControlStep( RobotController ref_controller, RobotVariables** jointMeasuresTable, RobotVariables** axisMeasuresTable, RobotVariables** jointSetpointsTable, RobotVariables** axisSetpointsTable, double timeDelta )
@@ -286,24 +321,34 @@ void RunControlStep( RobotController ref_controller, RobotVariables** jointMeasu
   
   for( size_t jointIndex = 0; jointIndex < controller->jointsNumber; jointIndex++ )
   {
-    jointAnglesList[ jointIndex ] = jointMeasuresTable[ jointIndex ]->position * 360.0;
+    jointAnglesList[ jointIndex ] = jointMeasuresTable[ jointIndex ]->position * 180.0 / M_PI;
     jointTorquesList[ jointIndex ] = jointMeasuresTable[ jointIndex ]->force;
 
-    axisMeasuresTable[ jointIndex ]->position = jointMeasuresTable[ jointIndex ]->position;
-    axisMeasuresTable[ jointIndex ]->velocity = jointMeasuresTable[ jointIndex ]->velocity;
-    axisMeasuresTable[ jointIndex ]->acceleration = jointMeasuresTable[ jointIndex ]->acceleration;
+    controller->jointsChangedList[ jointIndex ] = false;
+    
+    if( fabs( jointMeasuresTable[ jointIndex ]->position - axisMeasuresTable[ jointIndex ]->position ) > 0.01 )
+    {
+      axisMeasuresTable[ jointIndex ]->position = jointMeasuresTable[ jointIndex ]->position;
+      axisMeasuresTable[ jointIndex ]->velocity = jointMeasuresTable[ jointIndex ]->velocity;
+      axisMeasuresTable[ jointIndex ]->acceleration = jointMeasuresTable[ jointIndex ]->acceleration;
+      axisMeasuresTable[ jointIndex ]->force = jointMeasuresTable[ jointIndex ]->force;
+      
+      controller->jointsChangedList[ jointIndex ] = true;
+      
+      //DEBUG_PRINT( "axis: set=%.3f, pos=%.3f, force=%.3f", axisSetpointsTable[ jointIndex ]->position, axisMeasuresTable[ jointIndex ]->position, axisMeasuresTable[ jointIndex ]->force );
+    }
     
     jointSetpointsTable[ jointIndex ]->position = axisSetpointsTable[ jointIndex ]->position;
     jointSetpointsTable[ jointIndex ]->velocity = axisSetpointsTable[ jointIndex ]->velocity;
     jointSetpointsTable[ jointIndex ]->acceleration = axisSetpointsTable[ jointIndex ]->acceleration;
     
-    jointRefAnglesList[ jointIndex ] = jointSetpointsTable[ jointIndex ]->position * 360.0;
-
-    //Log_PrintString( NULL, "joint pos: %.3f, force: %.3f", jointAnglesList[ jointIndex ], jointTorquesList[ jointIndex ] );
+    jointRefAnglesList[ jointIndex ] = jointSetpointsTable[ jointIndex ]->position * 180.0 / M_PI;
     
     jointSetpointsTable[ jointIndex ]->force = axisSetpointsTable[ jointIndex ]->force;
     jointSetpointsTable[ jointIndex ]->stiffness = axisSetpointsTable[ jointIndex ]->stiffness ;
     jointSetpointsTable[ jointIndex ]->damping = axisSetpointsTable[ jointIndex ]->damping;
+    
+    //DEBUG_PRINT( "joint: set=%.3f, pos=%.3f, force=%.3f", jointSetpointsTable[ jointIndex ]->position, jointMeasuresTable[ jointIndex ]->position, jointMeasuresTable[ jointIndex ]->force );
   }
   
   RegisterValues( controller, muscleActivationsList, jointAnglesList, jointRefAnglesList, jointTorquesList );
@@ -321,17 +366,17 @@ void RunControlStep( RobotController ref_controller, RobotVariables** jointMeasu
     if( controller->currentControlState != ROBOT_PREPROCESSING && controller->currentControlState != ROBOT_OPERATION ) setpointForce = 0.0;
     else if( controller->currentControlState == ROBOT_OPERATION )
     {
-       axisMeasuresTable[ jointIndex ]->force = jointTorquesList[ jointIndex ];
-       axisMeasuresTable[ jointIndex ]->stiffness  = jointStiffnessesList[ jointIndex ];  
+      axisMeasuresTable[ jointIndex ]->force = jointTorquesList[ jointIndex ];
+      axisMeasuresTable[ jointIndex ]->stiffness  = jointStiffnessesList[ jointIndex ];  
        
-       double targetStiffness = 1.0 / jointStiffnessesList[ jointIndex ];
-       setpointForce = 0.99 * setpointForce + 0.01 * targetStiffness * positionError;
+      double targetStiffness = 1.0 / jointStiffnessesList[ jointIndex ];
+      setpointForce = 0.99 * setpointForce + 0.01 * targetStiffness * positionError;
        
-       jointMeasuresTable[ jointIndex ]->stiffness = jointStiffnessesList[ jointIndex ];  
+      jointMeasuresTable[ jointIndex ]->stiffness = jointStiffnessesList[ jointIndex ];  
        
-       //DEBUG_PRINT( "emg:%.5f - t:%.5f - s:%.5f", jointEMGStiffness, targetStiffness, setpointStiffness );
+      //DEBUG_PRINT( "emg:%.5f - t:%.5f - s:%.5f", jointEMGStiffness, targetStiffness, setpointStiffness );
     }
     
-    jointSetpointsTable[ jointIndex ]->force = setpointForce;
+    ControlJoint( jointMeasuresTable[ jointIndex ], jointSetpointsTable[ jointIndex ], &(controller->jointForceErrorsList[ jointIndex ]), &(controller->jointVelocitySetpointsList[ jointIndex ]), timeDelta );
   }
 }

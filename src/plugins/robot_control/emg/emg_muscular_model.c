@@ -238,7 +238,7 @@ size_t EMGProcessing_GetJointsCount( EMGModel model )
   return model->jointsNumber;
 }
 
-void EMGProcessing_FitJointParameters( EMGModel model, EMGSamplingData* samplingData )
+void EMGProcessing_FitParameters( EMGModel model, EMGSamplingData* samplingData )
 {
   /*khint_t modelIndex = kh_get( JointInt, modelsList, (khint_t) model );
   if( modelIndex == kh_end( modelsList ) ) return;
