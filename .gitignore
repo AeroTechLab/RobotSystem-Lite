@@ -22,3 +22,9 @@ cvibuild.RobRehabControlRT/Release/Jamfile
 *.log
 cvibuild.SimpleJointPlugin/Release/Jamfile
 cvibuild.SimpleJointPlugin/Release/Jamfile_instr
+cvibuild.NIDAQmxPlugin/Release/Jamfile_instr
+cvibuild.NIDAQmxPlugin/Release/Jamfile
+cvibuild.NICANEPOSPlugin/Release/Jamfile_instr
+cvibuild.NICANEPOSPlugin/Release/Jamfile
+cvibuild.EMGJointControlPlugin/Release/Jamfile_instr
+cvibuild.EMGJointControlPlugin/Release/Jamfile
