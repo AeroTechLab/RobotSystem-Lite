@@ -222,18 +222,18 @@ void SetControlState( RobotController ref_controller, enum RobotState newControl
     controller->currentLog = controller->samplingLog;
     controller->samplingData.samplesCount = 0;
   }
+  else if( newControlState == ROBOT_OPERATION )
+  {
+    DEBUG_PRINT( "starting operation for controller %p", ref_controller );
+    controller->currentLog = controller->operationLog;
+  //  if( controller->currentControlState == ROBOT_PREPROCESSING && controller->samplingData.samplesCount > 0 )
+  //  {
+      //DEBUG_PRINT( "starting optimization for controller %p", ref_controller );
+  //    EMGProcessing_FitParameters( controller->emgModel, &(controller->samplingData) );
+  //  }
+  }
   else 
   {
-    if( newControlState == ROBOT_OPERATION )
-    {
-      DEBUG_PRINT( "starting operation for controller %p", ref_controller );
-      controller->currentLog = controller->operationLog;
-    //  if( controller->currentControlState == ROBOT_PREPROCESSING && controller->samplingData.samplesCount > 0 )
-    //  {
-        //DEBUG_PRINT( "starting optimization for controller %p", ref_controller );
-    //    EMGProcessing_FitParameters( controller->emgModel, &(controller->samplingData) );
-    //  }
-    }
     controller->currentLog = NULL;
   }
   
@@ -321,6 +321,7 @@ void RunControlStep( RobotController ref_controller, RobotVariables** jointMeasu
   
   for( size_t jointIndex = 0; jointIndex < controller->jointsNumber; jointIndex++ )
   {
+    jointMeasuresTable[ jointIndex ]->position -= M_PI / 2.0;
     jointAnglesList[ jointIndex ] = jointMeasuresTable[ jointIndex ]->position * 180.0 / M_PI;
     jointTorquesList[ jointIndex ] = jointMeasuresTable[ jointIndex ]->force;
 

@@ -158,10 +158,10 @@ double Sensor_Update( Sensor sensor, double* rawBuffer )
   double sensorOutput = SignalProcessor_UpdateSignal( sensor->processor, sensor->inputBuffer, aquiredSamplesNumber );
   
   double referenceOutput = Sensor_Update( sensor->reference, NULL );
-  if( sensor->reference != NULL && sensor->measurementCurve != NULL ) DEBUG_PRINT( "sensor: %g - reference: %g", sensorOutput, referenceOutput );
-  sensorOutput -= referenceOutput;
   
-  double sensorMeasure = Curve_GetValue( sensor->measurementCurve, sensorOutput, sensorOutput );
+  double sensorMeasure = Curve_GetValue( sensor->measurementCurve, sensorOutput - referenceOutput, sensorOutput - referenceOutput );
+  
+  //if( sensor->reference != NULL && sensor->measurementCurve != NULL ) DEBUG_PRINT( "sensor=%g, reference=%g, measure=%g", sensorOutput, referenceOutput, sensorMeasure );
   
   //Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
   //Log_RegisterList( sensor->log, sensor->maxInputSamplesNumber, sensor->inputBuffer );
