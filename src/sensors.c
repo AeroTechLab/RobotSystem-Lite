@@ -22,6 +22,8 @@
 
 #include "sensors.h"
 
+#include "signal_processing/signal_processing.h" 
+
 #include "signal_io_interface.h"
 #include "curve_loader.h"
 
@@ -153,11 +155,17 @@ double Sensor_Update( Sensor sensor, double* rawBuffer )
   if( sensor == NULL ) return 0.0;
   
   size_t aquiredSamplesNumber = sensor->Read( sensor->deviceID, sensor->channel, sensor->inputBuffer );
-  if( rawBuffer != NULL ) memcpy( rawBuffer, sensor->inputBuffer, sensor->maxInputSamplesNumber * sizeof(double) );
     
   double sensorOutput = SignalProcessor_UpdateSignal( sensor->processor, sensor->inputBuffer, aquiredSamplesNumber );
   
-  double referenceOutput = Sensor_Update( sensor->reference, NULL );
+  if( rawBuffer != NULL ) memset( rawBuffer, 0, sensor->maxInputSamplesNumber * sizeof(double) ); 
+  double referenceOutput = Sensor_Update( sensor->reference, rawBuffer );
+  
+  if( rawBuffer != NULL ) 
+  {
+    for( size_t inputIndex = 0; inputIndex < sensor->maxInputSamplesNumber; inputIndex++ )
+      rawBuffer[ inputIndex ] = sensor->inputBuffer[ inputIndex ] - rawBuffer[ inputIndex ];
+  }
   
   double sensorMeasure = Curve_GetValue( sensor->measurementCurve, sensorOutput - referenceOutput, sensorOutput - referenceOutput );
   
@@ -192,9 +200,13 @@ void Sensor_Reset( Sensor sensor )
   sensor->Reset( sensor->deviceID );
 }
 
-void Sensor_SetState( Sensor sensor, enum SigProcState newProcessingState )
+void Sensor_SetState( Sensor sensor, enum SensorState newState )
 {
   if( sensor == NULL ) return;
+  
+  enum SigProcState newProcessingState = SIG_PROC_STATE_MEASUREMENT;
+  if( newState == SENSOR_STATE_OFFSET ) newProcessingState = SIG_PROC_STATE_OFFSET;
+  else if( newState == SENSOR_STATE_CALIBRATION ) newProcessingState = SIG_PROC_STATE_CALIBRATION;
   
   SignalProcessor_SetState( sensor->processor, newProcessingState );
   Sensor_SetState( sensor->reference, newProcessingState );

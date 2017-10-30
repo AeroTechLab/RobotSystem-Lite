@@ -4,5 +4,9 @@
     { "input_variable": "VELOCITY", "config": "simple_joint_sensor_velocity" },
     { "input_variable": "FORCE", "config": "simple_joint_sensor_torque" }
   ],
-  "motor": { "output_variable": "VELOCITY", "config": "simple_joint_motor" }
+  "motor": { "output_variable": "VELOCITY", "config": "simple_joint_motor" },
+  "filter_deviations": {
+    "position": 1.0,
+    "velocity": 5.0
+  }
 }

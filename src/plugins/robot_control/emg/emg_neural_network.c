@@ -30,17 +30,16 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define EMG_ID_MAX_LENGTH 32
 
 const double LEARNING_RATE = 0.1;
 const double MOMENTUM_FACTOR = 0.5;
 const double PRECISION = 10e-6;
 
-typedef char EMGID[ 32 ];
-
 struct _EMGModelData
 {
-  EMGID* muscleNamesList;
-  EMGID* jointNamesList;
+  char** muscleNamesList;
+  char** jointNamesList;
   size_t musclesNumber, jointsNumber;
   double* inputWeightsTable;
   double* outputWeightsTable;
@@ -59,21 +58,27 @@ bool LoadVariableNames( DataHandle modelData, EMGModel model )
 {
   if( (model->musclesNumber = DataIO_GetListSize( modelData, "muscles" )) > 0 )
   {
-    model->muscleNamesList = (EMGID*) calloc( model->musclesNumber , sizeof(EMGID) );
+    model->muscleNamesList = (char**) calloc( model->musclesNumber , sizeof(char*) );
     for( size_t muscleIndex = 0; muscleIndex < model->musclesNumber; muscleIndex++ )
-      strncpy( (char*) &(model->muscleNamesList[ muscleIndex ]), DataIO_GetStringValue( modelData, "", "muscles.%lu.id", muscleIndex ), sizeof(EMGID) ); 
+    {
+      model->muscleNamesList[ muscleIndex ] = (char*) calloc( EMG_ID_MAX_LENGTH, sizeof(char) );
+      strncpy( model->muscleNamesList[ muscleIndex ], DataIO_GetStringValue( modelData, "", "muscles.%lu.id", muscleIndex ), EMG_ID_MAX_LENGTH );
+    }
+    
+    if( (model->jointsNumber = DataIO_GetListSize( modelData, "joints" )) > 0 )
+    {
+      model->jointNamesList = (char**) calloc( model->jointsNumber , sizeof(char*) );
+      for( size_t jointIndex = 0; jointIndex < model->jointsNumber; jointIndex++ )
+      {
+        model->jointNamesList[ jointIndex ] = (char*) calloc( EMG_ID_MAX_LENGTH, sizeof(char) );
+        strncpy( model->jointNamesList[ jointIndex ], DataIO_GetStringValue( modelData, "", "joints.%lu", jointIndex ), EMG_ID_MAX_LENGTH );
+      }
+        
+      return true;
+    }
   }
-  else
-    return false;
   
-  if( (model->jointsNumber = DataIO_GetListSize( modelData, "joints" )) > 0 )
-  {
-    model->jointNamesList = (EMGID*) calloc( model->jointsNumber , sizeof(EMGID) );
-    for( size_t jointIndex = 0; jointIndex < model->jointsNumber; jointIndex++ )
-      strncpy( (char*) &(model->jointNamesList[ jointIndex ]), DataIO_GetStringValue( modelData, "", "joints.%lu", jointIndex ), sizeof(EMGID) );
-  }
-  else 
-    return false;
+  return false;
 }
 
 EMGModel EMGProcessing_InitModel( const char* configFileName )
@@ -155,7 +160,11 @@ void EMGProcessing_EndModel( EMGModel network )
 {
   if( network == NULL ) return;
   
+  for( size_t muscleIndex = 0; muscleIndex < network->musclesNumber; muscleIndex++ )
+    free( network->muscleNamesList[ muscleIndex ] );
   free( network->muscleNamesList );
+  for( size_t jointIndex = 0; jointIndex < network->jointsNumber; jointIndex++ )
+    free( network->jointNamesList[ jointIndex ] );
   free( network->jointNamesList );
   free( network->inputWeightsTable );
   free( network->outputWeightsTable );

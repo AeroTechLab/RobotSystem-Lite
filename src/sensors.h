@@ -71,11 +71,19 @@
 #define SENSORS_H
 
 
-#include "signal_processing/signal_processing.h"
-
 #include "data_io.h" 
 
 #include <stdbool.h>
+
+
+/// Selectable signal processing phases/modes
+enum SensorState 
+{ 
+  SENSOR_STATE_MEASUREMENT,    ///< Default mode: signal is processed and result is outputed assuming normal operation (preprocessed offset, gain, filter, and limits values are applied)
+  SENSOR_STATE_CALIBRATION,    ///< Minimum and maximum values from filtered signal are registered for posterior normalization, if specified
+  SENSOR_STATE_OFFSET,         ///< Raw values mean is stored for posterior offset removal (no processed result is outputed)
+  SENSOR_STATES_NUMBER         ///< Number of signal processing phases/modes
+};
 
 
 typedef struct _SensorData SensorData;    ///< Single sensor internal data structure    
@@ -114,7 +122,7 @@ void Sensor_Reset( Sensor sensor );
 /// @brief Sets current processing phase/state/mode of given sensor                     
 /// @param[in] sensor reference to sensor
 /// @param[in] newProcessingState desired signal processing phase
-void Sensor_SetState( Sensor sensor, enum SigProcState newProcessingState );
+void Sensor_SetState( Sensor sensor, enum SensorState newState );
 
 
 #endif // SENSORS_H

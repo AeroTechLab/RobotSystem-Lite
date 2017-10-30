@@ -147,8 +147,15 @@ void UpdateEvents()
     else if( robotCommand == ROBOT_CMD_SET_USER )
     {
       char* userName = (char*) messageIn;
-      //DataLogging.SetBaseDirectory( userName );
+      Log_SetBaseDirectory( userName );
+      messageOut[ 0 ] = ROBOT_ST_USER_SET;
       //DEBUG_PRINT( "New user name: %s", userName );
+    }
+    else if( robotCommand == ROBOT_CMD_SET_CONFIG )
+    {
+      char* robotName = (char*) messageIn;
+      RefreshRobotsInfo( robotName, (char*) ( messageOut + 1 ) );
+      messageOut[ 0 ] = ROBOT_ST_CONFIG_SET;
     }
     
     IPC_WriteMessage( robotEventsConnection, messageOut );

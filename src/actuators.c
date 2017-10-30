@@ -42,7 +42,7 @@ struct _ActuatorData
   Motor motor;
   Sensor* sensorsList;
   size_t sensorsNumber;
-  KFilter sensorFilter;
+  KFilter motionFilter;
 };
 
 
@@ -68,7 +68,9 @@ Actuator Actuator_Init( DataHandle configuration )
   
   if( (newActuator->sensorsNumber = DataIO_GetListSize( configuration, "sensors" )) > 0 )
   {
-    newActuator->sensorFilter = Kalman_CreateFilter( CONTROL_VARS_NUMBER );
+    newActuator->motionFilter = Kalman_CreateFilter( CONTROL_VARS_NUMBER );
+    Kalman_SetInputMaxError( newActuator->motionFilter, POSITION, DataIO_GetNumericValue( configuration, 1.0, "filter_deviations.position" ) );
+    Kalman_SetInputMaxError( newActuator->motionFilter, VELOCITY, DataIO_GetNumericValue( configuration, 1.0, "filter_deviations.velocity" ) );
     
     newActuator->sensorsList = (Sensor*) calloc( newActuator->sensorsNumber, sizeof(Sensor) );
     for( size_t sensorIndex = 0; sensorIndex < newActuator->sensorsNumber; sensorIndex++ )
@@ -80,7 +82,7 @@ Actuator Actuator_Init( DataHandle configuration )
       for( int controlModeIndex = 0; controlModeIndex < CONTROL_VARS_NUMBER; controlModeIndex++ )
       {
         if( strcmp( sensorType, CONTROL_MODE_NAMES[ controlModeIndex ] ) == 0 ) 
-          Kalman_AddInput( newActuator->sensorFilter, controlModeIndex );
+          Kalman_AddInput( newActuator->motionFilter, controlModeIndex );
       }
     }
   }
@@ -113,7 +115,7 @@ void Actuator_End( Actuator actuator )
 {
   if( actuator == NULL ) return;
   
-  Kalman_DiscardFilter( actuator->sensorFilter );
+  Kalman_DiscardFilter( actuator->motionFilter );
   
   Motor_End( actuator->motor );
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
@@ -143,7 +145,7 @@ void Actuator_Reset( Actuator actuator )
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
     Sensor_Reset( actuator->sensorsList[ sensorIndex ] );
   
-  Kalman_Reset( actuator->sensorFilter );
+  Kalman_Reset( actuator->motionFilter );
 }
 
 bool Actuator_SetControlState( Actuator actuator, enum ActuatorState newState )
@@ -154,9 +156,9 @@ bool Actuator_SetControlState( Actuator actuator, enum ActuatorState newState )
   
   if( newState >= ACTUATOR_STATES_NUMBER ) return false;
 
-  enum SigProcState sensorsState = SIG_PROC_STATE_MEASUREMENT;
-  if( newState == ACTUATOR_OFFSET ) sensorsState = SIG_PROC_STATE_OFFSET;
-  else if( newState == ACTUATOR_CALIBRATION ) sensorsState = SIG_PROC_STATE_CALIBRATION;
+  enum SensorState sensorsState = SENSOR_STATE_MEASUREMENT;
+  if( newState == ACTUATOR_OFFSET ) sensorsState = SENSOR_STATE_OFFSET;
+  else if( newState == ACTUATOR_CALIBRATION ) sensorsState = SENSOR_STATE_CALIBRATION;
   
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
     Sensor_SetState( actuator->sensorsList[ sensorIndex ], sensorsState );
@@ -194,16 +196,16 @@ ActuatorVariables* Actuator_GetMeasures( Actuator actuator, ActuatorVariables* r
   
   //DEBUG_UPDATE( "reading measures from actuator %p", actuator );
   
-  Kalman_SetPredictionFactor( actuator->sensorFilter, POSITION, VELOCITY, timeDelta );
-  Kalman_SetPredictionFactor( actuator->sensorFilter, POSITION, ACCELERATION, timeDelta * timeDelta / 2.0 );
-  Kalman_SetPredictionFactor( actuator->sensorFilter, VELOCITY, ACCELERATION, timeDelta );
+  Kalman_SetPredictionFactor( actuator->motionFilter, POSITION, VELOCITY, timeDelta );
+  Kalman_SetPredictionFactor( actuator->motionFilter, POSITION, ACCELERATION, timeDelta * timeDelta / 2.0 );
+  Kalman_SetPredictionFactor( actuator->motionFilter, VELOCITY, ACCELERATION, timeDelta );
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
   {
     double sensorMeasure = Sensor_Update( actuator->sensorsList[ sensorIndex ], NULL );
-    Kalman_SetInput( actuator->sensorFilter, sensorIndex, sensorMeasure );
+    Kalman_SetInput( actuator->motionFilter, sensorIndex, sensorMeasure );
   }
-  (void) Kalman_Predict( actuator->sensorFilter, (double*) ref_measures );
-  (void) Kalman_Update( actuator->sensorFilter, NULL, (double*) ref_measures );
+  (void) Kalman_Predict( actuator->motionFilter, (double*) ref_measures );
+  (void) Kalman_Update( actuator->motionFilter, NULL, (double*) ref_measures );
   
   //DEBUG_PRINT( "p=%.5f, v=%.5f, f=%.5f", ref_measures->position, ref_measures->velocity, ref_measures->force );
   

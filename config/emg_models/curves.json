@@ -1,77 +1,66 @@
 {
   "joints": [
-    {
-       "id": "knee",
-       "stiffness_scale": 0.0416733,
-       "stiffness_offset": 0.0370667
-    }
+   {
+     "id": "knee",
+      "stiffness_scale": 2.55187,
+     "stiffness_offset": 0.0
+   }
   ],
-  "muscles": [
+   "muscles": [
     {
-      "id": "rectus_femoris",
-      "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 3.74391e-06, 0.00114546, 0.0852245, -5.98888, 358.522 ] } ] },
-      "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -0, 0, 0, -0, 0 ] } ] },
-      "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 3.05372e-09, 7.05351e-07, 3.90007e-05, -0.00539126, 0.232369 ] } ] },
-      "moment_arm": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 8.20721e-12, -9.59456e-08, -1.66682e-05, -0.000559051, 0.0462581 ] } ] },
-      "force_vel": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 1.1817e-08, 2.53977e-09, -5.83186e-06, 6.07679e-07, 0.00102586, -0.000717257, -0.11755, 1.0399 ] } ] },
-      "activation_factor": -3.02422,
-      "scaling_factor": 0.76538,
-      "initial_penation_angle": 0.0872665
+     "id": "rectus_femoris",
+     "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 3.52985e-06, 0.00112339, 0.0857176, -5.99098, 352.323 ] } ] },
+     "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -0, 0, 0, -0, 0 ] } ] },
+     "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 2.95091e-09, 6.92883e-07, 3.87792e-05, -0.00544799, 0.226757 ] } ] },
+     "moment_arm": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -1.98923e-11, -9.59295e-08, -1.62518e-05, -0.000539511, 0.0465242 ] } ] },
+     "force_vel": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 1.19705e-08, 2.06658e-09, -5.90556e-06, 8.13593e-07, 0.00103787, -0.000745834, -0.118441, 1.03998 ] } ] },
+     "activation_factor": -4.5702,
+     "scaling_factor": 1.52449,
+     "initial_penation_angle": 0.0872665
     },
     {
-      "id": "vastus_medialis",
-      "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 9.49717e-06, 0.0019145, 0.0127658, -11.8781, 824.246 ] } ] },
-      "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 3.10216e-06, 0.000267691, 0.00485616, -0.0286968, -0.386013 ] } ] },
-      "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 1.61648e-09, 3.29205e-07, 1.17394e-05, -0.00756943, 0.525391 ] } ] },
-      "moment_arm": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -2.03284e-09, -4.00635e-07, -2.57737e-05, -0.000427174, 0.0462877 ] } ] },
-      "force_vel": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 1.61628e-08, -8.79965e-09, -7.9033e-06, 5.48176e-06, 0.0013581, -0.00136507, -0.140665, 1.04205 ] } ] },
-      "activation_factor": -2.51549,
-      "scaling_factor": 0.37905,
-      "initial_penation_angle": 0.0872665
+     "id": "vastus_medialis",
+     "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 9.49717e-06, 0.0019145, 0.0127658, -11.8781, 824.246 ] } ] },
+     "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 3.10216e-06, 0.000267691, 0.00485616, -0.0286968, -0.386013 ] } ] },
+     "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 1.61648e-09, 3.29205e-07, 1.17394e-05, -0.00756943, 0.525391 ] } ] },
+     "moment_arm": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -2.03284e-09, -4.00635e-07, -2.57737e-05, -0.000427174, 0.0462877 ] } ] },
+     "force_vel": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 1.61628e-08, -8.79965e-09, -7.9033e-06, 5.48176e-06, 0.0013581, -0.00136507, -0.140665, 1.04205 ] } ] },
+     "activation_factor": -4.62571,
+     "scaling_factor": 0.491895,
+     "initial_penation_angle": 0.0872665
+  },
+  {
+     "id": "vastus_laterais",
+     "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 2.2906e-05, 0.00453251, 0.110239, -16.6138, 1161 ] } ] },
+     "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 4.64388e-06, 0.000361077, 0.00495607, -0.0569432, -0.33232 ] } ] },
+     "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 4.418e-09, 9.24272e-07, 5.0079e-05, -0.00725547, 0.511655 ] } ] },
+     "moment_arm": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -1.99323e-09, -4.47731e-07, -3.42568e-05, -0.000809586, 0.0426733 ] } ] },
+     "force_vel": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 1.65471e-08, -1.02553e-08, -8.08444e-06, 6.06959e-06, 0.00138645, -0.00143188, -0.142457, 1.04147 ] } ] },
+     "activation_factor": 0.00912447,
+     "scaling_factor": 0.32973,
+     "initial_penation_angle": 0.0872665
+  },
+    {
+     "id": "bisceps_femoris",
+     "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 2.30713e-06, 0.000718855, 0.046712, -3.44108, 535.022 ] } ] },
+     "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -7.26052e-06, -0.00105314, 0.023436, 10.2458, 471.855 ] } ] },
+     "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -5.3801e-10, -3.8285e-07, -3.77638e-05, 0.00315542, 1.50731 ] } ] },
+     "moment_arm": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 5.74877e-11, 2.88112e-08, 8.52586e-06, 0.000463342, -0.0258567 ] } ] },
+     "force_vel": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -7.885e-09, 1.87077e-08, 3.9339e-06, -6.60371e-06, -0.000711003, 0.000341181, 0.0919468, 1.03836 ] } ] },
+     "activation_factor": -3.00401,
+     "scaling_factor": 0.342843,
+     "initial_penation_angle": 0
     },
     {
-      "id": "vastus_laterais",
-      "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 2.2906e-05, 0.00453251, 0.110239, -16.6138, 1161 ] } ] },
-      "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 4.64388e-06, 0.000361077, 0.00495607, -0.0569432, -0.33232 ] } ] },
-      "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 4.418e-09, 9.24272e-07, 5.0079e-05, -0.00725547, 0.511655 ] } ] },
-      "moment_arm": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -1.99323e-09, -4.47731e-07, -3.42568e-05, -0.000809586, 0.0426733 ] } ] },
-      "force_vel": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 1.65471e-08, -1.02553e-08, -8.08444e-06, 6.06959e-06, 0.00138645, -0.00143188, -0.142457, 1.04147 ] } ] },
-      "activation_factor": -1.6098,
-      "scaling_factor": 0.32403,
-      "initial_penation_angle": 0.0872665
-    },
-    {
-      "id": "bisceps_femoris",
-      "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 2.28893e-06, 0.000725576, 0.0480311, -3.43796, 530.7 ] } ] },
-      "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -7.67394e-06, -0.00112279, 0.0218752, 10.5132, 484.851 ] } ] },
-      "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -5.24723e-10, -3.85231e-07, -3.8595e-05, 0.00315354, 1.51127 ] } ] },
-      "moment_arm": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 6.23109e-11, 2.9616e-08, 8.58561e-06, 0.000469825, -0.0256644 ] } ] },
-      "force_vel": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -7.98363e-09, 1.85237e-08, 3.98161e-06, -6.51407e-06, -0.000718933, 0.000325737, 0.0925855, 1.03855 ] } ] },
-      "activation_factor": -3.01408,
-      "scaling_factor": 0.97992,
-      "initial_penation_angle": 0
-    },
-    {
-      "id": "semitendinoso",
-      "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 9.31973e-09, 7.79227e-05, 0.00576045, -1.34765, 281.484 ] } ] },
-      "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -4.38147e-07, -4.35197e-05, 0.0132279, 2.5298, 129.864 ] } ] },
-      "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 8.22266e-10, 5.11082e-09, -1.12572e-05, 0.00275828, 1.43339 ] } ] },
-      "moment_arm": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 2.20181e-10, 2.48609e-09, 2.43083e-06, 0.000317871, -0.036496 ] } ] },
-      "force_vel": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -6.42428e-09, 1.9957e-08, 3.22709e-06, -7.27047e-06, -0.000593897, 0.000466904, 0.0829909, 1.03506 ] } ] },
-      "activation_factor": -3.00619,
-      "scaling_factor": 0.786777,
-      "initial_penation_angle": 0.0872665
-    },
-    {
-      "id": "vastus_intermedius",
-      "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 1.07579e-05, 0.0020353, -0.00322774, -13.0261, 896.145 ] } ] },
-      "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 3.0114e-06, 0.00019161, 0.000877952, -0.0488632, 0.027051 ] } ] },
-      "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 1.36258e-09, 3.31347e-07, 1.23259e-05, -0.0078545, 0.540903 ] } ] },
-      "moment_arm": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -4.94843e-10, -1.36104e-07, -1.29288e-05, -0.00026789, 0.0463877 ] } ] },
-      "force_vel": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 1.6553e-08, -9.96692e-09, -8.08758e-06, 5.96242e-06, 0.00138707, -0.00142259, -0.142537, 1.04186 ] } ] },
-      "activation_factor": -2.83186,
-      "scaling_factor": 0.38073,
-      "initial_penation_angle": 0.0872665
+     "id": "semitendinoso",
+     "active_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 1.42729e-08, 7.73755e-05, 0.00560033, -1.33769, 282.95 ] } ] },
+     "passive_force": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -4.13882e-07, -4.07428e-05, 0.0129124, 2.4662, 127.136 ] } ] },
+     "normalized_length": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 8.19533e-10, 4.54876e-09, -1.10893e-05, 0.00274251, 1.43039 ] } ] },
+     "moment_arm": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ 1.71734e-10, -5.43388e-09, 2.10396e-06, 0.000312714, -0.0366765 ] } ] },
+     "force_vel": { "segments": [ { "type": "polynomial", "bounds": [ -120, 10 ], "parameters": [ -6.3431e-09, 2.00876e-08, 3.1875e-06, -7.33847e-06, -0.000587187, 0.000479945, 0.0824137, 1.03488 ] } ] },
+     "activation_factor": -0.037837,
+     "scaling_factor": 0.448831,
+     "initial_penation_angle": 0.0872665
     }
   ]
 }

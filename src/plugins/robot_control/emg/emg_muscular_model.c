@@ -209,8 +209,11 @@ void EMGProcessing_GetJointTorques( EMGModel model, double* jointTorquesList )
 {
   if( model == NULL ) return;
   
+  double jointTorque = 0.0;
   for( size_t muscleIndex = 0; muscleIndex < model->musclesNumber; muscleIndex++ )
-    jointTorquesList[ 0 ] += model->musclesList[ muscleIndex ]->fibersTorque;
+    jointTorque += model->musclesList[ muscleIndex ]->fibersTorque;
+  
+  jointTorquesList[ 0 ] = jointTorque;
 }
 
 void EMGProcessing_GetJointStiffnesses( EMGModel model, double* jointStiffnessesList )
@@ -222,6 +225,7 @@ void EMGProcessing_GetJointStiffnesses( EMGModel model, double* jointStiffnesses
     jointStiffness += fabs( model->musclesList[ muscleIndex ]->fibersTorque );
   
   jointStiffnessesList[ 0 ] = jointStiffness * model->jointsList[ 0 ]->stiffnessScalingFactor + model->jointsList[ 0 ]->stiffnessOffset;
+  if( jointStiffnessesList[ 0 ] <= 0.0 ) jointStiffnessesList[ 0 ] = 0.1;
 }
 
 const char** EMGProcessing_GetJointNames( EMGModel model )
@@ -281,11 +285,11 @@ void EMGProcessing_FitParameters( EMGModel model, EMGSamplingData* samplingData 
 }
 
 
-void EMGProcessing_RunStep( EMGModel model, double* muscleActivationsList, double* jointAnglesList, double* externalTorquesList )
+void EMGProcessing_RunStep( EMGModel model, double* muscleActivationsList, double* jointAnglesList, double* jointVelocitiesList, double* externalTorquesList )
 {
   if( model == NULL ) return;  
   
-  //DEBUG_PRINT( "Muscle signals: %.5f, %.5f, %.5f, %.5f, %.5f, %.5f", normalizedSignalsList[ 0 ], normalizedSignalsList[ 1 ], normalizedSignalsList[ 2 ], normalizedSignalsList[ 3 ], normalizedSignalsList[ 4 ], normalizedSignalsList[ 5 ] );
+  //DEBUG_PRINT( "Muscle signals: %.5f, %.5f, %.5f, %.5f, %.5f", muscleActivationsList[ 0 ], muscleActivationsList[ 1 ], muscleActivationsList[ 2 ], muscleActivationsList[ 3 ], muscleActivationsList[ 4 ], );
   
   for( size_t muscleIndex = 0; muscleIndex < model->musclesNumber; muscleIndex++ )
   {
@@ -295,7 +299,7 @@ void EMGProcessing_RunStep( EMGModel model, double* muscleActivationsList, doubl
   
     double activeForce = Curve_GetValue( muscle->curvesList[ MUSCLE_ACTIVE_FORCE ], jointAnglesList[ 0 ], 0.0 );
     double passiveForce = Curve_GetValue( muscle->curvesList[ MUSCLE_PASSIVE_FORCE ], jointAnglesList[ 0 ], 0.0 );
-    double velocityForce = Curve_GetValue( muscle->curvesList[ MUSCLE_VELOCITY_FORCE ], jointAnglesList[ 0 ], 0.0 );
+    double velocityForce = Curve_GetValue( muscle->curvesList[ MUSCLE_VELOCITY_FORCE ], jointVelocitiesList[ 0 ], 0.0 );
   
     double normalizedLength = Curve_GetValue( muscle->curvesList[ MUSCLE_NORM_LENGTH ], jointAnglesList[ 0 ], 0.0 );
     double momentArm = Curve_GetValue( muscle->curvesList[ MUSCLE_MOMENT_ARM ], jointAnglesList[ 0 ], 0.0 );
@@ -303,9 +307,14 @@ void EMGProcessing_RunStep( EMGModel model, double* muscleActivationsList, doubl
     if( normalizedLength == 0.0 ) normalizedLength = 1.0;
     double penationAngle = asin( sin( muscle->initialPenationAngle ) / normalizedLength );
   
-    double normalizedForce = activeForce * velocityForce * activation + passiveForce;
+    //double normalizedForce = activeForce * velocityForce * activation + passiveForce;
+    double normalizedForce = activeForce * activation; + passiveForce; 
     muscle->fibersForce = muscle->scalingFactor * cos( penationAngle ) * normalizedForce;
   
     muscle->fibersTorque = muscle->fibersForce * momentArm;
+    
+    //fprintf( stderr, "%.5f ", muscle->fibersForce );
   }
+  
+  //fprintf( stderr, "\n" );
 }
