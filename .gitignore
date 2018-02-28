@@ -28,3 +28,15 @@ cvibuild.NICANEPOSPlugin/Release/Jamfile_instr
 cvibuild.NICANEPOSPlugin/Release/Jamfile
 cvibuild.EMGJointControlPlugin/Release/Jamfile_instr
 cvibuild.EMGJointControlPlugin/Release/Jamfile
+cvibuild.DualMotorControl/Release/Jamfile
+cvibuild.HDControlPlugin/Release/Jamfile
+cvibuild.DualMotorControl/Release/Jamfile_instr
+cvibuild.HDControlPlugin/Release/Jamfile_instr
+cvibuild.NISPIPlugin/Debug/Jamfile
+cvibuild.NISPIPlugin/Debug/Jamfile_instr
+cvibuild.NISPIPlugin/Debug/NISPI.dll.defs
+*.defs
+*.hdefs
+cvibuild.NISPIPlugin/Release/Jamfile
+cvibuild.NISPIPlugin/Release/Jamfile_instr
+src/plugins/robot_control/emg/emg_control~cvi173251.c

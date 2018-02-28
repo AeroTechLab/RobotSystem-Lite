@@ -1,12 +1,8 @@
 {
   "sensors": [
-    { "input_variable": "POSITION", "config": "simple_joint_sensor_position" },
-    { "input_variable": "VELOCITY", "config": "simple_joint_sensor_velocity" },
-    { "input_variable": "FORCE", "config": "simple_joint_sensor_torque" }
+    { "input_variable": "POSITION", "config": "simple_joint_sensor_position", "deviation": 1.0 },
+    { "input_variable": "VELOCITY", "config": "simple_joint_sensor_velocity", "deviation": 10.0 },
+    { "input_variable": "FORCE", "config": "simple_joint_sensor_torque", "deviation": 1.0 }
   ],
-  "motor": { "output_variable": "VELOCITY", "config": "simple_joint_motor" },
-  "filter_deviations": {
-    "position": 1.0,
-    "velocity": 5.0
-  }
+  "motor": { "output_variable": "VELOCITY", "config": "simple_joint_motor" }
 }

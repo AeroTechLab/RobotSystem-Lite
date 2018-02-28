@@ -10,7 +10,8 @@
   "signal_processing": {
     "rectified": true,
     "normalized": true,
-    "smoothing_frequency": 0.001
+    "min_frequency": 0.0005,
+    "max_frequency": 0.001
   },
-  "log": "vastus_medialis"
+  "log_data": false
 }

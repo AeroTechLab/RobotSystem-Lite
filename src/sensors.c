@@ -98,8 +98,10 @@ Sensor Sensor_Init( DataHandle configuration )
       inputGain /= DataIO_GetNumericValue( configuration, 1.0, "input_gain.divisor" );
       SignalProcessor_SetInputGain( newSensor->processor, inputGain );
       
-      double relativeCutFrequency = DataIO_GetNumericValue( configuration, 0.0, "signal_processing.smoothing_frequency" );
-      SignalProcessor_SetMaxFrequency( newSensor->processor, relativeCutFrequency );
+      double relativeMinCutFrequency = DataIO_GetNumericValue( configuration, 0.0, "signal_processing.min_frequency" );
+      SignalProcessor_SetMinFrequency( newSensor->processor, relativeMinCutFrequency );
+      double relativeMaxCutFrequency = DataIO_GetNumericValue( configuration, 0.0, "signal_processing.max_frequency" );
+      SignalProcessor_SetMaxFrequency( newSensor->processor, relativeMaxCutFrequency );
       
       DataHandle curveConfiguration = DataIO_GetSubData( configuration, "conversion_curve" );
       newSensor->measurementCurve = Curve_Load( curveConfiguration );
@@ -169,7 +171,7 @@ double Sensor_Update( Sensor sensor, double* rawBuffer )
   
   double sensorMeasure = Curve_GetValue( sensor->measurementCurve, sensorOutput - referenceOutput, sensorOutput - referenceOutput );
   
-  //if( sensor->reference != NULL && sensor->measurementCurve != NULL ) DEBUG_PRINT( "sensor=%g, reference=%g, measure=%g", sensorOutput, referenceOutput, sensorMeasure );
+  if( sensor->reference != NULL && sensor->measurementCurve != NULL ) DEBUG_PRINT( "sensor=%g, reference=%g, measure=%g", sensorOutput, referenceOutput, sensorMeasure );
   
   //Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
   //Log_RegisterList( sensor->log, sensor->maxInputSamplesNumber, sensor->inputBuffer );

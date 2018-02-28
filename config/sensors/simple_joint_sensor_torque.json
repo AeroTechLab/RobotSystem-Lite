@@ -13,7 +13,7 @@
     "scale_factor": -104.0
   },
   "signal_processing": {
-    "smoothing_frequency": 0.25
+    "max_frequency": 0.25
   },
   "log_data": false
 }

@@ -80,7 +80,7 @@ Robot Robot_Init( const char* configFileName )
 {
   static char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
 
-  Log_PrintString( NULL, "trying to create robot %s", configFileName );
+  DEBUG_PRINT( "trying to create robot %s", configFileName );
   
   Robot newRobot = NULL;
   
@@ -97,9 +97,9 @@ Robot Robot_Init( const char* configFileName )
     if( loadSuccess )
     {
       const char* controllerConfigString = DataIO_GetStringValue( configuration, "", "controller.config" );
-      Log_PrintString( NULL, "loading controller config %s", controllerConfigString ); 
+      DEBUG_PRINT( "loading controller config %s", controllerConfigString ); 
       newRobot->controller = newRobot->InitController( controllerConfigString );
-      Log_PrintString( NULL, "loaded controller handle %p", newRobot->controller );
+      DEBUG_PRINT( "loaded controller handle %p", newRobot->controller );
       
       newRobot->controlTimeStep = DataIO_GetNumericValue( configuration, CONTROL_PASS_INTERVAL, "controller.time_step" );   
       
@@ -140,9 +140,6 @@ Robot Robot_Init( const char* configFileName )
     
     Log_PrintString( NULL, "robot %s created (handle: %p)", configFileName, newRobot );
   }
-  
-  // temp
-  //Robot_Enable( newRobot ); 
   
   return newRobot;
 }
@@ -190,7 +187,7 @@ bool Robot_Enable( Robot robot )
   
   //DEBUG_PRINT( "Enabling robot %p", robot );
   
-  Robot_SetControlState( robot, ROBOT_OFFSET );
+  Robot_SetControlState( robot, /*ROBOT_OFFSET*/ROBOT_OPERATION );
   
   for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
   {

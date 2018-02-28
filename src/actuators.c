@@ -39,6 +39,7 @@ struct _ActuatorData
 {
   enum ActuatorState controlState;
   enum ControlVariable controlMode;
+  ActuatorVariables offset;
   Motor motor;
   Sensor* sensorsList;
   size_t sensorsNumber;
@@ -69,8 +70,6 @@ Actuator Actuator_Init( DataHandle configuration )
   if( (newActuator->sensorsNumber = DataIO_GetListSize( configuration, "sensors" )) > 0 )
   {
     newActuator->motionFilter = Kalman_CreateFilter( CONTROL_VARS_NUMBER );
-    Kalman_SetInputMaxError( newActuator->motionFilter, POSITION, DataIO_GetNumericValue( configuration, 1.0, "filter_deviations.position" ) );
-    Kalman_SetInputMaxError( newActuator->motionFilter, VELOCITY, DataIO_GetNumericValue( configuration, 1.0, "filter_deviations.velocity" ) );
     
     newActuator->sensorsList = (Sensor*) calloc( newActuator->sensorsNumber, sizeof(Sensor) );
     for( size_t sensorIndex = 0; sensorIndex < newActuator->sensorsNumber; sensorIndex++ )
@@ -84,6 +83,7 @@ Actuator Actuator_Init( DataHandle configuration )
         if( strcmp( sensorType, CONTROL_MODE_NAMES[ controlModeIndex ] ) == 0 ) 
           Kalman_AddInput( newActuator->motionFilter, controlModeIndex );
       }
+      Kalman_SetInputMaxError( newActuator->motionFilter, sensorIndex, DataIO_GetNumericValue( configuration, 1.0, "sensors.%lu.deviation" ) );
     }
   }
   
@@ -196,9 +196,9 @@ ActuatorVariables* Actuator_GetMeasures( Actuator actuator, ActuatorVariables* r
   
   //DEBUG_UPDATE( "reading measures from actuator %p", actuator );
   
-  Kalman_SetPredictionFactor( actuator->motionFilter, POSITION, VELOCITY, timeDelta );
-  Kalman_SetPredictionFactor( actuator->motionFilter, POSITION, ACCELERATION, timeDelta * timeDelta / 2.0 );
-  Kalman_SetPredictionFactor( actuator->motionFilter, VELOCITY, ACCELERATION, timeDelta );
+  Kalman_SetPredictionFactor( actuator->motionFilter, POSITION, VELOCITY, /*timeDelta*/0.005 );
+  Kalman_SetPredictionFactor( actuator->motionFilter, POSITION, ACCELERATION, /*timeDelta * timeDelta*/ 0.005 * 0.005 / 2.0 );
+  Kalman_SetPredictionFactor( actuator->motionFilter, VELOCITY, ACCELERATION, /*timeDelta*/ 0.005 );
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
   {
     double sensorMeasure = Sensor_Update( actuator->sensorsList[ sensorIndex ], NULL );
@@ -209,6 +209,15 @@ ActuatorVariables* Actuator_GetMeasures( Actuator actuator, ActuatorVariables* r
   
   //DEBUG_PRINT( "p=%.5f, v=%.5f, f=%.5f", ref_measures->position, ref_measures->velocity, ref_measures->force );
   
+  //if( actuator->controlState == ACTUATOR_OFFSET ) actuator->offset = *ref_measures;
+  //else
+  //{
+    ref_measures->position -= actuator->offset.position;
+    ref_measures->velocity -= actuator->offset.velocity;
+    ref_measures->acceleration -= actuator->offset.acceleration;
+    ref_measures->force -= actuator->offset.force;
+  //}
+  
   return ref_measures;
 }
 
@@ -217,6 +226,7 @@ double Actuator_SetSetpoints( Actuator actuator, ActuatorVariables* ref_setpoint
   if( actuator == NULL ) return 0.0;
   
   double motorSetpoint = ( (double*) ref_setpoints )[ actuator->controlMode ];
+  motorSetpoint += ( (double*) &(actuator->offset) )[ actuator->controlMode ];
   
   // If the motor is being actually controlled, write its control output
   if( Motor_IsEnabled( actuator->motor ) && actuator->controlState != ACTUATOR_OFFSET ) 

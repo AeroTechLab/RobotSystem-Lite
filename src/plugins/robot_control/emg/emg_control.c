@@ -328,7 +328,7 @@ void RunControlStep( RobotController ref_controller, RobotVariables** jointMeasu
   
   for( size_t jointIndex = 0; jointIndex < controller->jointsNumber; jointIndex++ )
   {
-    jointMeasuresTable[ jointIndex ]->position -= M_PI / 2.0;
+    //jointMeasuresTable[ jointIndex ]->position -= M_PI / 2.0;
     jointAnglesList[ jointIndex ] = jointMeasuresTable[ jointIndex ]->position * 180.0 / M_PI;
     jointVelocitiesList[ jointIndex ] = jointMeasuresTable[ jointIndex ]->velocity * 180.0 / M_PI;
     jointTorquesList[ jointIndex ] = jointMeasuresTable[ jointIndex ]->force;
@@ -382,7 +382,7 @@ void RunControlStep( RobotController ref_controller, RobotVariables** jointMeasu
       controller->jointStiffnessesList[ jointIndex ] = ( 1.0 - UPDATE_FACTOR ) * controller->jointStiffnessesList[ jointIndex ] + UPDATE_FACTOR * targetStiffness;
       jointSetpointsTable[ jointIndex ]->stiffness = controller->jointStiffnessesList[ jointIndex ];
       
-      DEBUG_PRINT( "stiffness: user=%g, robot=%g", axisMeasuresTable[ jointIndex ]->stiffness, jointSetpointsTable[ jointIndex ]->stiffness );
+      //DEBUG_PRINT( "stiffness: user=%g, robot=%g", axisMeasuresTable[ jointIndex ]->stiffness, jointSetpointsTable[ jointIndex ]->stiffness );
     }
     
     ControlJoint( jointMeasuresTable[ jointIndex ], jointSetpointsTable[ jointIndex ], &(controller->jointForceErrorsList[ jointIndex ]), &(controller->jointVelocitySetpointsList[ jointIndex ]), timeDelta );

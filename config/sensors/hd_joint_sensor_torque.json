@@ -1,0 +1,19 @@
+{
+  "input_interface": {
+    "type": "NISPI",
+    "config": "Clock EncoderRead ChipSelect",
+    "channel": 0
+  },
+  "input_gain": {
+    "multiplier": -6.28,
+    "divisor": 65536
+  },
+  "reference": "hd_joint_sensor_motor",
+  "conversion_curve": {
+    "scale_factor": -1.0
+  },
+  "signal_processing": {
+    "max_frequency": 0.25
+  },
+  "log_data": false
+}
