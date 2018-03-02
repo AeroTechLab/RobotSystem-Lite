@@ -1,21 +1,21 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2017 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2018 Leonardo Consoni <consoni_2519@hotmail.com>       //
 //                                                                            //
-//  This file is part of RobRehabSystem.                                      //
+//  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
-//  RobRehabSystem is free software: you can redistribute it and/or modify    //
+//  RobotSystem-Lite is free software: you can redistribute it and/or modify  //
 //  it under the terms of the GNU Lesser General Public License as published  //
 //  by the Free Software Foundation, either version 3 of the License, or      //
 //  (at your option) any later version.                                       //
 //                                                                            //
-//  RobRehabSystem is distributed in the hope that it will be useful,         //
+//  RobotSystem-Lite is distributed in the hope that it will be useful,       //
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of            //
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the              //
 //  GNU Lesser General Public License for more details.                       //
 //                                                                            //
 //  You should have received a copy of the GNU Lesser General Public License  //
-//  along with RobRehabSystem. If not, see <http://www.gnu.org/licenses/>.    //
+//  along with RobotSystem-Lite. If not, see <http://www.gnu.org/licenses/>.  //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,20 +38,22 @@
 /////                            CONTROL DEVICE                             /////
 /////////////////////////////////////////////////////////////////////////////////
 
-struct _JointData
+typedef struct _JointData       // Single robot joint internal data structure
 {
   Actuator actuator;
   RobotVariables* measures;
   RobotVariables* setpoints;
   bool hasChanged;
-};
+}
+JointData; 
 
-struct _AxisData
+typedef struct _AxisData         // Single robot axis internal data structure
 {
   RobotVariables* measures;
   RobotVariables* setpoints;
   bool hasChanged;
-};
+}
+AxisData;
 
 struct _RobotData
 {
@@ -61,11 +63,11 @@ struct _RobotData
   volatile bool isControlRunning;
   enum RobotState controlState;
   double controlTimeStep;
-  Joint* jointsList;
+  JointData* jointsList;
   RobotVariables** jointMeasuresList;
   RobotVariables** jointSetpointsList;
   size_t jointsNumber;
-  Axis* axesList;
+  AxisData* axesList;
   RobotVariables** axisMeasuresList;
   RobotVariables** axisSetpointsList;
   size_t axesNumber;
@@ -76,15 +78,15 @@ const double CONTROL_PASS_INTERVAL = 0.005;
 
 static void* AsyncControl( void* );
 
-Robot Robot_Init( const char* configFileName )
+Robot Robot_Init( const char* configPathName )
 {
   static char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
 
-  DEBUG_PRINT( "trying to create robot %s", configFileName );
+  DEBUG_PRINT( "trying to create robot %s", configPathName );
   
   Robot newRobot = NULL;
   
-  sprintf( filePath, "robots/%s", configFileName );
+  sprintf( filePath, "robots/%s", configPathName );
   DataHandle configuration = DataIO_LoadFileData( filePath );
   if( configuration != NULL )
   {
@@ -104,29 +106,25 @@ Robot Robot_Init( const char* configFileName )
       newRobot->controlTimeStep = DataIO_GetNumericValue( configuration, CONTROL_PASS_INTERVAL, "controller.time_step" );   
       
       newRobot->jointsNumber = newRobot->GetJointsNumber( newRobot->controller );
-      newRobot->jointsList = (Joint*) calloc( newRobot->jointsNumber, sizeof(Joint) );
+      newRobot->jointsList = (JointData*) calloc( newRobot->jointsNumber, sizeof(JointData) );
       newRobot->jointMeasuresList = (RobotVariables**) calloc( newRobot->jointsNumber, sizeof(RobotVariables*) );
       newRobot->jointSetpointsList = (RobotVariables**) calloc( newRobot->jointsNumber, sizeof(RobotVariables*) );
       for( size_t jointIndex = 0; jointIndex < newRobot->jointsNumber; jointIndex++ )
       {
-        newRobot->jointsList[ jointIndex ] = (Joint) malloc( sizeof(JointData) );
         DataHandle actuatorConfiguration = DataIO_GetSubData( configuration, "actuators.%lu", jointIndex );
-        newRobot->jointsList[ jointIndex ]->actuator = Actuator_Init( actuatorConfiguration );
-        newRobot->jointMeasuresList[ jointIndex ] = newRobot->jointsList[ jointIndex ]->measures = (RobotVariables*) malloc( sizeof(RobotVariables) );
-        newRobot->jointSetpointsList[ jointIndex ] = newRobot->jointsList[ jointIndex ]->setpoints = (RobotVariables*) malloc( sizeof(RobotVariables) );
-        
-        if( newRobot->jointsList[ jointIndex ] == NULL ) loadSuccess = false;
+        newRobot->jointsList[ jointIndex ].actuator = Actuator_Init( actuatorConfiguration );
+        newRobot->jointMeasuresList[ jointIndex ] = newRobot->jointsList[ jointIndex ].measures = (RobotVariables*) malloc( sizeof(RobotVariables) );
+        newRobot->jointSetpointsList[ jointIndex ] = newRobot->jointsList[ jointIndex ].setpoints = (RobotVariables*) malloc( sizeof(RobotVariables) );
       }
 
       newRobot->axesNumber = newRobot->GetAxesNumber( newRobot->controller );
-      newRobot->axesList = (Axis*) calloc( newRobot->axesNumber, sizeof(Axis) );
+      newRobot->axesList = (AxisData*) calloc( newRobot->axesNumber, sizeof(AxisData) );
       newRobot->axisMeasuresList = (RobotVariables**) calloc( newRobot->axesNumber, sizeof(RobotVariables*) );
       newRobot->axisSetpointsList = (RobotVariables**) calloc( newRobot->axesNumber, sizeof(RobotVariables*) );
       for( size_t axisIndex = 0; axisIndex < newRobot->axesNumber; axisIndex++ )
       {
-        newRobot->axesList[ axisIndex ] = (Axis) malloc( sizeof(AxisData) );
-        newRobot->axisMeasuresList[ axisIndex ] = newRobot->axesList[ axisIndex ]->measures = (RobotVariables*) malloc( sizeof(RobotVariables) );
-        newRobot->axisSetpointsList[ axisIndex ] = newRobot->axesList[ axisIndex ]->setpoints = (RobotVariables*) malloc( sizeof(RobotVariables) );
+        newRobot->axisMeasuresList[ axisIndex ] = newRobot->axesList[ axisIndex ].measures = (RobotVariables*) malloc( sizeof(RobotVariables) );
+        newRobot->axisSetpointsList[ axisIndex ] = newRobot->axesList[ axisIndex ].setpoints = (RobotVariables*) malloc( sizeof(RobotVariables) );
       }
     }
     
@@ -138,7 +136,7 @@ Robot Robot_Init( const char* configFileName )
       return NULL;
     }
     
-    Log_PrintString( NULL, "robot %s created (handle: %p)", configFileName, newRobot );
+    Log_PrintString( NULL, "robot %s created (handle: %p)", configPathName, newRobot );
   }
   
   return newRobot;
@@ -156,18 +154,16 @@ void Robot_End( Robot robot )
   
   for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
   {
-    Actuator_End( robot->jointsList[ jointIndex ]->actuator );
-    free( robot->jointsList[ jointIndex ]->measures );
-    free( robot->jointsList[ jointIndex ]->setpoints );
-    free( robot->jointsList[ jointIndex ] );
+    Actuator_End( robot->jointsList[ jointIndex ].actuator );
+    free( robot->jointsList[ jointIndex ].measures );
+    free( robot->jointsList[ jointIndex ].setpoints );
   }
   free( robot->jointsList );
   
   for( size_t axisIndex = 0; axisIndex < robot->axesNumber; axisIndex++ )
   {
-    free( robot->axesList[ axisIndex ]->measures );
-    free( robot->axesList[ axisIndex ]->setpoints );
-    free( robot->axesList[ axisIndex ] );
+    free( robot->axesList[ axisIndex ].measures );
+    free( robot->axesList[ axisIndex ].setpoints );
   }
   free( robot->axesList );
   
@@ -191,12 +187,12 @@ bool Robot_Enable( Robot robot )
   
   for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
   {
-    Actuator_Enable( robot->jointsList[ jointIndex ]->actuator );
+    Actuator_Enable( robot->jointsList[ jointIndex ].actuator );
     
     //if( !Actuator_IsEnabled( robot->jointsList[ jointIndex ]->actuator ) ) return false;
   }
   
-  if( !robot->isControlRunning )
+  if( !(robot->isControlRunning) )
   {
     robot->controlThread = Thread_Start( AsyncControl, robot, THREAD_JOINABLE );
   
@@ -219,9 +215,9 @@ bool Robot_Disable( Robot robot )
   for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
   {
     ActuatorVariables stopSetpoints = { 0.0 };
-    (void) Actuator_SetSetpoints( robot->jointsList[ jointIndex ]->actuator, &stopSetpoints );
+    (void) Actuator_SetSetpoints( robot->jointsList[ jointIndex ].actuator, &stopSetpoints );
     
-    Actuator_Disable( robot->jointsList[ jointIndex ]->actuator );
+    Actuator_Disable( robot->jointsList[ jointIndex ].actuator );
   }
   
   return true;
@@ -244,29 +240,11 @@ bool Robot_SetControlState( Robot robot, enum RobotState newState )
   else if( newState == ROBOT_CALIBRATION ) actuatorState = ACTUATOR_CALIBRATION;
   
   for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
-    Actuator_SetControlState( robot->jointsList[ jointIndex ]->actuator, actuatorState );
+    Actuator_SetControlState( robot->jointsList[ jointIndex ].actuator, actuatorState );
   
   robot->controlState = newState;
   
   return true;
-}
-
-Joint Robot_GetJoint( Robot robot, size_t jointIndex )
-{
-  if( robot == NULL ) return NULL;
-  
-  if( jointIndex >= robot->jointsNumber ) return NULL;
-  
-  return robot->jointsList[ jointIndex ];
-}
-
-Axis Robot_GetAxis( Robot robot, size_t axisIndex )
-{
-  if( robot == NULL ) return NULL;
-  
-  if( axisIndex >= robot->axesNumber ) return NULL;
-  
-  return robot->axesList[ axisIndex ];
 }
 
 const char* Robot_GetJointName( Robot robot, size_t jointIndex )
@@ -295,42 +273,41 @@ const char* Robot_GetAxisName( Robot robot, size_t axisIndex )
   return axisNamesList[ axisIndex ];
 }
 
-bool Robot_GetJointMeasures( Joint joint, RobotVariables* ref_measures )
+bool Robot_GetJointMeasures( Robot robot, size_t jointIndex, RobotVariables* ref_measures )
 {
-  if( joint == NULL ) return false;
+  if( robot == NULL ) return false;
   
-  bool measuresChanged = joint->hasChanged;
-  joint->hasChanged = false;
+  if( jointIndex >= robot->jointsNumber ) return false;
   
-  *ref_measures = *(joint->measures);
+  bool measuresChanged = robot->jointsList[ jointIndex ].hasChanged;
+  robot->jointsList[ jointIndex ].hasChanged = false;
+  
+  *ref_measures = *(robot->jointsList[ jointIndex ].measures);
   
   return measuresChanged;
 }
 
-bool Robot_GetAxisMeasures( Axis axis, RobotVariables* ref_measures )
+bool Robot_GetAxisMeasures( Robot robot, size_t axisIndex, RobotVariables* ref_measures )
 {
-  if( axis == NULL ) return false;
+  if( robot == NULL ) return false;
   
-  bool measuresChanged = axis->hasChanged;
-  axis->hasChanged = false;
+  if( axisIndex >= robot->axesNumber ) return false;
   
-  *ref_measures = *(axis->measures);
+  bool measuresChanged = robot->axesList[ axisIndex ].hasChanged;
+  robot->axesList[ axisIndex ].hasChanged = false;
+  
+  *ref_measures = *(robot->axesList[ axisIndex ].measures);
   
   return measuresChanged;
 }
 
-//void Robot_SetJointSetpoints( Joint joint, RobotVariables* ref_setpoints )
-//{
-//  if( joint == NULL ) return;
-//  
-//  *(joint->setpoints) = *ref_setpoints;
-//}
-
-void Robot_SetAxisSetpoints( Axis axis, RobotVariables* ref_setpoints )
+void Robot_SetAxisSetpoints( Robot robot, size_t axisIndex, RobotVariables* ref_setpoints )
 {
-  if( axis == NULL ) return;
+  if( robot == NULL ) return;
   
-  *(axis->setpoints) = *ref_setpoints;
+  if( axisIndex >= robot->axesNumber ) return;
+  
+  *(robot->axesList[ axisIndex ].setpoints) = *ref_setpoints;
 }
 
 size_t Robot_GetJointsNumber( Robot robot )
@@ -369,7 +346,7 @@ static void* AsyncControl( void* ref_robot )
     execTime = Time_GetExecSeconds();
     
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
-      (void) Actuator_GetMeasures( robot->jointsList[ jointIndex ]->actuator, (ActuatorVariables*) robot->jointMeasuresList[ jointIndex ], elapsedTime );
+      (void) Actuator_GetMeasures( robot->jointsList[ jointIndex ].actuator, (ActuatorVariables*) robot->jointMeasuresList[ jointIndex ], elapsedTime );
     
     robot->RunControlStep( robot->controller, robot->jointMeasuresList, robot->axisMeasuresList, robot->jointSetpointsList, robot->axisSetpointsList, elapsedTime );
     
@@ -377,16 +354,16 @@ static void* AsyncControl( void* ref_robot )
     
     const bool* axesChangedList = robot->GetAxesChangedList( robot->controller );
     for( size_t axisIndex = 0; axisIndex < robot->axesNumber; axisIndex++ )
-      if( axesChangedList[ axisIndex ] ) robot->axesList[ axisIndex ]->hasChanged = true;
+      if( axesChangedList[ axisIndex ] ) robot->axesList[ axisIndex ].hasChanged = true;
     
     const bool* jointsChangedList = robot->GetJointsChangedList( robot->controller );
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
     {
-      if( jointsChangedList[ jointIndex ] ) robot->jointsList[ jointIndex ]->hasChanged = true;
+      if( jointsChangedList[ jointIndex ] ) robot->jointsList[ jointIndex ].hasChanged = true;
       
-      if( Actuator_HasError( robot->jointsList[ jointIndex ]->actuator ) ) Actuator_Reset( robot->jointsList[ jointIndex ]->actuator );
+      if( Actuator_HasError( robot->jointsList[ jointIndex ].actuator ) ) Actuator_Reset( robot->jointsList[ jointIndex ].actuator );
       
-      (void) Actuator_SetSetpoints( robot->jointsList[ jointIndex ]->actuator, (ActuatorVariables*) robot->jointSetpointsList[ jointIndex ] );
+      (void) Actuator_SetSetpoints( robot->jointsList[ jointIndex ].actuator, (ActuatorVariables*) robot->jointSetpointsList[ jointIndex ] );
     }
     
     elapsedTime = Time_GetExecSeconds() - execTime;

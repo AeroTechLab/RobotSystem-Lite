@@ -1,42 +1,44 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2017 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2018 Leonardo Consoni <consoni_2519@hotmail.com>       //
 //                                                                            //
-//  This file is part of RobRehabSystem.                                      //
+//  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
-//  RobRehabSystem is free software: you can redistribute it and/or modify    //
+//  RobotSystem-Lite is free software: you can redistribute it and/or modify  //
 //  it under the terms of the GNU Lesser General Public License as published  //
 //  by the Free Software Foundation, either version 3 of the License, or      //
 //  (at your option) any later version.                                       //
 //                                                                            //
-//  RobRehabSystem is distributed in the hope that it will be useful,         //
+//  RobotSystem-Lite is distributed in the hope that it will be useful,       //
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of            //
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the              //
 //  GNU Lesser General Public License for more details.                       //
 //                                                                            //
 //  You should have received a copy of the GNU Lesser General Public License  //
-//  along with RobRehabSystem. If not, see <http://www.gnu.org/licenses/>.    //
+//  along with RobotSystem-Lite. If not, see <http://www.gnu.org/licenses/>.  //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
 
 /// @file actuators.h
-/// @brief Generic actuator (measuring + control) functions
+/// @brief Generic actuator control (measurement + actuation) functions
 ///
-/// Interface for configurable actuator control. Specific underlying implementation and further configuration are defined as explained in @ref actuator_config
+/// Interface for configurable actuator control. Available configuration options are detailed in @ref actuator_config.
+/// Every actuator contains a single motor and a set of sensors combined with a [Kalman filter]() for motion measurements (see @ref configuration_levels). 
 
 /// @page actuator_config Actuator Configuration
-/// The actuator-level configuration (see @ref configuration_levels) is read using the [data I/O implementation currently defined](https://bitiquinho.github.io/Platform-Utils/structDataIO.html). Configuration of sensors and motors listed is loaded recursively (as in @ref sensor_config and @ref motor_config)
+/// The actuator-level configuration (see @ref configuration_levels) is read using the [data I/O interface](https://bitiquinho.github.io/Platform-Utils/structDataIO.html). Configuration of sensors and motors listed is loaded recursively (as in @ref sensor_config and @ref motor_config)
 ///
-/// Any configuration file/location path must be provided without its format extension, and relative to CONFIG_DIR/actuators/, where CONFIG_DIR is the [defined base data path](https://bitiquinho.github.io/Platform-Utils/classDATA__IO__INTERFACE.html)
+/// Any configuration path must be provided without file extension, and relative to CONFIG_DIR/actuators/, where CONFIG_DIR is the [defined base data path](https://bitiquinho.github.io/Platform-Utils/classDATA__IO__INTERFACE.html)
 ///
-/// The possible configuration fields and their values are here exemplified for the case of a JSON format configuration:
+/// The possible configuration fields and their values are here exemplified for the case of current JSON file I/O implementation:
 /// @code
 /// {
 ///   "sensors": [                        // List of sensors available for configured actuator
 ///     { 
 ///       "input_variable": "POSITION",       // Dimension measured by sensor (POSITION, VELOCITY, FORCE or ACCELERATION)
-///       "config": "<sensor_identifier>"     // Sensor string identifier, used for searching its configuration file
+///       "config": "<sensor_identifier>",    // Sensor string identifier, used for searching its configuration file
+///       "deviation": 1.0                    // Measurement error (standard deviation) associated with the sensor
 ///     },
 ///     { 
 ///       "input_variable": "FORCE",
@@ -50,17 +52,18 @@
 /// }
 /// @endcode
 
+
 #ifndef ACTUATOR_H
 #define ACTUATOR_H 
 
 #include "data_io.h"
 
-/// Defined possible control states enumeration. Passed to generic or plugin specific robot control implementations
+/// Defined possible control states enumeration. Passed to internal motor and sensors
 enum ActuatorState 
 { 
-  ACTUATOR_OFFSET,             ///< State for definition of reference (zero) for controller measurements 
-  ACTUATOR_CALIBRATION,        ///< State for definition of limits (min-max) for controller measurements 
-  ACTUATOR_OPERATION,          ///< State for normal controller operation 
+  ACTUATOR_OFFSET,             ///< State of reference (zero) taking for controller measurements 
+  ACTUATOR_CALIBRATION,        ///< State of limits (min-max) taking for controller measurements 
+  ACTUATOR_OPERATION,          ///< State of normal controller operation 
   ACTUATOR_STATES_NUMBER       ///< Total number of control states 
 };
 
@@ -97,32 +100,32 @@ void Actuator_Disable( Actuator actuator );
 /// @return true on enabled output, false otherwise
 bool Actuator_IsEnabled( Actuator actuator );
 
-/// @brief Calls underlying sensors and motor implementations to check for errors on given actuator              
+/// @brief Calls underlying motor and sensors implementations (plugins) to check for errors on given actuator              
 /// @param[in] actuator reference to actuator
-/// @return true on detected error, false otherwise
+/// @return true on error detected, false otherwise
 bool Actuator_HasError( Actuator actuator );
 
-/// @brief Calls underlying sensors and motor implementations to reset possible device errors             
+/// @brief Calls underlying sensors and motor implementations (plugins) to clear possible device errors             
 /// @param[in] actuator reference to actuator
 void Actuator_Reset( Actuator actuator );
 
-/// @brief Calls underlying sensors implementations to change measurement/control state          
+/// @brief Calls underlying sensors implementations (plugins) to change measurement state          
 /// @param[in] actuator reference to actuator
 /// @param[in] controlState new control state to be set
-/// @return true on if control state was changed, false otherwise
+/// @return true if control state was changed, false otherwise
 bool Actuator_SetControlState( Actuator actuator, enum ActuatorState controlState );
 
 /// @brief Reads sensors of given actuator               
 /// @param[in] actuator reference to actuator
-/// @param[out] ref_measures pointer to array big enough to hold the ControlVariable list of measures (NULL if not needed)
-/// @param[in] timeDelta desired time interval reference for control
-/// @return pointer to ControlVariable array of measured values (measuredBuffer or internal one, if NULL)
-ActuatorVariables* Actuator_GetMeasures( Actuator actuator, ActuatorVariables* ref_measures, double timeDelta );
+/// @param[out] ref_measures pointer to variables structure where values will be stored
+/// @param[in] timeDelta time passed between measurements for sensor filtering/fusion state prediction
+/// @return true if new measurements were taken, false otherwise
+bool Actuator_GetMeasures( Actuator actuator, ActuatorVariables* ref_measures, double timeDelta );
 
-/// @brief Calls underlying actuator control (plugin) implementation with provided data, for given actuator       
+/// @brief Writes possible motor setpoint values for given actuator       
 /// @param[in] actuator reference to actuator
-/// @param[in] ref_setpoints pointer to ControlVariable array of actuator setpoints
-/// @return control action applied on motor of given actuator (dimension specified in @ref actuator_config)
+/// @param[in] ref_setpoints pointer/reference to variables structure with the new setpoints
+/// @return control action applied on motor of given actuator (control variable specified in @ref actuator_config)
 double Actuator_SetSetpoints( Actuator actuator, ActuatorVariables* ref_setpoints );
 
 

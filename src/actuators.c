@@ -1,21 +1,21 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2017 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2018 Leonardo Consoni <consoni_2519@hotmail.com>       //
 //                                                                            //
-//  This file is part of RobRehabSystem.                                      //
+//  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
-//  RobRehabSystem is free software: you can redistribute it and/or modify    //
+//  RobotSystem-Lite is free software: you can redistribute it and/or modify  //
 //  it under the terms of the GNU Lesser General Public License as published  //
 //  by the Free Software Foundation, either version 3 of the License, or      //
 //  (at your option) any later version.                                       //
 //                                                                            //
-//  RobRehabSystem is distributed in the hope that it will be useful,         //
+//  RobotSystem-Lite is distributed in the hope that it will be useful,       //
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of            //
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the              //
 //  GNU Lesser General Public License for more details.                       //
 //                                                                            //
 //  You should have received a copy of the GNU Lesser General Public License  //
-//  along with RobRehabSystem. If not, see <http://www.gnu.org/licenses/>.    //
+//  along with RobotSystem-Lite. If not, see <http://www.gnu.org/licenses/>.  //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -190,15 +190,15 @@ bool Actuator_HasError( Actuator actuator )
 }
 
 
-ActuatorVariables* Actuator_GetMeasures( Actuator actuator, ActuatorVariables* ref_measures, double timeDelta )
+bool Actuator_GetMeasures( Actuator actuator, ActuatorVariables* ref_measures, double timeDelta )
 {
-  if( actuator == NULL ) return NULL;
+  if( actuator == NULL ) return false;
   
   //DEBUG_UPDATE( "reading measures from actuator %p", actuator );
   
-  Kalman_SetPredictionFactor( actuator->motionFilter, POSITION, VELOCITY, /*timeDelta*/0.005 );
-  Kalman_SetPredictionFactor( actuator->motionFilter, POSITION, ACCELERATION, /*timeDelta * timeDelta*/ 0.005 * 0.005 / 2.0 );
-  Kalman_SetPredictionFactor( actuator->motionFilter, VELOCITY, ACCELERATION, /*timeDelta*/ 0.005 );
+  Kalman_SetPredictionFactor( actuator->motionFilter, POSITION, VELOCITY, timeDelta );
+  Kalman_SetPredictionFactor( actuator->motionFilter, POSITION, ACCELERATION, timeDelta * timeDelta / 2.0 );
+  Kalman_SetPredictionFactor( actuator->motionFilter, VELOCITY, ACCELERATION, timeDelta );
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
   {
     double sensorMeasure = Sensor_Update( actuator->sensorsList[ sensorIndex ], NULL );
@@ -209,16 +209,18 @@ ActuatorVariables* Actuator_GetMeasures( Actuator actuator, ActuatorVariables* r
   
   //DEBUG_PRINT( "p=%.5f, v=%.5f, f=%.5f", ref_measures->position, ref_measures->velocity, ref_measures->force );
   
-  //if( actuator->controlState == ACTUATOR_OFFSET ) actuator->offset = *ref_measures;
-  //else
-  //{
-    ref_measures->position -= actuator->offset.position;
-    ref_measures->velocity -= actuator->offset.velocity;
-    ref_measures->acceleration -= actuator->offset.acceleration;
-    ref_measures->force -= actuator->offset.force;
-  //}
+  if( actuator->controlState == ACTUATOR_OFFSET ) 
+  {
+    actuator->offset = *ref_measures;
+    return false;
+  }
   
-  return ref_measures;
+  ref_measures->position -= actuator->offset.position;
+  ref_measures->velocity -= actuator->offset.velocity;
+  ref_measures->acceleration -= actuator->offset.acceleration;
+  ref_measures->force -= actuator->offset.force;
+    
+  return true;
 }
 
 double Actuator_SetSetpoints( Actuator actuator, ActuatorVariables* ref_setpoints )

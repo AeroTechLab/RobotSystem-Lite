@@ -34,6 +34,9 @@
 
 #include "system.h"
 
+const unsigned long UPDATE_INTERVAL_MS = 5;
+
+
 const int STACK_SIZE 8192;
 const int PRIORITY 1;
 

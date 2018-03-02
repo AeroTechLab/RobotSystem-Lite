@@ -34,6 +34,8 @@
 
 #include "system.h"
 
+const unsigned long UPDATE_INTERVAL_MS = 5;
+
 
 static volatile bool isRunning = true;
 

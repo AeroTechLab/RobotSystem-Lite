@@ -1,21 +1,21 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2017 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2018 Leonardo Consoni <consoni_2519@hotmail.com>       //
 //                                                                            //
-//  This file is part of RobRehabSystem.                                      //
+//  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
-//  RobRehabSystem is free software: you can redistribute it and/or modify    //
+//  RobotSystem-Lite is free software: you can redistribute it and/or modify  //
 //  it under the terms of the GNU Lesser General Public License as published  //
 //  by the Free Software Foundation, either version 3 of the License, or      //
 //  (at your option) any later version.                                       //
 //                                                                            //
-//  RobRehabSystem is distributed in the hope that it will be useful,         //
+//  RobotSystem-Lite is distributed in the hope that it will be useful,       //
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of            //
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the              //
 //  GNU Lesser General Public License for more details.                       //
 //                                                                            //
 //  You should have received a copy of the GNU Lesser General Public License  //
-//  along with RobRehabSystem. If not, see <http://www.gnu.org/licenses/>.    //
+//  along with RobotSystem-Lite. If not, see <http://www.gnu.org/licenses/>.  //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,20 +37,15 @@
 #include <stdint.h>
 #include <stdio.h>
 
-const unsigned long UPDATE_INTERVAL_MS = 5;
-
 
 Robot robotController = NULL;
+size_t axesNumber = 0, jointsNumber = 0;
 
 DataHandle robotInfo = NULL;
 
 IPCConnection robotEventsConnection = NULL;
 IPCConnection robotAxesConnection = NULL;
 IPCConnection robotJointsConnection = NULL;
-
-Axis* axesList = NULL;
-Joint* jointsList = NULL;
-size_t axesNumber = 0, jointsNumber = 0;
 
 
 void RefreshRobotsInfo( const char*, char* );
@@ -113,9 +108,6 @@ void System_End()
   IPC_CloseConnection( robotJointsConnection );
 
   DataIO_UnloadData( robotInfo );
-  
-  if( axesList != NULL ) free( axesList );
-  if( jointsList != NULL ) free( jointsList );
 
   Robot_End( robotController );
   
@@ -177,15 +169,13 @@ void UpdateAxes()
       
       if( axisIndex >= axesNumber ) continue;      
       
-      Axis axis = axesList[ axisIndex ];
-      
       float* axisSetpointsList = (float*) messageIn;
       RobotVariables axisSetpoints = { .position = axisSetpointsList[ DOF_POSITION ], .velocity = axisSetpointsList[ DOF_VELOCITY ],
                                        .acceleration = axisSetpointsList[ DOF_ACCELERATION ], .force = axisSetpointsList[ DOF_FORCE ],
                                        .inertia = axisSetpointsList[ DOF_INERTIA ],
                                        .stiffness = axisSetpointsList[ DOF_STIFFNESS ], .damping = axisSetpointsList[ DOF_DAMPING ] };
       //if( axisIndex == 0 ) Log_PrintString( NULL, "setpoints: p: %.3f - v: %.3f", axisSetpoints.position, axisSetpoints.velocity );
-      Robot_SetAxisSetpoints( axis, &axisSetpoints );
+      Robot_SetAxisSetpoints( robotController, axisIndex, &axisSetpoints );
 
       messageIn += DOF_DATA_BLOCK_SIZE;
     }
@@ -194,11 +184,9 @@ void UpdateAxes()
   memset( message, 0, IPC_MAX_MESSAGE_LENGTH * sizeof(Byte) );
   size_t axisdataOffset = 1;
   for( size_t axisIndex = 0; axisIndex < axesNumber; axisIndex++ )
-  {
-    Axis axis = axesList[ axisIndex ];
-    
+  {    
     RobotVariables axisMeasures = { 0 };
-    if( Robot_GetAxisMeasures( axis, &axisMeasures ) )
+    if( Robot_GetAxisMeasures( robotController, axisIndex, &axisMeasures ) )
     {
       message[ 0 ]++;
       message[ axisdataOffset++ ] = (Byte) axisIndex;
@@ -237,12 +225,10 @@ void UpdateJoints()
     messageOut[ 0 ]++;
     messageOut[ jointDataOffset++ ] = (Byte) jointIndex;
     
-    Joint joint = jointsList[ jointIndex ];
-    
     float* jointMeasuresList = (float*) ( messageOut + jointDataOffset );
     
     RobotVariables jointMeasures = { 0 };
-    if( Robot_GetJointMeasures( joint, &jointMeasures ) )
+    if( Robot_GetJointMeasures( robotController, jointIndex, &jointMeasures ) )
     {
       jointMeasuresList[ DOF_POSITION ] = (float) jointMeasures.position;
       jointMeasuresList[ DOF_VELOCITY ] = (float) jointMeasures.velocity;
@@ -285,29 +271,19 @@ void RefreshRobotsInfo( const char* robotName, char* sharedControlsString )
       DataHandle sharedAxesList = DataIO_AddList( robotInfo, "axes" );
       
       axesNumber = Robot_GetAxesNumber( robotController ); 
-      axesList = (Axis*) realloc( axesList, axesNumber * sizeof(Axis) );
 
       for( size_t axisIndex = 0; axisIndex < axesNumber; axisIndex++ )
       {
         const char* axisName = Robot_GetAxisName( robotController, axisIndex );
-        if( axisName != NULL )
-        {
-          DataIO_SetStringValue( sharedAxesList, NULL, axisName );
-          axesList[ axisIndex ] = Robot_GetAxis( robotController, axisIndex );
-        }
+        if( axisName != NULL ) DataIO_SetStringValue( sharedAxesList, NULL, axisName );
       }
       
       jointsNumber = Robot_GetJointsNumber( robotController );
-      jointsList = (Joint*) realloc( jointsList, jointsNumber * sizeof(Joint) );
 
       for( size_t jointIndex = 0; jointIndex < jointsNumber; jointIndex++ )
       {
         const char* jointName = Robot_GetJointName( robotController, jointIndex );
-        if( jointName != NULL )
-        {
-          DataIO_SetStringValue( sharedJointsList, NULL, jointName );
-          jointsList[ jointIndex ] = Robot_GetJoint( robotController, jointIndex );
-        }
+        if( jointName != NULL ) DataIO_SetStringValue( sharedJointsList, NULL, jointName );
       }
     }
   }
