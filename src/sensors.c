@@ -58,7 +58,7 @@ Curve LoadMeasurementCurve( DataHandle curveData );
 
 Sensor Sensor_Init( DataHandle configuration )
 {
-  static char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
+  static char filePath[ DATA_IO_MAX_PATH_LENGTH ];
   
   if( configuration == NULL ) return NULL;
   
@@ -66,7 +66,7 @@ Sensor Sensor_Init( DataHandle configuration )
   if( sensorName != NULL )
   {
     sprintf( filePath, "sensors/%s", sensorName );
-    if( (configuration = DataIO_LoadFileData( filePath )) == NULL ) return NULL;
+    if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
   }
   
   //DEBUG_PRINT( "sensor configuration found on data handle %p", configuration );
@@ -79,11 +79,11 @@ Sensor Sensor_Init( DataHandle configuration )
   LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newSensor, &loadSuccess );
   if( loadSuccess )
   {
-    newSensor->deviceID = newSensor->InitTask( DataIO_GetStringValue( configuration, "", "input_interface.config" ) );
-    if( newSensor->deviceID != SIGNAL_IO_TASK_INVALID_ID )
+    newSensor->deviceID = newSensor->InitDevice( DataIO_GetStringValue( configuration, "", "input_interface.config" ) );
+    if( newSensor->deviceID != SIGNAL_IO_DEVICE_INVALID_ID )
     {
       newSensor->channel = (unsigned int) DataIO_GetNumericValue( configuration, -1, "input_interface.channel" );
-      loadSuccess = newSensor->AcquireInputChannel( newSensor->deviceID, newSensor->channel );
+      loadSuccess = newSensor->CheckInputChannel( newSensor->deviceID, newSensor->channel );
       
       size_t maxInputSamplesNumber = newSensor->GetMaxInputSamplesNumber( newSensor->deviceID );
       newSensor->inputBuffer = (double*) calloc( maxInputSamplesNumber, sizeof(double) );
@@ -136,8 +136,7 @@ void Sensor_End( Sensor sensor )
 {
   if( sensor == NULL ) return;
   
-  sensor->ReleaseInputChannel( sensor->deviceID, sensor->channel );
-  sensor->EndTask( sensor->deviceID );
+  sensor->EndDevice( sensor->deviceID );
   
   SignalProcessor_Discard( sensor->processor );
   

@@ -52,7 +52,7 @@ const char* CONTROL_MODE_NAMES[ CONTROL_VARS_NUMBER ] = { [ POSITION ] = "POSITI
                                                           [ FORCE ] = "FORCE", [ ACCELERATION ] = "ACCELERATION" };
 Actuator Actuator_Init( DataHandle configuration )
 {
-  static char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
+  static char filePath[ DATA_IO_MAX_PATH_LENGTH ];
   
   if( configuration == NULL ) return NULL;
   
@@ -60,7 +60,7 @@ Actuator Actuator_Init( DataHandle configuration )
   if( actuatorName != NULL )
   {
     sprintf( filePath, "actuators/%s", actuatorName );
-    if( (configuration = DataIO_LoadFileData( filePath )) == NULL ) return NULL;
+    if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
   }
   
   Actuator newActuator = (Actuator) malloc( sizeof(ActuatorData) );
@@ -123,11 +123,11 @@ void Actuator_End( Actuator actuator )
     Sensor_End( actuator->sensorsList[ sensorIndex ] );
 }
 
-void Actuator_Enable( Actuator actuator )
+bool Actuator_Enable( Actuator actuator )
 {
-  if( actuator == NULL ) return;
+  if( actuator == NULL ) return false;
   
-  Motor_Enable( actuator->motor );     
+  return Motor_Enable( actuator->motor );     
 }
 
 void Actuator_Disable( Actuator actuator )
@@ -167,13 +167,6 @@ bool Actuator_SetControlState( Actuator actuator, enum ActuatorState newState )
   actuator->controlState = newState;
   
   return true;
-}
-
-bool Actuator_IsEnabled( Actuator actuator )
-{
-  if( actuator == NULL ) return false;
-    
-  return Motor_IsEnabled( actuator->motor );
 }
 
 bool Actuator_HasError( Actuator actuator )
@@ -232,7 +225,7 @@ double Actuator_SetSetpoints( Actuator actuator, ActuatorVariables* ref_setpoint
   motorSetpoint += ( (double*) &(actuator->offset) )[ actuator->controlMode ];
   
   // If the motor is being actually controlled, write its control output
-  if( Motor_IsEnabled( actuator->motor ) && actuator->controlState != ACTUATOR_OFFSET ) 
+  if( actuator->controlState != ACTUATOR_OFFSET ) 
     Motor_WriteControl( actuator->motor, motorSetpoint );
   
   return motorSetpoint;

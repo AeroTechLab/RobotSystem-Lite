@@ -23,10 +23,10 @@
 /// @file sensors.h
 /// @brief Generic sensor (measurement reading) functions
 ///
-/// Interface for configurable sensor reading and state change. Specific underlying implementation and further configuration are defined as explained in @ref sensor_config
+/// Interface for configurable sensor reading and state change. Specific underlying implementation (plugin) and further configuration are defined as explained in @ref sensor_config
 
 /// @page sensor_config Sensor Configuration
-/// The sensor-level configuration (see @ref configuration_levels) is read using the [data I/O interface](https://bitiquinho.github.io/Platform-Utils/structDataIO.html).
+/// The sensor-level configuration (see @ref configuration_levels) is read using the [data I/O interface](https://bitiquinho.github.io/Platform-Utils/structDataIO.html)
 ///
 /// Any configuration file/location path must be provided without its format extension, and relative to CONFIG_DIR/sensors/, where CONFIG_DIR is the [defined base data path](https://bitiquinho.github.io/Platform-Utils/classDATA__IO__INTERFACE.html)
 ///

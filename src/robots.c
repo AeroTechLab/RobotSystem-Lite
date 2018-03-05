@@ -80,14 +80,14 @@ static void* AsyncControl( void* );
 
 Robot Robot_Init( const char* configPathName )
 {
-  static char filePath[ DATA_IO_MAX_FILE_PATH_LENGTH ];
+  static char filePath[ DATA_IO_MAX_PATH_LENGTH ];
 
   DEBUG_PRINT( "trying to create robot %s", configPathName );
   
   Robot newRobot = NULL;
   
   sprintf( filePath, "robots/%s", configPathName );
-  DataHandle configuration = DataIO_LoadFileData( filePath );
+  DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration != NULL )
   {
     newRobot = (Robot) malloc( sizeof(RobotData) );
@@ -181,15 +181,11 @@ bool Robot_Enable( Robot robot )
 { 
   if( robot == NULL ) return false;
   
-  //DEBUG_PRINT( "Enabling robot %p", robot );
-  
-  Robot_SetControlState( robot, /*ROBOT_OFFSET*/ROBOT_OPERATION );
+  Robot_SetControlState( robot, ROBOT_OFFSET );
   
   for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
   {
-    Actuator_Enable( robot->jointsList[ jointIndex ].actuator );
-    
-    //if( !Actuator_IsEnabled( robot->jointsList[ jointIndex ]->actuator ) ) return false;
+    if( !Actuator_Enable( robot->jointsList[ jointIndex ].actuator ) ) return false;
   }
   
   if( !(robot->isControlRunning) )
@@ -226,8 +222,6 @@ bool Robot_Disable( Robot robot )
 bool Robot_SetControlState( Robot robot, enum RobotState newState )
 {
   if( robot == NULL ) return false;
-  
-  //DEBUG_PRINT( "setting new control state: %d (old: %d)", newState, robot->controlState );
   
   if( newState == robot->controlState ) return false;
   

@@ -90,16 +90,12 @@ void Actuator_End( Actuator actuator );
 
 /// @brief Allows motor output on given actuator 
 /// @param[in] actuator reference to actuator
-void Actuator_Enable( Actuator actuator );
+/// @return true on enabled output, false otherwise
+bool Actuator_Enable( Actuator actuator );
                                                                   
 /// @brief Prevents motor output on given actuator 
 /// @param[in] actuator reference to actuator
 void Actuator_Disable( Actuator actuator );
-                                                                
-/// @brief Verifies if motor output on given actuator is enabled
-/// @param[in] actuator reference to actuator
-/// @return true on enabled output, false otherwise
-bool Actuator_IsEnabled( Actuator actuator );
 
 /// @brief Calls underlying motor and sensors implementations (plugins) to check for errors on given actuator              
 /// @param[in] actuator reference to actuator

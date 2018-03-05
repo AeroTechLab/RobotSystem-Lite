@@ -65,9 +65,9 @@ bool System_Init( const int argc, const char** argv )
     return false;
   }
   
-  const char* configDirectory = "./";
+  const char* configDirectory = ".";
   const char* connectionAddress = NULL;
-  const char* logDirectory = "./";
+  const char* logDirectory = ".";
   const char* robotConfigName = argv[ argc - 1 ];
   
   for( int optionIndex = 1; optionIndex < argc - 1; optionIndex+=2 )
@@ -79,6 +79,7 @@ bool System_Init( const int argc, const char** argv )
     }
     
     if( strcmp( argv[ optionIndex ], "--config" ) == 0 ) configDirectory = argv[ optionIndex + 1 ];
+    else if( strcmp( argv[ optionIndex ], "--log" ) == 0 ) logDirectory = argv[ optionIndex + 1 ];
     else if( strcmp( argv[ optionIndex ], "--addr" ) == 0 ) connectionAddress = argv[ optionIndex + 1 ];
     else
     {
@@ -91,7 +92,11 @@ bool System_Init( const int argc, const char** argv )
   robotAxesConnection = IPC_OpenConnection( IPC_UDP | IPC_SERVER, connectionAddress, 50001 );
   robotJointsConnection = IPC_OpenConnection( IPC_UDP | IPC_SERVER, connectionAddress, 50002 );
   
-  DataIO_SetBaseFilePath( configDirectory );
+  char basePath[ DATA_IO_MAX_PATH_LENGTH ];
+  sprintf( basePath, "%s/config/", configDirectory );
+  DataIO_SetBaseStoragePath( basePath );
+  sprintf( basePath, "%s/log/", logDirectory );
+  Log_SetBaseDirectory( logDirectory );
   
   robotInfo = DataIO_CreateEmptyData();
   Log_PrintString( NULL, "loading robots configuration from %s", configDirectory );
