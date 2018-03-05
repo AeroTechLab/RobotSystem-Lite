@@ -1,69 +1,59 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2017 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2018 Leonardo Consoni <consoni_2519@hotmail.com>       //
 //                                                                            //
-//  This file is part of RobRehabSystem.                                      //
+//  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
-//  RobRehabSystem is free software: you can redistribute it and/or modify    //
+//  RobotSystem-Lite is free software: you can redistribute it and/or modify  //
 //  it under the terms of the GNU Lesser General Public License as published  //
 //  by the Free Software Foundation, either version 3 of the License, or      //
 //  (at your option) any later version.                                       //
 //                                                                            //
-//  RobRehabSystem is distributed in the hope that it will be useful,         //
+//  RobotSystem-Lite is distributed in the hope that it will be useful,       //
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of            //
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the              //
 //  GNU Lesser General Public License for more details.                       //
 //                                                                            //
 //  You should have received a copy of the GNU Lesser General Public License  //
-//  along with RobRehabSystem. If not, see <http://www.gnu.org/licenses/>.    //
+//  along with RobotSystem-Lite. If not, see <http://www.gnu.org/licenses/>.  //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
 
 /// @file sensors.h
-/// @brief Generic sensor (measure reading) functions
+/// @brief Generic sensor (measurement reading) functions
 ///
-/// Interface for configurable sensor reading and control. Specific underlying implementation and further configuration are defined as explained in @ref sensor_config
+/// Interface for configurable sensor reading and state change. Specific underlying implementation and further configuration are defined as explained in @ref sensor_config
 
 /// @page sensor_config Sensor Configuration
-/// The sensor-level configuration (see @ref configuration_levels) is read using the [data I/O implementation currently defined](https://bitiquinho.github.io/Platform-Utils/structDataIO.html). Internal conversion curve, if needed, is defined according to @ref curve_config
+/// The sensor-level configuration (see @ref configuration_levels) is read using the [data I/O interface](https://bitiquinho.github.io/Platform-Utils/structDataIO.html).
 ///
 /// Any configuration file/location path must be provided without its format extension, and relative to CONFIG_DIR/sensors/, where CONFIG_DIR is the [defined base data path](https://bitiquinho.github.io/Platform-Utils/classDATA__IO__INTERFACE.html)
 ///
-/// The possible configuration fields and their values are here exemplified for the case of a JSON format configuration:
+/// The possible configuration fields and their values are here exemplified for the case of a JSON format configuration (optional parameters are presented with default values and marked with '[o]' in their description):
 /// @code
 /// {
 ///   "input_interface": {                      // Hardware/virtual interface properties
 ///     "type": "<library_names>",                // Path (without extension) to plugin with signal input implementation (loaded from MODULES_DIR/signal_io/)
-///     "config": "...",                          // Signal input/output device identifier passed to plugin initialization call
+///     "config": "",                             // [o] Signal input/output device identifier passed to plugin initialization call
 ///     "channel": 0                              // Device channel from which input values will be read
 ///   },
-///   "input_gain": {                           // Signal scaling parameters
-///     "multiplier": 1.0,                        // Value that multiplies the signal value
-///     "divisor": 1.0                            // Value that divides the signal value
+///   "input_gain": {                           // [o] Input signal scaling parameters
+///     "multiplier": 1.0,                        // [o] Value that multiplies the signal value
+///     "divisor": 1.0                            // [o] Value that divides the signal value
 ///   },
-///   "signal_processing": {                    // Internal signal processor options
-///     "rectified": false,                       // Rectify signal if true
-///     "normalized": false,                      // Normalize signal (after calibration) if true
-///     "smoothing_frequency": -1.0               // Low-pass filter cut frequency, relative to (factor of) the sampling frequency (negative for no smoothing)
+///   "signal_processing": {                    // [o] Internal signal processing options
+///     "rectified": false,                       // [o] Rectify signal if true
+///     "normalized": false,                      // [o] Normalize signal (after calibration) if true
+///     "min_frequency": -1.0                     // [o] Low-pass filter cut frequency, relative to (factor of) the sampling frequency (negative for no filtering)
+///     "max_frequency": -1.0                     // [o] High-pass filter cut frequency, relative to (factor of) the sampling frequency (negative for no filtering)
 ///   },
-///   "relative_to": "<sensor_identifier>",     // String identifier (file name) or data object of configuration for measure reference sensor, if any
-///   "conversion_curve": {                     // Curve configuration string identifier or data object, if needed for more complex relation between raw and processed values
-///     "segments": [                                             // List of segments that compose the entire curve
-///       { 
-///         "type": "polynomial",                                   // Segment defined by a polynomial expression
-///         "bounds": [ -0.5, -0.0032 ],                            // Limits of segment function domain
-///         "parameters": [ -652.05, -0.3701 ]                      // Polynom coefficients (from bigger to lower order)
-///       },
-///       { 
-///         "type": "cubic_spline",                                 // Segment defined by cubic (4 coefficients) spline points
-///         "bounds": [ -0.0032, 0.0032 ],                          // Limits of segment function domain
-///         "parameters": [ 1.7165, -652.05, -1.5608, -671.77 ]     // Function value and derivative (respectively) on each spline bound
-///       }
-///     ],
-///     "scale_factor": 1.0                                       // Multiply curve value by a factor
+///   "reference": "<sensor_identifier>",       // [o] String identifier (file name) or data object of configuration for measure reference sensor, if any
+///   "differential_gain": {                    // [o] Input-reference differential signal scaling parameters
+///     "multiplier": 1.0,                        // [o] Value that multiplies the signal value
+///     "divisor": 1.0                            // [o] Value that divides the signal value
 ///   },
-///   "log_data": false                         // Set true to save signal reading log to LOGS_DIR/signal_io
+///   "log": "<null>"                           // [o] Path (without extension), relative to to LOGS_DIR/log/sensors/, to file where measurements over time will be logged. Defining the field as an empty string value will set terminal logging
 /// }
 /// @endcode
 
@@ -79,9 +69,9 @@
 /// Selectable signal processing phases/modes
 enum SensorState 
 { 
-  SENSOR_STATE_MEASUREMENT,    ///< Default mode: signal is processed and result is outputed assuming normal operation (preprocessed offset, gain, filter, and limits values are applied)
+  SENSOR_STATE_MEASUREMENT,    ///< Default mode: signal is processed and result is returned assuming normal operation (measurement offset and gain, processing, reference offset and differential gain are applied)
   SENSOR_STATE_CALIBRATION,    ///< Minimum and maximum values from filtered signal are registered for posterior normalization, if specified
-  SENSOR_STATE_OFFSET,         ///< Raw values mean is stored for posterior offset removal (no processed result is outputed)
+  SENSOR_STATE_OFFSET,         ///< Raw values mean is stored for posterior offset removal (no processed result is returned)
   SENSOR_STATES_NUMBER         ///< Number of signal processing phases/modes
 };
 
@@ -101,16 +91,10 @@ void Sensor_End( Sensor sensor );
 
 /// @brief Performs single reading and processing of signal measured by given sensor
 /// @param[in] sensor reference to sensor
-/// @param[out] rawBuffer pointer to preallocated buffer to hold all original raw samples (size returned by GetInputBufferLength()) acquired by underlying signal reading implementation (NULL, if not needed)
 /// @return current value of processed signal (0.0 on erros)
-double Sensor_Update( Sensor sensor, double* rawBuffer );
-                                                                   
-/// @brief Gets length of internal raw input samples buffer for given sensor
-/// @param[in] sensor reference to sensor
-/// @return size (in elements) of internal input buffer
-size_t Sensor_GetInputBufferLength( Sensor sensor );
+double Sensor_Update( Sensor sensor );
 
-/// @brief Calls underlying signal reading implementation to check for errors on given sensor              
+/// @brief Calls underlying signal reading implementation (plugin) to check for errors on given sensor              
 /// @param[in] sensor reference to sensor
 /// @return true on detected error, false otherwise
 bool Sensor_HasError( Sensor sensor );

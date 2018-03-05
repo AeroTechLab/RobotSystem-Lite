@@ -31,14 +31,14 @@
 ///
 /// Any configuration path must be provided without file extension, and relative to CONFIG_DIR/actuators/, where CONFIG_DIR is the [defined base data path](https://bitiquinho.github.io/Platform-Utils/classDATA__IO__INTERFACE.html)
 ///
-/// The possible configuration fields and their values are here exemplified for the case of current JSON file I/O implementation:
+/// The possible configuration fields and their values are here exemplified for the case of current JSON file I/O implementation (optional parameters are presented with default values and marked with '[o]' in their description):
 /// @code
 /// {
 ///   "sensors": [                        // List of sensors available for configured actuator
 ///     { 
 ///       "input_variable": "POSITION",       // Dimension measured by sensor (POSITION, VELOCITY, FORCE or ACCELERATION)
 ///       "config": "<sensor_identifier>",    // Sensor string identifier, used for searching its configuration file
-///       "deviation": 1.0                    // Measurement error (standard deviation) associated with the sensor
+///       "deviation": 1.0                    // [o] Measurement error (standard deviation) associated with the sensor
 ///     },
 ///     { 
 ///       "input_variable": "FORCE",
@@ -48,7 +48,8 @@
 ///   "motor": {                          // Actuation motor used on configured actuator
 ///     "output_variable": "VELOCITY",      // Controlled dimension/variable (POSITION, VELOCITY, FORCE or ACCELERATION)
 ///     "config": "<motor_identifier>"      // Motor string identifier (configuration file path) or inline configuration object 
-///   }
+///   },
+///   "log": "<null>"                           // [o] Path (without extension), relative to to LOGS_DIR/log/actuators/, to file where measurements over time will be logged. Defining the field as an empty string value will set terminal logging
 /// }
 /// @endcode
 

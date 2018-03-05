@@ -44,6 +44,7 @@ struct _ActuatorData
   Sensor* sensorsList;
   size_t sensorsNumber;
   KFilter motionFilter;
+  Log log;
 };
 
 
@@ -201,7 +202,7 @@ bool Actuator_GetMeasures( Actuator actuator, ActuatorVariables* ref_measures, d
   Kalman_SetPredictionFactor( actuator->motionFilter, VELOCITY, ACCELERATION, timeDelta );
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
   {
-    double sensorMeasure = Sensor_Update( actuator->sensorsList[ sensorIndex ], NULL );
+    double sensorMeasure = Sensor_Update( actuator->sensorsList[ sensorIndex ] );
     Kalman_SetInput( actuator->motionFilter, sensorIndex, sensorMeasure );
   }
   (void) Kalman_Predict( actuator->motionFilter, (double*) ref_measures );

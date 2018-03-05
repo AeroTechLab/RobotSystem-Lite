@@ -1,21 +1,21 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2017 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2018 Leonardo Consoni <consoni_2519@hotmail.com>       //
 //                                                                            //
-//  This file is part of RobRehabSystem.                                      //
+//  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
-//  RobRehabSystem is free software: you can redistribute it and/or modify    //
+//  RobotSystem-Lite is free software: you can redistribute it and/or modify  //
 //  it under the terms of the GNU Lesser General Public License as published  //
 //  by the Free Software Foundation, either version 3 of the License, or      //
 //  (at your option) any later version.                                       //
 //                                                                            //
-//  RobRehabSystem is distributed in the hope that it will be useful,         //
+//  RobotSystem-Lite is distributed in the hope that it will be useful,       //
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of            //
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the              //
 //  GNU Lesser General Public License for more details.                       //
 //                                                                            //
 //  You should have received a copy of the GNU Lesser General Public License  //
-//  along with RobRehabSystem. If not, see <http://www.gnu.org/licenses/>.    //
+//  along with RobotSystem-Lite. If not, see <http://www.gnu.org/licenses/>.  //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -47,10 +47,9 @@ struct _SensorData
   int deviceID;
   unsigned int channel;
   double* inputBuffer;
-  size_t maxInputSamplesNumber;
   SignalProcessor processor;
-  Curve measurementCurve;
   Sensor reference;
+  double differentialGain;
   Log log;
 };
 
@@ -86,8 +85,8 @@ Sensor Sensor_Init( DataHandle configuration )
       newSensor->channel = (unsigned int) DataIO_GetNumericValue( configuration, -1, "input_interface.channel" );
       loadSuccess = newSensor->AcquireInputChannel( newSensor->deviceID, newSensor->channel );
       
-      newSensor->maxInputSamplesNumber = newSensor->GetMaxInputSamplesNumber( newSensor->deviceID );
-      newSensor->inputBuffer = (double*) calloc( newSensor->maxInputSamplesNumber, sizeof(double) );
+      size_t maxInputSamplesNumber = newSensor->GetMaxInputSamplesNumber( newSensor->deviceID );
+      newSensor->inputBuffer = (double*) calloc( maxInputSamplesNumber, sizeof(double) );
       
       uint8_t signalProcessingFlags = 0;
       if( DataIO_GetBooleanValue( configuration, false, "signal_processing.rectified" ) ) signalProcessingFlags |= SIG_PROC_RECTIFY;
@@ -103,8 +102,8 @@ Sensor Sensor_Init( DataHandle configuration )
       double relativeMaxCutFrequency = DataIO_GetNumericValue( configuration, 0.0, "signal_processing.max_frequency" );
       SignalProcessor_SetMaxFrequency( newSensor->processor, relativeMaxCutFrequency );
       
-      DataHandle curveConfiguration = DataIO_GetSubData( configuration, "conversion_curve" );
-      newSensor->measurementCurve = Curve_Load( curveConfiguration );
+      newSensor->differentialGain = DataIO_GetNumericValue( configuration, 1.0, "differential_gain.multiplier" );
+      newSensor->differentialGain /= DataIO_GetNumericValue( configuration, 1.0, "differential_gain.divisor" );
       
       const char* logFileName = DataIO_GetStringValue( configuration, NULL, "log" );
       if( logFileName != NULL )
@@ -141,7 +140,6 @@ void Sensor_End( Sensor sensor )
   sensor->EndTask( sensor->deviceID );
   
   SignalProcessor_Discard( sensor->processor );
-  Curve_Discard( sensor->measurementCurve );
   
   free( sensor->inputBuffer );
   
@@ -152,7 +150,7 @@ void Sensor_End( Sensor sensor )
   free( sensor );
 }
 
-double Sensor_Update( Sensor sensor, double* rawBuffer )
+double Sensor_Update( Sensor sensor )
 {
   if( sensor == NULL ) return 0.0;
   
@@ -160,31 +158,17 @@ double Sensor_Update( Sensor sensor, double* rawBuffer )
     
   double sensorOutput = SignalProcessor_UpdateSignal( sensor->processor, sensor->inputBuffer, aquiredSamplesNumber );
   
-  if( rawBuffer != NULL ) memset( rawBuffer, 0, sensor->maxInputSamplesNumber * sizeof(double) ); 
-  double referenceOutput = Sensor_Update( sensor->reference, rawBuffer );
+  double referenceOutput = Sensor_Update( sensor->reference );
   
-  if( rawBuffer != NULL ) 
-  {
-    for( size_t inputIndex = 0; inputIndex < sensor->maxInputSamplesNumber; inputIndex++ )
-      rawBuffer[ inputIndex ] = sensor->inputBuffer[ inputIndex ] - rawBuffer[ inputIndex ];
-  }
+  double sensorMeasure = sensor->differentialGain * ( sensorOutput - referenceOutput );
   
-  double sensorMeasure = Curve_GetValue( sensor->measurementCurve, sensorOutput - referenceOutput, sensorOutput - referenceOutput );
-  
-  if( sensor->reference != NULL && sensor->measurementCurve != NULL ) DEBUG_PRINT( "sensor=%g, reference=%g, measure=%g", sensorOutput, referenceOutput, sensorMeasure );
+  //if( sensor->reference != NULL && sensor->measurementCurve != NULL ) DEBUG_PRINT( "sensor=%g, reference=%g, measure=%g", sensorOutput, referenceOutput, sensorMeasure );
   
   //Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
   //Log_RegisterList( sensor->log, sensor->maxInputSamplesNumber, sensor->inputBuffer );
   //Log_RegisterValues( sensor->log, 3, sensorOutput, referenceOutput, sensorMeasure );
   
   return sensorMeasure;
-}
-
-size_t Sensor_GetInputBufferLength( Sensor sensor )
-{
-  if( sensor == NULL ) return 0;
-  
-  return sensor->maxInputSamplesNumber;
 }
   
 bool Sensor_HasError( Sensor sensor )
@@ -211,5 +195,5 @@ void Sensor_SetState( Sensor sensor, enum SensorState newState )
   else if( newState == SENSOR_STATE_CALIBRATION ) newProcessingState = SIG_PROC_STATE_CALIBRATION;
   
   SignalProcessor_SetState( sensor->processor, newProcessingState );
-  Sensor_SetState( sensor->reference, newProcessingState );
+  Sensor_SetState( sensor->reference, newState );
 }

@@ -32,12 +32,12 @@
 ///
 /// Any configuration path must be provided without file extension, and relative to CONFIG_DIR/robots/, where CONFIG_DIR is the [defined base data path](https://bitiquinho.github.io/Platform-Utils/classDATA__IO__INTERFACE.html)
 ///
-/// The possible configuration fields and their values are here exemplified for the case of current JSON file I/O implementation:
+/// The possible configuration fields and their values are here exemplified for the case of current JSON file I/O implementation (optional parameters are presented with default values and marked with '[o]' in their description):
 /// @code
 /// {
 ///   "controller": {               // Robot controller configuration
 ///     "type": "<library_name>",     // Path (without extension, relative to MODULES_DIR/robot_control/) to plugin with robot controller implementation
-///     "config": "..."               // Custom-format configuration string passed to Controller specific initialization
+///     "parameters": ""              // [o] Custom-format configuration string passed to controller (plugin) specific initialization
 ///   },
 ///   "actuators": [                // List of robot actuators identifiers (strings) or configurations (objects)
 ///     "<actuator_identifier>",      // Actuator string identifier (configuration file name)

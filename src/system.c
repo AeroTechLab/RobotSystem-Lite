@@ -61,12 +61,13 @@ bool System_Init( const int argc, const char** argv )
   
   if( strcmp( argv[ 1 ], "--help" ) == 0 )
   {
-    Log_PrintString( NULL, "usage: %s [--config <config_dir>] [--addr <connection_address>] <robot_name>", argv[ 0 ] );
+    Log_PrintString( NULL, "usage: %s [--config <config_dir>] [--addr <connection_address>] [--log <log_dir>] <robot_name>", argv[ 0 ] );
     return false;
   }
   
-  const char* configDirectory = "./config/";
+  const char* configDirectory = "./";
   const char* connectionAddress = NULL;
+  const char* logDirectory = "./";
   const char* robotConfigName = argv[ argc - 1 ];
   
   for( int optionIndex = 1; optionIndex < argc - 1; optionIndex+=2 )
