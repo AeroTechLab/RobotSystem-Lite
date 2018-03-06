@@ -25,7 +25,6 @@
 #include "signal_processing/signal_processing.h" 
 
 #include "signal_io/signal_io.h"
-#include "curve_loader.h"
 
 //#include "debug/async_debug.h"
 #include "debug/data_logging.h"
@@ -51,8 +50,6 @@ struct _SensorData
   Log log;
 };
 
-
-Curve LoadMeasurementCurve( DataHandle curveData );
 
 Sensor Sensor_Init( DataHandle configuration )
 {
