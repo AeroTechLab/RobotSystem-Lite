@@ -30,7 +30,6 @@ set( SIGNAL_IO_MODULES_DIR ${MODULES_DIR}/${SIGNAL_IO_PATH} )
 set( ROBOT_CONTROL_MODULES_DIR ${MODULES_DIR}/${ROBOT_CONTROL_PATH} )
 
 include( ${SOURCES_DIR}/debug/CMakeLists.txt )
-include( ${SOURCES_DIR}/curves/CMakeLists.txt )
 include( ${SOURCES_DIR}/data_io/CMakeLists.txt )
 include( ${SOURCES_DIR}/kalman/CMakeLists.txt )
 include( ${SOURCES_DIR}/signal_processing/CMakeLists.txt )
@@ -45,7 +44,7 @@ link_directories( ${LIBRARY_DIR} )
 # (REAL-TIME) CONTROL APPLICATION
 add_executable( RobotControl ${SOURCES_DIR}/main.c ${SOURCES_DIR}/system.c ${SOURCES_DIR}/robots.c ${SOURCES_DIR}/actuators.c ${SOURCES_DIR}/sensors.c ${SOURCES_DIR}/motors.c )
 target_compile_definitions( RobotControl PUBLIC -DDEBUG -DZMQ_BUILD_DRAFT_API -DSENSORS_CONFIG_PATH="${SENSORS_CONFIG_PATH}" -DMOTORS_CONFIG_PATH="${MOTORS_CONFIG_PATH}" -DACTUATORS_CONFIG_PATH="${ACTUATORS_CONFIG_PATH}" -DROBOTS_CONFIG_PATH="${ROBOTS_CONFIG_PATH}" -DSIGNAL_IO_MODULES_PATH="${SIGNAL_IO_MODULES_PATH}" -DROBOT_CONTROL_MODULES_PATH="${ROBOT_CONTROL_MODULES_PATH}" )
-target_link_libraries( RobotControl DataLogging FunctionCurves DataIOJSON KalmanFilters SignalProcessing AsyncIPC MultiThreading Timing ${CMAKE_DL_LIBS} )
+target_link_libraries( RobotControl DataLogging DataIOJSON KalmanFilters SignalProcessing AsyncIPC MultiThreading Timing ${CMAKE_DL_LIBS} )
 
 # PLUGINS/MODULES
 
@@ -54,10 +53,10 @@ set_target_properties( DummyIO PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${SIGNAL_IO_M
 set_target_properties( DummyIO PROPERTIES PREFIX "" )
 target_include_directories( DummyIO PUBLIC ${PLUGIN_SOURCES_DIR}/${SIGNAL_IO_PATH}/ )
  
-add_library( SimpleJoint MODULE ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/simple_joint.c )
-set_target_properties( SimpleJoint PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ROBOT_CONTROL_MODULES_DIR} )
-set_target_properties( SimpleJoint PROPERTIES PREFIX "" )
-target_include_directories( SimpleJoint PUBLIC ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/ )
+# add_library( SimpleJoint MODULE ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/simple_joint.c )
+# set_target_properties( SimpleJoint PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ROBOT_CONTROL_MODULES_DIR} )
+# set_target_properties( SimpleJoint PROPERTIES PREFIX "" )
+# target_include_directories( SimpleJoint PUBLIC ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/ )
  
 # add_library( AnkleBot MODULE ${SOURCES_DIR}/robot_control/anklebot.c )
 # set_target_properties( AnkleBot PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ROBOT_CONTROL_MODULES_DIR} )

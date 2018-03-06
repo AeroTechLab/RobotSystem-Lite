@@ -7,9 +7,6 @@
 [submodule "src/signal_processing"]
 	path = src/signal_processing
 	url = https://github.com/LabDin/Simple-Signal-Processing
-[submodule "src/curves"]
-	path = src/curves
-	url = https://github.com/LabDin/Simple-Function-Curves
 [submodule "src/timing"]
 	path = src/timing
 	url = https://github.com/LabDin/Precise-Timing

@@ -105,7 +105,7 @@ bool System_Init( const int argc, const char** argv )
 
 void System_End()
 {
-  DEBUG_PRINT( "Ending Robot Control" );
+  //DEBUG_PRINT( "Ending Robot Control" );
 
   IPC_CloseConnection( robotEventsConnection );
   IPC_CloseConnection( robotAxesConnection );
@@ -115,7 +115,7 @@ void System_End()
 
   Robot_End( robotController );
   
-  DEBUG_PRINT( "Robot Control ended" );
+  //DEBUG_PRINT( "Robot Control ended" );
 }
 
 void UpdateEvents()
