@@ -59,7 +59,7 @@ Actuator Actuator_Init( DataHandle configuration )
   const char* actuatorName = DataIO_GetStringValue( configuration, NULL, "" );
   if( actuatorName != NULL )
   {
-    sprintf( filePath, "actuators/%s", actuatorName );
+    sprintf( filePath, ACTUATORS_CONFIG_PATH "/%s", actuatorName );
     if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
   }
   

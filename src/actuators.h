@@ -57,7 +57,7 @@
 #ifndef ACTUATOR_H
 #define ACTUATOR_H 
 
-#include "data_io.h"
+#include "data_io/interface/data_io.h"
 
 /// Defined possible control states enumeration. Passed to internal motor and sensors
 enum ActuatorState 

@@ -49,7 +49,7 @@
 #ifndef ROBOTS_H
 #define ROBOTS_H
 
-#include "robot_control_interface.h"
+#include "robot_control/robot_control.h"
 
 #include <stdbool.h>
 #include <stddef.h>

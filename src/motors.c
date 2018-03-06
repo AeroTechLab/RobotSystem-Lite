@@ -22,9 +22,7 @@
 
 #include "motors.h"
 
-#include "signal_io_interface.h"
-
-#include "data_io.h"
+#include "signal_io/signal_io.h"
 
 //#include "debug/async_debug.h"
       
@@ -52,7 +50,7 @@ Motor Motor_Init( DataHandle configuration )
   const char* motorName = DataIO_GetStringValue( configuration, NULL, "" );
   if( motorName != NULL )
   {
-    sprintf( filePath, "motors/%s", motorName );
+    sprintf( filePath, MOTORS_CONFIG_PATH "/%s", motorName );
     if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
   }
   
@@ -60,7 +58,7 @@ Motor Motor_Init( DataHandle configuration )
   memset( newMotor, 0, sizeof(MotorData) );
 
   bool loadSuccess = true;
-  sprintf( filePath, NAME_STRING( SIGNAL_IO_MODULES_PATH ) "/%s", DataIO_GetStringValue( configuration, "", "output_interface.type" ) );
+  sprintf( filePath, SIGNAL_IO_MODULES_PATH "/%s", DataIO_GetStringValue( configuration, "", "output_interface.type" ) );
   LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newMotor, &loadSuccess );
   if( loadSuccess )
   {

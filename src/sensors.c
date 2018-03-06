@@ -24,13 +24,11 @@
 
 #include "signal_processing/signal_processing.h" 
 
-#include "signal_io_interface.h"
+#include "signal_io/signal_io.h"
 #include "curve_loader.h"
 
 //#include "debug/async_debug.h"
 #include "debug/data_logging.h"
-
-#include "data_io.h"
 
 #include "timing/timing.h"
 
@@ -65,7 +63,7 @@ Sensor Sensor_Init( DataHandle configuration )
   const char* sensorName = DataIO_GetStringValue( configuration, NULL, "" );
   if( sensorName != NULL )
   {
-    sprintf( filePath, "sensors/%s", sensorName );
+    sprintf( filePath, SENSORS_CONFIG_PATH "/%s", sensorName );
     if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
   }
   
@@ -75,7 +73,7 @@ Sensor Sensor_Init( DataHandle configuration )
   memset( newSensor, 0, sizeof(SensorData) );  
   
   bool loadSuccess;
-  sprintf( filePath, NAME_STRING( SIGNAL_IO_MODULES_PATH ) "/%s", DataIO_GetStringValue( configuration, "", "input_interface.type" ) );
+  sprintf( filePath, SIGNAL_IO_MODULES_PATH "/%s", DataIO_GetStringValue( configuration, "", "input_interface.type" ) );
   LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newSensor, &loadSuccess );
   if( loadSuccess )
   {

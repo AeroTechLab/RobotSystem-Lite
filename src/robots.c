@@ -24,7 +24,7 @@
 
 #include "actuators.h"
 
-#include "data_io.h"
+#include "data_io/interface/data_io.h"
 
 #include "threads/threads.h"
 #include "timing/timing.h"
@@ -86,7 +86,7 @@ Robot Robot_Init( const char* configPathName )
   
   Robot newRobot = NULL;
   
-  sprintf( filePath, "robots/%s", configPathName );
+  sprintf( filePath, ROBOTS_CONFIG_PATH "/%s", configPathName );
   DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration != NULL )
   {
@@ -94,7 +94,7 @@ Robot Robot_Init( const char* configPathName )
     memset( newRobot, 0, sizeof(RobotData) );
   
     bool loadSuccess = false;
-    sprintf( filePath, NAME_STRING( ROBOT_CONTROL_MODULES_PATH ) "/%s", DataIO_GetStringValue( configuration, "", "controller.type" ) );
+    sprintf( filePath, ROBOT_CONTROL_MODULES_PATH "/%s", DataIO_GetStringValue( configuration, "", "controller.type" ) );
     LOAD_MODULE_IMPLEMENTATION( ROBOT_CONTROL_INTERFACE, filePath, newRobot, &loadSuccess );
     if( loadSuccess )
     {

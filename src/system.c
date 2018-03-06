@@ -28,7 +28,7 @@
 
 #include "robots.h"
 
-#include "data_io.h"
+#include "data_io/interface/data_io.h"
 
 #include "debug/data_logging.h"
 
@@ -36,6 +36,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <unistd.h>
 
 
 Robot robotController = NULL;
@@ -61,13 +62,13 @@ bool System_Init( const int argc, const char** argv )
   
   if( strcmp( argv[ 1 ], "--help" ) == 0 )
   {
-    Log_PrintString( NULL, "usage: %s [--config <config_dir>] [--addr <connection_address>] [--log <log_dir>] <robot_name>", argv[ 0 ] );
+    Log_PrintString( NULL, "usage: %s [--root <root_dir>] [--addr <connection_address>] [--log <log_dir>] <robot_name>", argv[ 0 ] );
     return false;
   }
   
-  const char* configDirectory = ".";
+  const char* rootDirectory = ".";
   const char* connectionAddress = NULL;
-  const char* logDirectory = ".";
+  const char* logDirectory = "./log/";
   const char* robotConfigName = argv[ argc - 1 ];
   
   for( int optionIndex = 1; optionIndex < argc - 1; optionIndex+=2 )
@@ -78,7 +79,7 @@ bool System_Init( const int argc, const char** argv )
       return false;
     }
     
-    if( strcmp( argv[ optionIndex ], "--config" ) == 0 ) configDirectory = argv[ optionIndex + 1 ];
+    if( strcmp( argv[ optionIndex ], "--root" ) == 0 ) rootDirectory = argv[ optionIndex + 1 ];
     else if( strcmp( argv[ optionIndex ], "--log" ) == 0 ) logDirectory = argv[ optionIndex + 1 ];
     else if( strcmp( argv[ optionIndex ], "--addr" ) == 0 ) connectionAddress = argv[ optionIndex + 1 ];
     else
@@ -92,14 +93,11 @@ bool System_Init( const int argc, const char** argv )
   robotAxesConnection = IPC_OpenConnection( IPC_UDP | IPC_SERVER, connectionAddress, 50001 );
   robotJointsConnection = IPC_OpenConnection( IPC_UDP | IPC_SERVER, connectionAddress, 50002 );
   
-  char basePath[ DATA_IO_MAX_PATH_LENGTH ];
-  sprintf( basePath, "%s/config/", configDirectory );
-  DataIO_SetBaseStoragePath( basePath );
-  sprintf( basePath, "%s/log/", logDirectory );
-  Log_SetBaseDirectory( logDirectory );
+  Log_SetDirectory( logDirectory );
   
+  chdir( rootDirectory );
   robotInfo = DataIO_CreateEmptyData();
-  Log_PrintString( NULL, "loading robots configuration from %s", configDirectory );
+  DEBUG_PRINT( "loading robot configuration from %s", robotConfigName );
   RefreshRobotsInfo( robotConfigName, NULL );
 
   return true;
@@ -107,7 +105,7 @@ bool System_Init( const int argc, const char** argv )
 
 void System_End()
 {
-  Log_PrintString( NULL, "Ending Robot Control" );
+  DEBUG_PRINT( "Ending Robot Control" );
 
   IPC_CloseConnection( robotEventsConnection );
   IPC_CloseConnection( robotAxesConnection );
@@ -117,7 +115,7 @@ void System_End()
 
   Robot_End( robotController );
   
-  Log_PrintString( NULL, "Robot Control ended" );
+  DEBUG_PRINT( "Robot Control ended" );
 }
 
 void UpdateEvents()
@@ -129,7 +127,7 @@ void UpdateEvents()
   {
     Byte robotCommand = (Byte) *(messageIn++);
     
-    Log_PrintString( NULL, "received robot command: %u", robotCommand );
+    DEBUG_PRINT( "received robot command: %u", robotCommand );
     
     Byte* messageOut = (Byte*) messageBuffer;
     memset( messageOut, 0, IPC_MAX_MESSAGE_LENGTH );
@@ -145,7 +143,7 @@ void UpdateEvents()
     else if( robotCommand == ROBOT_CMD_SET_USER )
     {
       char* userName = (char*) messageIn;
-      Log_SetBaseDirectory( userName );
+      Log_SetBaseName( userName );
       messageOut[ 0 ] = ROBOT_ST_USER_SET;
       //DEBUG_PRINT( "New user name: %s", userName );
     }
