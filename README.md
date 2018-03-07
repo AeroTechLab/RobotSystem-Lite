@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/LabDin/RobotSystem-Lite/master/img/rehab_resized.png" align="left"/>
-  <img src="https://raw.githubusercontent.com/LabDin/RobotSystem-Lite/master/img/eesc_resized.png" align="right"/>
+  <img src="docs/img/rehab_resized.png" align="left"/>
+  <img src="https://raw.githubusercontent.com/LabDin/RobotSystem-Lite/master/docs/img/eesc_resized.png" align="right"/>
 </p>
   
 
@@ -51,16 +51,16 @@ In an effort to generalize and parameterize robot control in and efficient way, 
 From top to bottom levels, the control application is expected to have/define:
 
 - A [hash table](https://en.wikipedia.org/wiki/Hash_table) containing one or more generic robot instances, complemented by:
-    - A [robot configuration](robot_config.html) file/data object, defining its used high-level control implementation and actuators
-    - The robot/actuators control itself, implemented as a plug-in library, according to ROBOT_CONTROL_INTERFACE description
+    - A [robot configuration](docs/robot_config.html) file/data object, defining its used high-level control implementation and actuators
+    - The robot/actuators control itself, implemented as a plug-in library, according to [Robot Control Interface](https://github.com/LabDin/Robot-Control-Interface) description
     - A list of generic actuators list, each one, in turn, complemented by:
-        - An [actuator configuration](actuator_config.html) file/data object, defining the lower-level control implementation, sensors and motor configuration and their related control variables (position, force, etc.)
+        - An [actuator configuration](docs/actuator_config.html) file/data object, defining the lower-level control implementation, sensors and motor configuration and their related control variables (position, force, etc.)
         - A list of generic sensors, each one, in turn, complemented by:
-            - [Sensor configuration](sensor_config.html) file/data object, defining the hardware/virtual input device/channel, reference sensor (if needed) and signal processing/conversion options
-            - The signal input code itself, implemented as a plug-in library, according to SIGNAL_IO_INTERFACE description
+            - [Sensor configuration](docs/sensor_config.html) file/data object, defining the hardware/virtual input device/channel, reference sensor (if needed) and signal processing/conversion options
+            - The signal input code itself, implemented as a plug-in library, according to [Signal I/O Interface](https://github.com/LabDin/Signal-IO-Interface) description
         - Generic actuation motor, complemented by:
-            - [Motor configuration](motor_config.html) file/data object, defining the hardware/virtual output device/channel and signal generation options
-            - The signal output code itself, implemented as a plug-in library, according to SIGNAL_IO_INTERFACE description
+            - [Motor configuration](docs/motor_config.html) file/data object, defining the hardware/virtual output device/channel and signal generation options
+            - The signal output code itself, implemented as a plug-in library, according to [Signal I/O Interface](https://github.com/LabDin/Signal-IO-Interface) description
 
 ### Command-line arguments
 
