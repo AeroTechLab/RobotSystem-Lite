@@ -1,12 +1,42 @@
-# RobRehabSystem #
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Bitiquinho/RobRehabSystem/master/img/rehab_resized.png" align="left"/>
+  <img src="https://raw.githubusercontent.com/Bitiquinho/RobRehabSystem/master/img/eesc_resized.png" align="right"/>
+</p>
+  
 
-Customizable robotic rehabilitation system
+***
+***
+
+<h1 align="center">RobotSystem-Lite</h1>
+  
+***
+***
+  
+  
+
 
 ## Overview
 
-**RobRehabSystem** is a set of executables (**RobRehabControl** and **RobRehabServer**) intended for control of physical rehabilitation robots. Its generic programming and communication interfaces allow it to integrate with a variety of client applications and custom plugins. 
+**RobotSystem-Lite** is a lightweight customizable robotic control application, with few third-party dependencies, for easier deployment in embedded systems. Its generic programming and communication interfaces allows it to integrate with a variety of client applications (for remote comunication) and custom plugins (for implementing specific control algorithms and robotic hardware I/O support). 
 
-For more info, refer to [**RobRehabSystem** Wiki](https://github.com/Bitiquinho/RobRehabSystem/wiki).
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Bitiquinho/RobRehabSystem/master/docs/img/top_level_system-basic.png" width="800"/>
+</p>
+<p align="center">
+  (High-level RobotSystem-Lite interfacing examples)
+</p>
+
+Its original goal is to enable combination of robotic rehabilitation with alternative approaches for physical therapy, like remote assistance and multiplayer "serious" video-games.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Bitiquinho/RobRehabSystem/master/docs/img/top_level_system-full.png" width="800"/>
+</p>
+<p align="center">
+  (One of proposed RobotSystem-Lite usages)
+</p>
+
+
+However, its configuration flexibility is intended for allowing other usages of robotic control besides rehabilitation.
 
 ## Building
 
