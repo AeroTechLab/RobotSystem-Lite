@@ -19,20 +19,20 @@
 **RobRehabSystem** is a set of executables ([[RobRehabControl|RobRehabControl]] and [[RobRehabServer|RobRehabServer]]) intended for control of physical rehabilitation robots. Its generic programming and communication interfaces allow it to integrate with a variety of client applications and custom plugins. 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Bitiquinho/RobRehabSystem/master/img/distributed_system_full.png" width="800"/>
+  <img src="https://raw.githubusercontent.com/Bitiquinho/RobRehabSystem/master/docs/img/top_level_system-basic.png" width="800"/>
 </p>
 <p align="center">
-  (High-level RobRehabSystem distributed architecture)
+  (High-level RobotSystem-Lite interfacing examples)
 </p>
 
 
 One of the main system's goals is to enable combination of robotic rehabilitation with alternative forms of physical therapy, like "serious" video-games.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Bitiquinho/RobRehabSystem/master/img/system_proposal_full.png" width="800"/>
+  <img src="https://raw.githubusercontent.com/Bitiquinho/RobRehabSystem/master/docs/img/top_level_system-full.png" width="800"/>
 </p>
 <p align="center">
-  (One of proposed RobRehabSystem usages)
+  (One of proposed RobotSystem-Lite usages)
 </p>
 
 
