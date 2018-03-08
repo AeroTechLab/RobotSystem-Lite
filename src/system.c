@@ -133,25 +133,25 @@ void UpdateEvents()
     memset( messageOut, 0, IPC_MAX_MESSAGE_LENGTH );
       
     if( robotCommand == 0x00 ) RefreshRobotsInfo( NULL, (char*) ( messageOut + 1 ) );
-    else if( robotCommand == ROBOT_CMD_DISABLE ) messageOut[ 0 ] = Robot_Disable( robotController ) ? ROBOT_ST_DISABLED : 0x00;
-    else if( robotCommand == ROBOT_CMD_ENABLE ) messageOut[ 0 ] = Robot_Enable( robotController ) ? ROBOT_ST_ENABLED : 0x00;
-    else if( robotCommand == ROBOT_CMD_PASSIVATE ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_PASSIVE ) ? ROBOT_ST_PASSIVE : 0x00;
-    else if( robotCommand == ROBOT_CMD_OFFSET ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_OFFSET ) ? ROBOT_ST_OFFSETTING : 0x00;
-    else if( robotCommand == ROBOT_CMD_CALIBRATE ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_CALIBRATION ) ? ROBOT_ST_CALIBRATING : 0x00;
-    else if( robotCommand == ROBOT_CMD_PREPROCESS ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_PREPROCESSING ) ? ROBOT_ST_PREPROCESSING : 0x00;
-    else if( robotCommand == ROBOT_CMD_OPERATE ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_OPERATION ) ? ROBOT_ST_OPERATING : 0x00;
-    else if( robotCommand == ROBOT_CMD_SET_USER )
+    else if( robotCommand == ROBOT_REQ_DISABLE ) messageOut[ 0 ] = Robot_Disable( robotController ) ? ROBOT_REP_DISABLED : 0x00;
+    else if( robotCommand == ROBOT_REQ_ENABLE ) messageOut[ 0 ] = Robot_Enable( robotController ) ? ROBOT_REP_ENABLED : 0x00;
+    else if( robotCommand == ROBOT_REQ_PASSIVATE ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_PASSIVE ) ? ROBOT_REP_PASSIVE : 0x00;
+    else if( robotCommand == ROBOT_REQ_OFFSET ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_OFFSET ) ? ROBOT_REP_OFFSETTING : 0x00;
+    else if( robotCommand == ROBOT_REQ_CALIBRATE ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_CALIBRATION ) ? ROBOT_REP_CALIBRATING : 0x00;
+    else if( robotCommand == ROBOT_REQ_PREPROCESS ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_PREPROCESSING ) ? ROBOT_REP_PREPROCESSING : 0x00;
+    else if( robotCommand == ROBOT_REQ_OPERATE ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_OPERATION ) ? ROBOT_REP_OPERATING : 0x00;
+    else if( robotCommand == ROBOT_REQ_SET_USER )
     {
       char* userName = (char*) messageIn;
       Log_SetBaseName( userName );
-      messageOut[ 0 ] = ROBOT_ST_USER_SET;
+      messageOut[ 0 ] = ROBOT_REP_USER_SET;
       //DEBUG_PRINT( "New user name: %s", userName );
     }
-    else if( robotCommand == ROBOT_CMD_SET_CONFIG )
+    else if( robotCommand == ROBOT_REQ_SET_CONFIG )
     {
       char* robotName = (char*) messageIn;
       RefreshRobotsInfo( robotName, (char*) ( messageOut + 1 ) );
-      messageOut[ 0 ] = ROBOT_ST_CONFIG_SET;
+      messageOut[ 0 ] = ROBOT_REP_CONFIG_SET;
     }
     
     IPC_WriteMessage( robotEventsConnection, messageOut );

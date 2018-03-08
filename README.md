@@ -40,7 +40,7 @@ However, its configuration flexibility is intended for allowing other usages of 
 
 ## Robot Multi-Level Configuration
 
-In an effort to generalize and parameterize robot control in and efficient way, wherever it makes sense, and facilitate implementation of device specific behaviour, when needed, the **Robot Control Library** defines a multi-layer robot configuration scheme.
+In an effort to generalize and parameterize robot control in and efficient way, wherever it makes sense, and facilitate implementation of device specific behaviour, when needed, **RobotSystem-Lite** defines a multi-layer robot configuration scheme.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/LabDin/RobotSystem-Lite/master/docs/img/control_abstraction_full.png" width="800"/>
@@ -60,7 +60,7 @@ From top to bottom levels, the control application is expected to have/define:
             - [Motor configuration](docs/motor_config.html) JSON file (inside **<root_dir>/config/motors/**), defining the hardware/virtual output device/channel and signal generation options
             - The signal output code itself, implemented as a plug-in library (inside **<root_dir>/plugins/signal_io/**), according to [Signal I/O Interface](https://github.com/LabDin/Signal-IO-Interface) description
 
-With that structure, a multi-level control process can interact with external clients through a single interface (for comprehending the difference between **joints** and **axes**, see [Robot Control Interface](https://github.com/LabDin/Robot-Control-Interface) rationale):
+With that structure, a multi-level control process can interact with external clients through a single interface (for comprehending the difference between **joints** and **axes**, see [**Robot Control Interface** rationale](https://github.com/LabDin/Robot-Control-Interface#the-jointaxis-rationale)):
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/LabDin/RobotSystem-Lite/master/docs/img/control_flux.png" width="800"/>
@@ -68,22 +68,17 @@ With that structure, a multi-level control process can interact with external cl
             
 ## Communication Interfaces
 
-**RobotSystem-Lite** client applications must communicate to it through **IP** connections, with fixed-size **512 bytes** messages. Depending on the type of message sent or received, a specific data format and underlying protocol should be used.
+**RobotSystem-Lite** client applications communicate with it through [**IP** connections](https://en.wikipedia.org/wiki/Network_socket), with fixed-size **512 bytes** messages. Depending on the type of message sent or received, a specific data format and underlying transport ([TCP](https://pt.wikipedia.org/wiki/Transmission_Control_Protocol) or [UDP][https://pt.wikipedia.org/wiki/User_Datagram_Protocol)) must be used.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/LabDin/RobotSystem-Lite/master/docs/img/robot_communications.png" width="600"/>
 </p>
 
-### Command/Request messages
+### Request/Reply messages
 
-Messages requesting state changes or information about one or more robot are sent by clients occasionally and their arrival should be as guaranteed as possible. Therefore, these messages should be transmitted to the server through **TCP** sockets, on port **50000**, as a byte array with data organized like:
- 
-Number of commands | Robot index 1 | Command ID 1 | Robot index 2 | Command ID 2 | ...
-:----------------: | :-----------: | :----------: | :-----------: | :----------: | :-:
-1 byte             |    1 byte     |    1 byte    |    1 byte     |    1 byte    | ... 
+Messages requesting state changes or information about the robot are sent by clients occasionally and their arrival should be as guaranteed as possible. Therefore, these messages are transmitted to the server through **TCP** sockets, on port **50000**. Possible messages (and corresponding reply values) are:
 
-Currently available command identifiers, their values and roles are the following:
-
+- **Robot Info**
 - **ROBOT_ENABLE** (0x01): turn on and enable control for the robot of corresponding index
 - **ROBOT_DISABLE** (0x02): turn off and disable control for the robot of corresponding index
 - **ROBOT_RESET** (0x03): clear errors and calibration values for the robot of corresponding index
@@ -101,7 +96,7 @@ The same **TCP** connection could be used to send more complex messages, in stri
   - **Server Reply**: Information returned to requesting client. Serialized string representation in the format specified by currently used [data I/O implementation](https://bitiquinho.github.io/Platform-Utils/classDATA__IO__INTERFACE.html#a4663a3c54534f571507ed6bdfd9ceb4d). In the default **JSON** format, it would be something like:
 
 ```json
-{ "robots":[ "robot_1", "robot_2" ], "axes":[ "r1_x", "r1_y", "r2_theta" ], "joints":[ "r1_0", "r1_1", "r2_0" ] }
+{ "id":"robot_name", "axes":[ "r1_x", "r1_y", "r2_theta" ], "joints":[ "r1_0", "r1_1", "r2_0" ] }
 ```
 
 
@@ -134,7 +129,7 @@ Similarly to axis update messages, messages containing online [joints](https://b
 
 Joints number | Index 1 | Position |  Force  | Stiffness | Reserved | Index 2 | ...
 :-----------: | :-----: | :------: | :-----: | :-------: | :------: | :-----: | :-:
-    1 byte    | 1 byte  | 4 bytes  | 4 bytes |  4 bytes  | 20 bytes | 1 byte  | ...
+   1 byte     | 1 byte  | 4 bytes  | 4 bytes |  4 bytes  | 20 bytes | 1 byte  | ...
 
 The reserved values are destined to applications that could make use of extra joint-related data, like [**EMG**](https://en.wikipedia.org/wiki/Electromyography) signals.
 

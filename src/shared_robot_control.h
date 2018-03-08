@@ -1,38 +1,61 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2017 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2018 Leonardo Consoni <consoni_2519@hotmail.com>       //
 //                                                                            //
-//  This file is part of RobRehabSystem.                                      //
+//  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
-//  RobRehabSystem is free software: you can redistribute it and/or modify    //
+//  RobotSystem-Lite is free software: you can redistribute it and/or modify  //
 //  it under the terms of the GNU Lesser General Public License as published  //
 //  by the Free Software Foundation, either version 3 of the License, or      //
 //  (at your option) any later version.                                       //
 //                                                                            //
-//  RobRehabSystem is distributed in the hope that it will be useful,         //
+//  RobotSystem-Lite is distributed in the hope that it will be useful,       //
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of            //
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the              //
 //  GNU Lesser General Public License for more details.                       //
 //                                                                            //
 //  You should have received a copy of the GNU Lesser General Public License  //
-//  along with RobRehabSystem. If not, see <http://www.gnu.org/licenses/>.    //
+//  along with RobotSystem-Lite. If not, see <http://www.gnu.org/licenses/>.  //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+
+
+/// @file shared_robot_control.h
+/// @brief RobotSystem-Lite clients request/receive interface
 
 
 #ifndef SHARED_ROBOT_CONTROL_H
 #define SHARED_ROBOT_CONTROL_H
 
-enum { ROBOT_CMD_DISABLE = 1, ROBOT_ST_DISABLED = ROBOT_CMD_DISABLE, 
-       ROBOT_CMD_ENABLE, ROBOT_ST_ENABLED = ROBOT_CMD_ENABLE, 
-       ROBOT_CMD_RESET, ROBOT_ST_ERROR = ROBOT_CMD_RESET,
-       ROBOT_CMD_PASSIVATE, ROBOT_ST_PASSIVE = ROBOT_CMD_PASSIVATE,
-       ROBOT_CMD_OPERATE, ROBOT_ST_OPERATING = ROBOT_CMD_OPERATE, 
-       ROBOT_CMD_OFFSET, ROBOT_ST_OFFSETTING = ROBOT_CMD_OFFSET,
-       ROBOT_CMD_CALIBRATE, ROBOT_ST_CALIBRATING = ROBOT_CMD_CALIBRATE, 
-       ROBOT_CMD_PREPROCESS, ROBOT_ST_PREPROCESSING = ROBOT_CMD_PREPROCESS, 
-       ROBOT_CMD_SET_USER, ROBOT_ST_USER_SET = ROBOT_CMD_SET_USER,
-       ROBOT_CMD_SET_CONFIG, ROBOT_ST_CONFIG_SET = ROBOT_CMD_SET_CONFIG,
-       ROBOT_BYTES_NUMBER };
+/// Single byte codes used in request/receive messages for robot state/configuration control
+enum { 
+       /// Request information about current robot, its available [axes and joints](https://github.com/LabDin/Robot-Control-Interface#the-jointaxis-rationale))
+       ROBOT_REQ_GET_INFO,
+       /// Reply code for ROBOT_REQ_GET_INFO. Followed, in the same message, by a JSON info string like:
+       /// @code
+       /// { "id":"<robot_name>", "axes":[ "<axis1_name>", "<axis2_name>" ], "joints":[ "<joint1_name>", "<joint2_name>" ] }
+       /// @endcode
+       ROBOT_REP_GOT_INFO = ROBOT_REQ_GET_INFO,
+       ROBOT_REQ_DISABLE,                               ///< Request turning off the robot and stopping its control thread
+       ROBOT_REP_DISABLED = ROBOT_REQ_DISABLE,          ///< Confirmation reply to ROBOT_REQ_DISABLE
+       ROBOT_REQ_ENABLE,                                ///< Request turning on the robot and starting its control thread
+       ROBOT_REP_ENABLED = ROBOT_REQ_ENABLE,            ///< Confirmation reply to ROBOT_REQ_ENABLE
+       ROBOT_REQ_RESET,                                 ///< clear errors and calibration values for the robot of corresponding index
+       ROBOT_REP_ERROR = ROBOT_REQ_RESET,               ///< Confirmation reply to ROBOT_REQ_RESET
+       ROBOT_REQ_PASSIVATE,                             ///< Request setting robot to a fully compliant control state (passed on to control implementation)
+       ROBOT_REP_PASSIVE = ROBOT_REQ_PASSIVATE,         ///< Confirmation reply to ROBOT_REQ_PASSIVATE
+       ROBOT_REQ_OPERATE,                               ///< Request setting robot to normal operation state (passed on to control implementation)
+       ROBOT_REP_OPERATING = ROBOT_REQ_OPERATE,         ///< Confirmation reply to ROBOT_REQ_OPERATE
+       ROBOT_REQ_OFFSET,                                ///< Request setting robot to offset measurement state (passed on to control implementation)
+       ROBOT_REP_OFFSETTING = ROBOT_REQ_OFFSET,         ///< Confirmation reply to ROBOT_REQ_OFFSET
+       ROBOT_REQ_CALIBRATE,                             ///< Request setting robot to motion range measurement state (passed on to control implementation)
+       ROBOT_REP_CALIBRATING = ROBOT_REQ_CALIBRATE,     ///< Confirmation reply to ROBOT_REQ_CALIBRATE
+       ROBOT_REQ_PREPROCESS,                            ///< Request setting robot to implementation-specific pre-operation state (passed on to control implementation)
+       ROBOT_REP_PREPROCESSING = ROBOT_REQ_PREPROCESS,  ///< Confirmation reply to ROBOT_REQ_PREPROCESS
+       ROBOT_REQ_SET_USER,                              ///< Request setting new user/folder name for [data logging](https://github.com/LabDin/Simple-Data-Logging). Must be followed, in the same message, by a string with the name
+       ROBOT_REP_USER_SET = ROBOT_REQ_SET_USER,         ///< Confirmation reply to ROBOT_REQ_SET_USER
+       ROBOT_REQ_SET_CONFIG,                            ///< Request setting new @ref robot_config, reloading all parameters. Must be followed, in the same message, by a string with the new @ref robot_config name
+       ROBOT_REP_CONFIG_SET = ROBOT_REQ_SET_CONFIG,     ///< Confirmation reply to ROBOT_REQ_SET_CONFIG. Followed by the same JSON string type as in ROBOT_REP_GOT_INFO
+};
 
-#endif // SHARED_JOINT_CONTROL_H
+#endif // SHARED_ROBOT_CONTROL_H
