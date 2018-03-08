@@ -108,6 +108,6 @@ Executing **RobotSystem-Lite** from command-line takes at least the name (withou
 
     $ ./RobRehabControl [--root <root_dir>] [--addr <connection_address>] [--log <log_dir>] <robot_name>
     
-- **<root_dir>** is the absolute or relative path to the directory where **config** and **plugins** folders are located (default is working directory "./")
+- **<root_dir>** is the absolute or relative path to the directory where **config** and **plugins** folders are located (default is working directory **"./"**)
 - **<connection_address>** is the **IP** address the server sockets will be binded to (default is any address/all interfaces)
-- **<log_dir> is the absolute or relative path to the directory where log folders/files will be saved (default is "./log/"
+- **<log_dir>** is the absolute or relative path to the directory where log folders/files will be saved (default is **"./log/"**)
