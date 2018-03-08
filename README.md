@@ -76,26 +76,25 @@ With that structure, a multi-level control process can interact with external cl
 
 ### Request/Reply messages
 
-Messages requesting state changes or information about the robot are sent by clients occasionally and their arrival should be as guaranteed as possible. Therefore, these messages are transmitted to the server through **TCP** sockets, on port **50000**. Possible messages (and corresponding reply values) are listed in a [separate header]()
+Messages requesting state changes or information about the robot are sent by clients occasionally and their arrival should be as guaranteed as possible. Therefore, these messages are transmitted to the server through **TCP** sockets, on port **50000**. Possible messages (and corresponding reply values) are listed in a [separate header](https://labdin.github.io/RobotSystem-Lite/shared__robot__control_8h.html)
 
 ### Joint/Axis update messages
 
-Messages transporting online update values for robot DoFs ([axes or joints](https://github.com/LabDin/Robot-Control-Interface#the-jointaxis-rationale)) control variables (measurements or setpoints) should arrive as quickly as possible, and there is no advantage in resending lost packets, as their validity is short in time. Thereby, these messages are exchanged with **RobotSystem-Lite** through lower-latency **UDP** sockets, on port **50001** for **axes** and **50002** for **joints**, in a [fixed format]().
+Messages transporting online update values for robot DoFs ([axes or joints](https://github.com/LabDin/Robot-Control-Interface#the-jointaxis-rationale)) control variables (measurements or setpoints) should arrive as quickly as possible, and there is no advantage in resending lost packets, as their validity is short in time. Thereby, these messages are exchanged with **RobotSystem-Lite** through lower-latency **UDP** sockets, on port **50001** for **axes** and **50002** for **joints**, in a [defined format](https://labdin.github.io/RobotSystem-Lite/shared__dof__variables_8h.html).
 
 
 ## Building
 
 On a terminal, get the [GitHub code repository](https://github.com/LabDin/RobotSystem-Lite) with:
 
-    $ git clone https://github.com/LabDin/RobotSystem-Lite [<my_repository_folder>]
+    $ git clone https://github.com/LabDin/RobotSystem-Lite [<my_system_folder>]
 
-Besides operating system's libraries, this system is dependent on [Bitiquinho's Robot Control Library](https://github.com/Bitiquinho/Robot-Control-Library) and [Bitiquinho's Platform Utils](https://github.com/Bitiquinho/Platform-Utils), that are automatically linked as a [git submodules](https://chrisjean.com/git-submodules-adding-using-removing-and-updating/)
+Besides operating system's libraries, this software is dependent on code from other projects ([Data I/O JSON](https://github.com/LabDin/Data-IO-JSON), [Data Logging](https://github.com/LabDin/Simple-Data-Logging), [Async IPC](https://github.com/LabDin/Simple-Async-IPC), [Kalman Filter](https://github.com/LabDin/Simple-Kalman-Filter), [Plugin Loader](https://github.com/LabDin/Plugin-Loader), [Robot Control Interface](https://github.com/LabDin/Robot-Control-Interface), [Signal I/O Interface](https://github.com/LabDin/Signal-IO-Interface), [Signal Processing](https://github.com/LabDin/Simple-Signal-Processing), [Multithreading](https://github.com/LabDin/Simple-Multithreading) and [Precise Timing](https://github.com/LabDin/Precise-Timing)), that are automatically linked as a [git submodules](https://chrisjean.com/git-submodules-adding-using-removing-and-updating/). Also, a library implementation of [BLAS/LAPACK API](https://en.wikipedia.org/wiki/LAPACK) is needed.
 
 To add those repositories to your sources, navigate to the root project folder and clone them with:
 
     $ cd <my_system_folder>
-    $ git submodule init
-    $ git submodule update
+    $ git submodule update --init
 
 With dependencies set, you can now build the system executables (**RobRehabControl** and **RobRehabServer**) to a separate build directory with [CMake](https://cmake.org/):
 
@@ -105,8 +104,10 @@ With dependencies set, you can now build the system executables (**RobRehabContr
     
 ## Running
 
-**RobRehabControl** and **RobRehabServer** could be executed separated or together, in any order, as the shared buffers for data exchange between them are automatically created by the first process and accessed by the second.
+Executing **RobotSystem-Lite** from command-line takes at least the name (without extensions) of the [robot configuration](https://labdin.github.io/RobotSystem-Lite/robot_config.html) file, allowing for more optional arguments:
 
     $ ./RobRehabControl [--root <root_dir>] [--addr <connection_address>] [--log <log_dir>] <robot_name>
     
-For more info about application usage, refer to [RobRehabControl Wiki Entry](https://github.com/Bitiquinho/RobRehabSystem/wiki/RobRehabControl)
+- **<root_dir>** is the absolute or relative path to the directory where **config** and **plugins** folders are located (default is working directory "./")
+- **<connection_address>** is the **IP** address the server sockets will be binded to (default is any address/all interfaces)
+- **<log_dir> is the absolute or relative path to the directory where log folders/files will be saved (default is "./log/"

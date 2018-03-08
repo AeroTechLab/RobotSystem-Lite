@@ -125,21 +125,24 @@ $(function() {
 <img src="https://raw.githubusercontent.com/LabDin/RobotSystem-Lite/master/docs/img/robot_communications.png" width="600"/>
 </div>
  <h3>Request/Reply messages</h3>
-<p>Messages requesting state changes or information about the robot are sent by clients occasionally and their arrival should be as guaranteed as possible. Therefore, these messages are transmitted to the server through <b>TCP</b> sockets, on port <b>50000</b>. Possible messages (and corresponding reply values) are listed in a [separate header]()</p>
+<p>Messages requesting state changes or information about the robot are sent by clients occasionally and their arrival should be as guaranteed as possible. Therefore, these messages are transmitted to the server through <b>TCP</b> sockets, on port <b>50000</b>. Possible messages (and corresponding reply values) are listed in a <a href="https://labdin.github.io/RobotSystem-Lite/shared__robot__control_8h.html">separate header</a></p>
 <h3>Joint/Axis update messages</h3>
-<p>Messages transporting online update values for robot DoFs (<a href="https://github.com/LabDin/Robot-Control-Interface#the-jointaxis-rationale">axes or joints</a>) control variables (measurements or setpoints) should arrive as quickly as possible, and there is no advantage in resending lost packets, as their validity is short in time. Thereby, these messages are exchanged with <b>RobotSystem-Lite</b> through lower-latency <b>UDP</b> sockets, on port <b>50001</b> for <b>axes</b> and <b>50002</b> for <b>joints</b>, in a [fixed format]().</p>
+<p>Messages transporting online update values for robot DoFs (<a href="https://github.com/LabDin/Robot-Control-Interface#the-jointaxis-rationale">axes or joints</a>) control variables (measurements or setpoints) should arrive as quickly as possible, and there is no advantage in resending lost packets, as their validity is short in time. Thereby, these messages are exchanged with <b>RobotSystem-Lite</b> through lower-latency <b>UDP</b> sockets, on port <b>50001</b> for <b>axes</b> and <b>50002</b> for <b>joints</b>, in a <a href="https://labdin.github.io/RobotSystem-Lite/shared__dof__variables_8h.html">defined format</a>.</p>
 <h2>Building</h2>
-<p>On a terminal, get the <a href="https://github.com/LabDin/RobotSystem-Lite">GitHub code repository</a> with: </p><pre class="fragment">$ git clone https://github.com/LabDin/RobotSystem-Lite [&lt;my_repository_folder&gt;]
-</pre><p>Besides operating system's libraries, this system is dependent on <a href="https://github.com/Bitiquinho/Robot-Control-Library">Bitiquinho's Robot Control Library</a> and <a href="https://github.com/Bitiquinho/Platform-Utils">Bitiquinho's Platform Utils</a>, that are automatically linked as a <a href="https://chrisjean.com/git-submodules-adding-using-removing-and-updating/">git submodules</a></p>
+<p>On a terminal, get the <a href="https://github.com/LabDin/RobotSystem-Lite">GitHub code repository</a> with: </p><pre class="fragment">$ git clone https://github.com/LabDin/RobotSystem-Lite [&lt;my_system_folder&gt;]
+</pre><p>Besides operating system's libraries, this software is dependent on code from other projects (<a href="https://github.com/LabDin/Data-IO-JSON">Data I/O JSON</a>, <a href="https://github.com/LabDin/Simple-Data-Logging">Data Logging</a>, <a href="https://github.com/LabDin/Simple-Async-IPC">Async IPC</a>, <a href="https://github.com/LabDin/Simple-Kalman-Filter">Kalman Filter</a>, <a href="https://github.com/LabDin/Plugin-Loader">Plugin Loader</a>, <a href="https://github.com/LabDin/Robot-Control-Interface">Robot Control Interface</a>, <a href="https://github.com/LabDin/Signal-IO-Interface">Signal I/O Interface</a>, <a href="https://github.com/LabDin/Simple-Signal-Processing">Signal Processing</a>, <a href="https://github.com/LabDin/Simple-Multithreading">Multithreading</a> and <a href="https://github.com/LabDin/Precise-Timing">Precise Timing</a>), that are automatically linked as a <a href="https://chrisjean.com/git-submodules-adding-using-removing-and-updating/">git submodules</a>. Also, a library implementation of <a href="https://en.wikipedia.org/wiki/LAPACK">BLAS/LAPACK API</a> is needed.</p>
 <p>To add those repositories to your sources, navigate to the root project folder and clone them with: </p><pre class="fragment">$ cd &lt;my_system_folder&gt;
-$ git submodule init
-$ git submodule update
+$ git submodule update --init
 </pre><p>With dependencies set, you can now build the system executables (<b>RobRehabControl</b> and <b>RobRehabServer</b>) to a separate build directory with <a href="https://cmake.org/">CMake</a>: </p><pre class="fragment">$ mkdir build &amp;&amp; cd build
 $ cmake .. 
 $ make
 </pre><h2>Running</h2>
-<p><b>RobRehabControl</b> and <b>RobRehabServer</b> could be executed separated or together, in any order, as the shared buffers for data exchange between them are automatically created by the first process and accessed by the second. </p><pre class="fragment">$ ./RobRehabControl [--root &lt;root_dir&gt;] [--addr &lt;connection_address&gt;] [--log &lt;log_dir&gt;] &lt;robot_name&gt;
-</pre><p>For more info about application usage, refer to <a href="https://github.com/Bitiquinho/RobRehabSystem/wiki/RobRehabControl">RobRehabControl Wiki Entry</a> </p>
+<p>Executing <b>RobotSystem-Lite</b> from command-line takes at least the name (without extensions) of the <a href="https://labdin.github.io/RobotSystem-Lite/robot_config.html">robot configuration</a> file, allowing for more optional arguments: </p><pre class="fragment">$ ./RobRehabControl [--root &lt;root_dir&gt;] [--addr &lt;connection_address&gt;] [--log &lt;log_dir&gt;] &lt;robot_name&gt;
+</pre><ul>
+<li>**&lt;root_dir&gt;** is the absolute or relative path to the directory where <b>config</b> and <b>plugins</b> folders are located (default is working directory "./")</li>
+<li>**&lt;connection_address&gt;** is the <b>IP</b> address the server sockets will be binded to (default is any address/all interfaces)</li>
+<li>**&lt;log_dir&gt; is the absolute or relative path to the directory where log folders/files will be saved (default is "./log/" </li>
+</ul>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

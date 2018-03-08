@@ -37,8 +37,7 @@
 #define SHARED_DOF_VARIABLES_H
 
 /// Enumeration of floating-point values for a single DoF update message
-enum { DOF_POSITION, DOF_VELOCITY, DOF_FORCE, DOF_ACCELERATION,
-       DOF_INERTIA, DOF_STIFFNESS, DOF_DAMPING, DOF_FLOATS_NUMBER };
+enum RobotDoFVariable { DOF_POSITION, DOF_VELOCITY, DOF_FORCE, DOF_ACCELERATION, DOF_INERTIA, DOF_STIFFNESS, DOF_DAMPING, DOF_FLOATS_NUMBER };
 
 #define DOF_DATA_BLOCK_SIZE DOF_FLOATS_NUMBER * sizeof(float)   ///< Size in bytes of all floating-point values for a single DoF update message
 

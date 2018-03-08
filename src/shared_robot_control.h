@@ -30,7 +30,7 @@
 #define SHARED_ROBOT_CONTROL_H
 
 /// Single byte codes used in request/receive messages for robot state/configuration control
-enum { 
+enum RobotControlCode { 
        /// Request information about current robot, its available [axes and joints](https://github.com/LabDin/Robot-Control-Interface#the-jointaxis-rationale))
        ROBOT_REQ_GET_INFO = 1,
        /// Reply code for ROBOT_REQ_GET_INFO. Followed, in the same message, by a JSON info string like:
