@@ -19,6 +19,7 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
+
 #include "system.h"
 
 #include "ipc/ipc.h"
@@ -132,7 +133,11 @@ void UpdateEvents()
     Byte* messageOut = (Byte*) messageBuffer;
     memset( messageOut, 0, IPC_MAX_MESSAGE_LENGTH );
       
-    if( robotCommand == 0x00 ) RefreshRobotsInfo( NULL, (char*) ( messageOut + 1 ) );
+    if( robotCommand == ROBOT_REQ_GET_INFO ) 
+    {
+      messageOut[ 0 ] = ROBOT_REP_GOT_INFO;
+      RefreshRobotsInfo( NULL, (char*) ( messageOut + 1 ) );
+    }
     else if( robotCommand == ROBOT_REQ_DISABLE ) messageOut[ 0 ] = Robot_Disable( robotController ) ? ROBOT_REP_DISABLED : 0x00;
     else if( robotCommand == ROBOT_REQ_ENABLE ) messageOut[ 0 ] = Robot_Enable( robotController ) ? ROBOT_REP_ENABLED : 0x00;
     else if( robotCommand == ROBOT_REQ_PASSIVATE ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_PASSIVE ) ? ROBOT_REP_PASSIVE : 0x00;
@@ -166,7 +171,7 @@ void UpdateAxes()
   while( IPC_ReadMessage( robotAxesConnection, messageIn ) ) 
   {
     size_t setpointBlocksNumber = (size_t) *(messageIn++);
-    //Log_PrintString( NULL, "received message for %lu axes", setpointBlocksNumber );
+    //DEBUG_PRINT( "received message for %lu axes", setpointBlocksNumber );
     for( size_t setpointBlockIndex = 0; setpointBlockIndex < setpointBlocksNumber; setpointBlockIndex++ )
     {
       size_t axisIndex = (size_t) *(messageIn++);
@@ -178,7 +183,7 @@ void UpdateAxes()
                                        .acceleration = axisSetpointsList[ DOF_ACCELERATION ], .force = axisSetpointsList[ DOF_FORCE ],
                                        .inertia = axisSetpointsList[ DOF_INERTIA ],
                                        .stiffness = axisSetpointsList[ DOF_STIFFNESS ], .damping = axisSetpointsList[ DOF_DAMPING ] };
-      //if( axisIndex == 0 ) Log_PrintString( NULL, "setpoints: p: %.3f - v: %.3f", axisSetpoints.position, axisSetpoints.velocity );
+      //if( axisIndex == 0 ) DEBUG_PRINT( "setpoints: p: %.3f - v: %.3f", axisSetpoints.position, axisSetpoints.velocity );
       Robot_SetAxisSetpoints( robotController, axisIndex, &axisSetpoints );
 
       messageIn += DOF_DATA_BLOCK_SIZE;
@@ -205,7 +210,7 @@ void UpdateAxes()
       axisMeasuresList[ DOF_STIFFNESS ] = (float) axisMeasures.stiffness;
       axisMeasuresList[ DOF_DAMPING ] = (float) axisMeasures.damping;
       
-      //if( axisIndex == 0 ) Log_PrintString( NULL, "measures: p: %+.5f, v: %+.5f, f: %+.5f", axisMeasuresList[ DOF_POSITION ], axisMeasuresList[ DOF_VELOCITY ], axisMeasuresList[ DOF_FORCE ] );
+      //if( axisIndex == 0 ) DEBUG_PRINT( "measures: p: %+.5f, v: %+.5f, f: %+.5f", axisMeasuresList[ DOF_POSITION ], axisMeasuresList[ DOF_VELOCITY ], axisMeasuresList[ DOF_FORCE ] );
     
       axisdataOffset += DOF_DATA_BLOCK_SIZE;
     }
@@ -213,7 +218,7 @@ void UpdateAxes()
   
   if( message[ 0 ] > 0 )
   {
-    //Log_PrintString( NULL, "sending measures from %lu axes", message[ 0 ] );
+    //DEBUG_PRINT( "sending measures from %lu axes", message[ 0 ] );
     IPC_WriteMessage( robotAxesConnection, (const Byte*) message );
   }
 }
@@ -295,7 +300,7 @@ void RefreshRobotsInfo( const char* robotName, char* sharedControlsString )
   if( sharedControlsString != NULL )
   {
     char* robotControlsString = DataIO_GetDataString( robotInfo );
-    Log_PrintString( NULL, "robots info string: %s", robotControlsString );
+    DEBUG_PRINT( "robots info string: %s", robotControlsString );
     strncpy( sharedControlsString, robotControlsString, strlen( robotControlsString ) );
     free( robotControlsString );
   }

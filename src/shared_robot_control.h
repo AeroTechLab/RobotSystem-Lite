@@ -22,6 +22,8 @@
 
 /// @file shared_robot_control.h
 /// @brief RobotSystem-Lite clients request/receive interface
+///
+/// Messages requesting state changes or information about the robot are sent by clients occasionally and their arrival should be as guaranteed as possible. Therefore, these messages are transmitted to the server through TCP sockets, on port 50000.
 
 
 #ifndef SHARED_ROBOT_CONTROL_H
@@ -30,7 +32,7 @@
 /// Single byte codes used in request/receive messages for robot state/configuration control
 enum { 
        /// Request information about current robot, its available [axes and joints](https://github.com/LabDin/Robot-Control-Interface#the-jointaxis-rationale))
-       ROBOT_REQ_GET_INFO,
+       ROBOT_REQ_GET_INFO = 1,
        /// Reply code for ROBOT_REQ_GET_INFO. Followed, in the same message, by a JSON info string like:
        /// @code
        /// { "id":"<robot_name>", "axes":[ "<axis1_name>", "<axis2_name>" ], "joints":[ "<joint1_name>", "<joint2_name>" ] }

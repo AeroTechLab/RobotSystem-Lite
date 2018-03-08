@@ -1,13 +1,14 @@
 var indexSectionsWithContent =
 {
-  0: "amrs",
+  0: "admrs",
   1: "a",
   2: "amrs",
   3: "amrs",
   4: "amrs",
   5: "as",
   6: "ars",
-  7: "amrs"
+  7: "d",
+  8: "amrs"
 };
 
 var indexSectionNames =
@@ -19,7 +20,8 @@ var indexSectionNames =
   4: "typedefs",
   5: "enums",
   6: "enumvalues",
-  7: "pages"
+  7: "defines",
+  8: "pages"
 };
 
 var indexSectionLabels =
@@ -31,6 +33,7 @@ var indexSectionLabels =
   4: "Typedefs",
   5: "Enumerations",
   6: "Enumerator",
-  7: "Pages"
+  7: "Macros",
+  8: "Pages"
 };
 
