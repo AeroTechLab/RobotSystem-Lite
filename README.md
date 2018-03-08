@@ -80,7 +80,7 @@ Messages requesting state changes or information about the robot are sent by cli
 
 ### Joint/Axis update messages
 
-Messages transporting online update values for robot DoFs ([axes or joints](https://github.com/LabDin/Robot-Control-Interface#the-jointaxis-rationale)) control variables (measurements or setpoints) should arrive as quickly as possible, and there is no advantage in resending lost packets, as their validity is short in time. Thereby, these messages are exchanged with **RobotSystem-Lite** through lower-latency **UDP** sockets, on port **50001** for **axes** and **50002** for **joints**, in a [defined format](https://labdin.github.io/RobotSystem-Lite/shared__dof__variables_8h.html).
+Messages transporting online updates for robot DoFs ([axes or joints](https://github.com/LabDin/Robot-Control-Interface#the-jointaxis-rationale)) control variables (measurements or setpoints) should arrive as quickly as possible, and there is no advantage in resending lost packets, as their validity is short in time. Thereby, these messages are exchanged with **RobotSystem-Lite** through lower-latency **UDP** sockets, on port **50001** for **axes** and **50002** for **joints**, in a [defined format](https://labdin.github.io/RobotSystem-Lite/shared__dof__variables_8h.html).
 
 
 ## Building
