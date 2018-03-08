@@ -26,7 +26,7 @@
 /// Interface for configurable sensor reading and state change. Specific underlying implementation (plugin) and further configuration are defined as explained in @ref sensor_config
 
 /// @page sensor_config Sensor Configuration
-/// The sensor-level configuration (see @ref configuration_levels) is read using the [data I/O interface](https://bitiquinho.github.io/Platform-Utils/structDataIO.html)
+/// The sensor-level configuration (see [Configuration Levels](https://github.com/LabDin/RobotSystem-Lite#robot-multi-level-configuration) is read using the [data I/O interface](https://bitiquinho.github.io/Platform-Utils/structDataIO.html)
 ///
 /// Any configuration file/location path must be provided without its format extension, and relative to CONFIG_DIR/sensors/, where CONFIG_DIR is the [defined base data path](https://bitiquinho.github.io/Platform-Utils/classDATA__IO__INTERFACE.html)
 ///
@@ -53,7 +53,7 @@
 ///     "multiplier": 1.0,                        // [o] Value that multiplies the signal value
 ///     "divisor": 1.0                            // [o] Value that divides the signal value
 ///   },
-///   "log": "<null>"                           // [o] Path (without extension), relative to to LOGS_DIR/log/sensors/, to file where measurements over time will be logged. Defining the field as an empty string value will set terminal logging
+///   "log": "<null>"                   // [o] Path (without extension), relative to to LOGS_DIR/log/sensors/, to file where measurements over time will be logged. Defining the field as an empty string value will set terminal logging
 /// }
 /// @endcode
 

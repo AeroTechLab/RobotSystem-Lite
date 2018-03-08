@@ -28,7 +28,7 @@
 /// Even if RobotSystem handles one robot at a time, this code supports multiple robots for reusage in different applications.
 
 /// @page robot_config Robot Configuration
-/// The robot-level configuration (see @ref configuration_levels) is read using the [data I/O interface](https://bitiquinho.github.io/Platform-Utils/structDataIO.html). Configuration of listed joint actuators (see @ref joint_axis_rationale) is loaded recursively (as described in @ref actuator_config)
+/// The robot-level configuration (see [Configuration Levels](https://github.com/LabDin/RobotSystem-Lite#robot-multi-level-configuration) is read using the [data I/O interface](https://bitiquinho.github.io/Platform-Utils/structDataIO.html). Configuration of listed joint actuators (see @ref joint_axis_rationale) is loaded recursively (as described in @ref actuator_config)
 ///
 /// Any configuration path must be provided without file extension, and relative to CONFIG_DIR/robots/, where CONFIG_DIR is the [defined base data path](https://bitiquinho.github.io/Platform-Utils/classDATA__IO__INTERFACE.html)
 ///
