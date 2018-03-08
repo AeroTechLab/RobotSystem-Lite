@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.14"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>RobotSystem-Lite: RobRehabSystem</title>
+<title>RobotSystem-Lite: Main Page</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -62,13 +62,122 @@ $(function() {
 
 <div class="header">
   <div class="headertitle">
-<div class="title">RobRehabSystem </div>  </div>
+<div class="title">RobotSystem-Lite Documentation</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>Customizable robotic rehabilitation system</p>
+<div class="textblock"><div class="image">
+<img src="docs/img/rehab_resized.gif" align="left"/>
+</div>
+ <div class="image">
+<img src="https://raw.githubusercontent.com/LabDin/RobotSystem-Lite/master/docs/img/eesc_resized.gif" align="right"/>
+</div>
+ <hr/>
+ <hr/>
+<h1 align="center">RobotSystem-Lite</h1>
+<hr/>
+ <hr/>
 <h2>Overview</h2>
-<p><b>RobRehabSystem</b> is a set of executables (<b>RobRehabControl</b> and <b>RobRehabServer</b>) intended for control of physical rehabilitation robots. Its generic programming and communication interfaces allow it to integrate with a variety of client applications and custom plugins.</p>
-<p>For more info, refer to <a href="https://github.com/Bitiquinho/RobRehabSystem/wiki"><b>RobRehabSystem</b> Wiki</a>.</p>
+<p><b>RobotSystem-Lite</b> is a lightweight customizable robotic control application, with few third-party dependencies, for easier deployment in embedded systems. Its generic programming and communication interfaces allows it to integrate with a variety of client applications (for remote comunication) and custom plugins (for implementing specific control algorithms and robotic hardware I/O support).</p>
+<div class="image">
+<img src="https://raw.githubusercontent.com/LabDin/RobotSystem-Lite/master/docs/img/top_level_system-basic.png" width="800"/>
+</div>
+ <p>(High-level RobotSystem-Lite interfacing examples) </p>
+<p>Its original goal is to enable combination of robotic rehabilitation with alternative approaches for physical therapy, like remote assistance and multiplayer "serious" video-games.</p>
+<div class="image">
+<img src="https://raw.githubusercontent.com/LabDin/RobotSystem-Lite/master/docs/img/top_level_system-full.png" width="800"/>
+</div>
+ <p>(One of proposed RobotSystem-Lite usages) </p>
+<p>However, its configuration flexibility is intended for allowing other usages of robotic control besides rehabilitation.</p>
+<h2>Robot Multi-Level Configuration</h2>
+<p>In an effort to generalize and parameterize robot control in and efficient way, wherever it makes sense, and facilitate implementation of device specific behaviour, when needed, <b>RobotSystem-Lite</b> defines a multi-layer robot configuration scheme.</p>
+<div class="image">
+<img src="https://raw.githubusercontent.com/LabDin/RobotSystem-Lite/master/docs/img/control_abstraction_full.png" width="800"/>
+</div>
+ <p>From top to bottom levels, the control application is expected to have/define:</p>
+<ul>
+<li>A <a href="https://en.wikipedia.org/wiki/Hash_table">hash table</a> containing one or more generic robot instances, complemented by:<ul>
+<li>A <a href="https://labdin.github.io/RobotSystem-Lite/robot_config.html">robot configuration</a> JSON file (inside **&lt;root_dir&gt;/config/robots/**), defining its used high-level control implementation and actuators</li>
+<li>The robot/actuators control itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/robot_control/**), according to <a href="https://github.com/LabDin/Robot-Control-Interface">Robot Control Interface</a> description</li>
+<li>A list of generic actuators list, each one, in turn, complemented by:<ul>
+<li>An <a href="https://labdin.github.io/RobotSystem-Lite/actuator_config.html">actuator configuration</a> JSON file (inside **&lt;root_dir&gt;/config/actuators/**), defining the lower-level control implementation, sensors and motor configuration and their related control variables (position, force, etc.)</li>
+<li>A list of generic sensors, each one, in turn, complemented by:<ul>
+<li><a href="docs/sensor_config.html">Sensor configuration</a> JSON file (inside **&lt;root_dir&gt;/config/sensors/**), defining the hardware/virtual input device/channel, reference sensor (if needed) and signal processing/conversion options</li>
+<li>The signal input code itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/signal_io/**), according to <a href="https://github.com/LabDin/Signal-IO-Interface">Signal I/O Interface</a> description</li>
+</ul>
+</li>
+<li>Generic actuation motor, complemented by:<ul>
+<li><a href="docs/motor_config.html">Motor configuration</a> JSON file (inside **&lt;root_dir&gt;/config/motors/**), defining the hardware/virtual output device/channel and signal generation options</li>
+<li>The signal output code itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/signal_io/**), according to <a href="https://github.com/LabDin/Signal-IO-Interface">Signal I/O Interface</a> description</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>With that structure, a multi-level control process can interact with external clients through a single interface (for comprehending the difference between <b>joints</b> and <b>axes</b>, see <a href="https://github.com/LabDin/Robot-Control-Interface#the-jointaxis-rationale"><b>Robot Control Interface</b> rationale</a>):</p>
+<div class="image">
+<img src="https://raw.githubusercontent.com/LabDin/RobotSystem-Lite/master/docs/img/control_flux.png" width="800"/>
+</div>
+ <h2>Communication Interfaces</h2>
+<p><b>RobotSystem-Lite</b> client applications communicate with it through <a href="https://en.wikipedia.org/wiki/Network_socket"><b>IP</b> connections</a>, with fixed-size <b>512 bytes</b> messages. Depending on the type of message sent or received, a specific data format and underlying transport (<a href="https://pt.wikipedia.org/wiki/Transmission_Control_Protocol">TCP</a> or [UDP][<a href="https://pt.wikipedia.org/wiki/User_Datagram_Protocol">https://pt.wikipedia.org/wiki/User_Datagram_Protocol</a>)) must be used.</p>
+<div class="image">
+<img src="https://raw.githubusercontent.com/LabDin/RobotSystem-Lite/master/docs/img/robot_communications.png" width="600"/>
+</div>
+ <h3>Request/Reply messages</h3>
+<p>Messages requesting state changes or information about the robot are sent by clients occasionally and their arrival should be as guaranteed as possible. Therefore, these messages are transmitted to the server through <b>TCP</b> sockets, on port <b>50000</b>. Possible messages (and corresponding reply values) are:</p>
+<ul>
+<li><b>Robot Info</b></li>
+<li><b>ROBOT_ENABLE</b> (0x01): turn on and enable control for the robot of corresponding index</li>
+<li><b>ROBOT_DISABLE</b> (0x02): turn off and disable control for the robot of corresponding index</li>
+<li><b>ROBOT_RESET</b> (0x03): clear errors and calibration values for the robot of corresponding index</li>
+<li><b>ROBOT_OPERATE</b> (0x04): set the robot of corresponding index to normal operation</li>
+<li><b>ROBOT_OFFSET</b> (0x05): set the robot of corresponding index to joints offset measurement</li>
+<li><b>ROBOT_CALIBRATE</b> (0x06): set the robot of corresponding index to joints amplitude measurement</li>
+<li><b>ROBOT_PREPROCESS</b> (0x07): call implementation-specific post-calibration routines for the robot of corresponding index</li>
+</ul>
+<h3>Info messages</h3>
+<p>The same <b>TCP</b> connection could be used to send more complex messages, in string format (character array with null terminator). Currently, only one type of info message is supported, but more are planned (like setting user name):</p>
+<ul>
+<li><b>Robots info message</b>: this message is divided in two parts:<ul>
+<li><b>Client Request</b>: Request information about all available robots, <a href="https://bitiquinho.github.io/Robot-Control-Library/joint_axis_rationale.html">axes and joints</a>, performed by sending a single <b>NULL</b> (0x00) byte to <b>RobRehabServer</b></li>
+<li><b>Server Reply</b>: Information returned to requesting client. Serialized string representation in the format specified by currently used <a href="https://bitiquinho.github.io/Platform-Utils/classDATA__IO__INTERFACE.html#a4663a3c54534f571507ed6bdfd9ceb4d">data I/O implementation</a>. In the default <b>JSON</b> format, it would be something like:</li>
+</ul>
+</li>
+</ul>
+<div class="fragment"><div class="line">{ &quot;id&quot;:&quot;robot_name&quot;, &quot;axes&quot;:[ &quot;r1_x&quot;, &quot;r1_y&quot;, &quot;r2_theta&quot; ], &quot;joints&quot;:[ &quot;r1_0&quot;, &quot;r1_1&quot;, &quot;r2_0&quot; ] }</div></div><!-- fragment --><h3>Axis update messages</h3>
+<p>Messages transporting online values for <a href="https://bitiquinho.github.io/Robot-Control-Library/joint_axis_rationale.html">axes</a> control variables (measurements or setpoints) should arrive as quickly as possible, and there is no advantage in resend lost packets, as their validity is short in time. Thereby, these messages should be transmitted to the server through lower-latency <b>UDP</b> sockets, on port <b>50001</b>, as byte and <a href="https://en.wikipedia.org/wiki/Single-precision_floating-point_format">single precision floating-point</a> arrays (to prevent string parsing overhead), with data organized like:</p>
+<ul>
+<li><b>Axes measurements</b> (sent from server to connected clients):</li>
+</ul>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadCenter">Axes number  </th><th class="markdownTableHeadCenter">Index 1  </th><th class="markdownTableHeadCenter">Position  </th><th class="markdownTableHeadCenter">Velocity  </th><th class="markdownTableHeadCenter">Force  </th><th class="markdownTableHeadCenter">Acceleration  </th><th class="markdownTableHeadCenter">Stiffness  </th><th class="markdownTableHeadCenter">Damping  </th><th class="markdownTableHeadCenter">Index 2  </th><th class="markdownTableHeadCenter">...   </th></tr>
+<tr class="markdownTableBody" class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter">1 byte  </td><td class="markdownTableBodyCenter">1 byte  </td><td class="markdownTableBodyCenter">4 bytes  </td><td class="markdownTableBodyCenter">4 bytes  </td><td class="markdownTableBodyCenter">4 bytes  </td><td class="markdownTableBodyCenter">4 bytes  </td><td class="markdownTableBodyCenter">4 bytes  </td><td class="markdownTableBodyCenter">4 bytes  </td><td class="markdownTableBodyCenter">1 byte  </td><td class="markdownTableBodyCenter">...   </td></tr>
+</table>
+<ul>
+<li><b>Axes setpoints</b> (sent from clients to server):</li>
+</ul>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadCenter">Axes number  </th><th class="markdownTableHeadCenter">Index 1  </th><th class="markdownTableHeadCenter">Mask  </th><th class="markdownTableHeadCenter">Position  </th><th class="markdownTableHeadCenter">Velocity  </th><th class="markdownTableHeadCenter">Force  </th><th class="markdownTableHeadCenter">Acceleration  </th><th class="markdownTableHeadCenter">Stiffness  </th><th class="markdownTableHeadCenter">Damping  </th><th class="markdownTableHeadCenter">Index 2  </th><th class="markdownTableHeadCenter">...   </th></tr>
+<tr class="markdownTableBody" class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter">1 byte  </td><td class="markdownTableBodyCenter">1 byte  </td><td class="markdownTableBodyCenter">1 byte  </td><td class="markdownTableBodyCenter">4 bytes  </td><td class="markdownTableBodyCenter">4 bytes  </td><td class="markdownTableBodyCenter">4 bytes  </td><td class="markdownTableBodyCenter">4 bytes  </td><td class="markdownTableBodyCenter">4 bytes  </td><td class="markdownTableBodyCenter">4 bytes  </td><td class="markdownTableBodyCenter">1 byte  </td><td class="markdownTableBodyCenter">...   </td></tr>
+</table>
+<p>Where the mask is a <a href="https://en.wikipedia.org/wiki/Bit_field">bit field</a> used by clients to define which control setpoint variables are the ones they wants to be updated, according to their relative indexes at the array. To set e.g. <b>position</b> (index <b>0</b>) and <b>force</b> (index <b>2</b>) for update, the mask value should be: </p><pre class="fragment">mask = ( 1 &lt;&lt; 0 ) | ( 1 &lt;&lt; 2 )
+</pre><h3>Joint update messages</h3>
+<p>Similarly to axis update messages, messages containing online <a href="https://bitiquinho.github.io/Robot-Control-Library/joint_axis_rationale.html">joints</a> data could are transmitted as well, over <b>UDP</b> sockets on port <b>50002</b>:</p>
+<ul>
+<li><b>Joint measurements</b> (sent from server to connected clients):</li>
+</ul>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadCenter">Joints number  </th><th class="markdownTableHeadCenter">Index 1  </th><th class="markdownTableHeadCenter">Position  </th><th class="markdownTableHeadCenter">Force  </th><th class="markdownTableHeadCenter">Stiffness  </th><th class="markdownTableHeadCenter">Reserved  </th><th class="markdownTableHeadCenter">Index 2  </th><th class="markdownTableHeadCenter">...   </th></tr>
+<tr class="markdownTableBody" class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter">1 byte  </td><td class="markdownTableBodyCenter">1 byte  </td><td class="markdownTableBodyCenter">4 bytes  </td><td class="markdownTableBodyCenter">4 bytes  </td><td class="markdownTableBodyCenter">4 bytes  </td><td class="markdownTableBodyCenter">20 bytes  </td><td class="markdownTableBodyCenter">1 byte  </td><td class="markdownTableBodyCenter">...   </td></tr>
+</table>
+<p>The reserved values are destined to applications that could make use of extra joint-related data, like <a href="https://en.wikipedia.org/wiki/Electromyography"><b>EMG</b></a> signals.</p>
 <h2>Building</h2>
 <p>On a terminal, get the <a href="https://github.com/Bitiquinho/RobRehabSystem">GitHub code repository</a> with: </p><pre class="fragment">$ git clone https://github.com/Bitiquinho/RobRehabSystem &lt;my_system_folder&gt;
 </pre><p>Besides operating system's libraries, this system is dependent on <a href="https://github.com/Bitiquinho/Robot-Control-Library">Bitiquinho's Robot Control Library</a> and <a href="https://github.com/Bitiquinho/Platform-Utils">Bitiquinho's Platform Utils</a>, that are automatically linked as a <a href="https://chrisjean.com/git-submodules-adding-using-removing-and-updating/">git submodules</a></p>
@@ -79,13 +188,8 @@ $ git submodule update
 $ cmake .. 
 $ make
 </pre><h2>Running</h2>
-<p><b>RobRehabControl</b> and <b>RobRehabServer</b> could be executed separated or together, in any order, as the shared buffers for data exchange between them are automatically created by the first process and accessed by the second.</p>
-<h3>RobRehabControl command-line arguments</h3>
-<pre class="fragment">$ ./RobRehabControl &lt;config_dir&gt; &lt;config_type&gt; &lt;top_config_file&gt;
-</pre><p>For more info about application usage, refer to <a href="https://github.com/Bitiquinho/RobRehabSystem/wiki/RobRehabControl">RobRehabControl Wiki Entry</a></p>
-<h3>RobRehabServer command-line arguments</h3>
-<pre class="fragment">$ ./RobRehabServer &lt;multicast_ip_address&gt;
-</pre><p>For more info about application usage, refer to <a href="https://github.com/Bitiquinho/RobRehabSystem/wiki/RobRehabServer">RobRehabServer Wiki Entry</a> </p>
+<p><b>RobRehabControl</b> and <b>RobRehabServer</b> could be executed separated or together, in any order, as the shared buffers for data exchange between them are automatically created by the first process and accessed by the second. </p><pre class="fragment">$ ./RobRehabControl &lt;config_dir&gt; &lt;config_type&gt; &lt;top_config_file&gt;
+</pre><p>For more info about application usage, refer to <a href="https://github.com/Bitiquinho/RobRehabSystem/wiki/RobRehabControl">RobRehabControl Wiki Entry</a> </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

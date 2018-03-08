@@ -1,7 +1,25 @@
 var searchData=
 [
-  ['sensor_5fstate_5fcalibration',['SENSOR_STATE_CALIBRATION',['../sensors_8h.html#a4e26684045a9059b9df2181c65cf2a00a06ec29c3f871677de49374471fce894c',1,'sensors.h']]],
-  ['sensor_5fstate_5fmeasurement',['SENSOR_STATE_MEASUREMENT',['../sensors_8h.html#a4e26684045a9059b9df2181c65cf2a00a09baa0611792f1185d44e15a827f0afb',1,'sensors.h']]],
-  ['sensor_5fstate_5foffset',['SENSOR_STATE_OFFSET',['../sensors_8h.html#a4e26684045a9059b9df2181c65cf2a00ab15edce22ddfb09ffe874c097c4c0489',1,'sensors.h']]],
-  ['sensor_5fstates_5fnumber',['SENSOR_STATES_NUMBER',['../sensors_8h.html#a4e26684045a9059b9df2181c65cf2a00a00ccb9b3c78fb61fecdc3a8d59974ee3',1,'sensors.h']]]
+  ['robot_5frep_5fcalibrating',['ROBOT_REP_CALIBRATING',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7ae2c0d91a648337d0e9c94ac04c0e97a9',1,'shared_robot_control.h']]],
+  ['robot_5frep_5fconfig_5fset',['ROBOT_REP_CONFIG_SET',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7a7ba86a794f2718f4bc742c3c35e0a840',1,'shared_robot_control.h']]],
+  ['robot_5frep_5fdisabled',['ROBOT_REP_DISABLED',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7a873557480cef4523abbd89642cd49d1c',1,'shared_robot_control.h']]],
+  ['robot_5frep_5fenabled',['ROBOT_REP_ENABLED',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7af5290a64ab7064d8531a40ea7c1daa57',1,'shared_robot_control.h']]],
+  ['robot_5frep_5ferror',['ROBOT_REP_ERROR',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7a25cb5fbc5ffdae921127b47e83138e41',1,'shared_robot_control.h']]],
+  ['robot_5frep_5fgot_5finfo',['ROBOT_REP_GOT_INFO',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7a10dce8048db58dcdf9edb71f2adf3104',1,'shared_robot_control.h']]],
+  ['robot_5frep_5foffsetting',['ROBOT_REP_OFFSETTING',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7af901fd08426747eccc82caa45fce1166',1,'shared_robot_control.h']]],
+  ['robot_5frep_5foperating',['ROBOT_REP_OPERATING',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7a8854f8dd5df5986661265324011d8401',1,'shared_robot_control.h']]],
+  ['robot_5frep_5fpassive',['ROBOT_REP_PASSIVE',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7aeb119dbe6a69a1b89fd1f1a6223ebab1',1,'shared_robot_control.h']]],
+  ['robot_5frep_5fpreprocessing',['ROBOT_REP_PREPROCESSING',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7af2d58f76016e72b599c6fe7a9b7c6d0e',1,'shared_robot_control.h']]],
+  ['robot_5frep_5fuser_5fset',['ROBOT_REP_USER_SET',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7ac7826a1f687a695aca85469e250ce080',1,'shared_robot_control.h']]],
+  ['robot_5freq_5fcalibrate',['ROBOT_REQ_CALIBRATE',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7a5268b7ec55b1da360f094f45a15c8b45',1,'shared_robot_control.h']]],
+  ['robot_5freq_5fdisable',['ROBOT_REQ_DISABLE',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7af60b2bb9f883f450a964e78e9b47ac70',1,'shared_robot_control.h']]],
+  ['robot_5freq_5fenable',['ROBOT_REQ_ENABLE',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7a72a267f6f9c2b4d6bec99b9398f770a6',1,'shared_robot_control.h']]],
+  ['robot_5freq_5fget_5finfo',['ROBOT_REQ_GET_INFO',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7a7d6aebdcdbc7c6521a934a4c49935e7c',1,'shared_robot_control.h']]],
+  ['robot_5freq_5foffset',['ROBOT_REQ_OFFSET',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7ae22fe79383763b1aea9c42bd5fdcbc34',1,'shared_robot_control.h']]],
+  ['robot_5freq_5foperate',['ROBOT_REQ_OPERATE',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7ad57ac2c42502dc287a1f285503a6d584',1,'shared_robot_control.h']]],
+  ['robot_5freq_5fpassivate',['ROBOT_REQ_PASSIVATE',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7ab23ea6ff27c2b4ce60894fac328d027c',1,'shared_robot_control.h']]],
+  ['robot_5freq_5fpreprocess',['ROBOT_REQ_PREPROCESS',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7af54391f4f119ab051546092b7cb2ff3c',1,'shared_robot_control.h']]],
+  ['robot_5freq_5freset',['ROBOT_REQ_RESET',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7a8df1efc419b15f67797b5ba0504f3844',1,'shared_robot_control.h']]],
+  ['robot_5freq_5fset_5fconfig',['ROBOT_REQ_SET_CONFIG',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7ab0a6a9668124b21e1201654922a1dc64',1,'shared_robot_control.h']]],
+  ['robot_5freq_5fset_5fuser',['ROBOT_REQ_SET_USER',['../shared__robot__control_8h.html#adf764cbdea00d65edcd07bb9953ad2b7ae89d0757048587be53e947c44ce7f9de',1,'shared_robot_control.h']]]
 ];
