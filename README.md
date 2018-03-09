@@ -96,7 +96,7 @@ To add those repositories to your sources, navigate to the root project folder a
     $ cd <my_system_folder>
     $ git submodule update --init
 
-With dependencies set, you can now build the system executables (**RobRehabControl** and **RobRehabServer**) to a separate build directory with [CMake](https://cmake.org/):
+With dependencies set, you can now build the system executable to a separate build directory with [CMake](https://cmake.org/):
 
     $ mkdir build && cd build
     $ cmake .. 
