@@ -82,6 +82,19 @@ Messages requesting state changes or information about the robot are sent by cli
 
 Messages transporting online updates for robot DoFs ([axes or joints](https://github.com/LabDin/Robot-Control-Interface#the-jointaxis-rationale)) control variables (measurements or setpoints) should arrive as quickly as possible, and there is no advantage in resending lost packets, as their validity is short in time. Thereby, these messages are exchanged with **RobotSystem-Lite** through lower-latency **UDP** sockets, on port **50001** for **axes** and **50002** for **joints**, in a [defined format](https://labdin.github.io/RobotSystem-Lite/shared__dof__variables_8h.html).
 
+### Control variables conventions
+
+In order to keep consistency across developed [**robot control**](https://github.com/LabDin/Robot-Control-Interface) and [**signal I/O**](https://github.com/LabDin/Signal-IO-Interface) plug-ins and configuration files, and allow easier interoperation between them, the following unit conventions for control variables (input and output) are adopted:  
+
+Control Variabe | Translational Unit     | Rotational Unit
+:-------------: | :--------------------: | :-------------------------------:
+Position        | meter (m)              | radian (rad)
+Velocity        | m / second (m/s)       | rad / second (rad/s)
+Force/Torque    | Newton (N)             | Newton x meter (Nxm)
+Acceleration    | meter / second² (m/s²) | radian / second² (rad/s²)
+Stiffness       | Newton / meter (N/m)   | Newton x meter / radian (Nxm/rad)
+Damping         | N x s / m              | N x m x s / rad
+
 
 ## Building
 
