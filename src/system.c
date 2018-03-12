@@ -27,7 +27,7 @@
 #include "shared_robot_control.h"
 #include "shared_dof_variables.h"
 
-#include "robots.h"
+#include "robot.h"
 
 #include "data_io/interface/data_io.h"
 
