@@ -88,12 +88,12 @@ In order to keep consistency across developed [**robot control**](https://github
 
 Control Variabe | Translational Unit     | Rotational Unit
 :-------------: | :--------------------: | :-------------------------------:
-Position        | meter (m)              | radian (rad)
-Velocity        | m / second (m/s)       | rad / second (rad/s)
-Force/Torque    | Newton (N)             | Newton x meter (Nxm)
-Acceleration    | meter / second² (m/s²) | radian / second² (rad/s²)
-Stiffness       | Newton / meter (N/m)   | Newton x meter / radian (Nxm/rad)
-Damping         | N x s / m              | N x m x s / rad
+Position        | meter (m)                       | radian (rad)
+Velocity        | meter / second (m/s)            | rad / second (rad/s)
+Force/Torque    | Newton (N)                      | Newton x meter (Nxm)
+Acceleration    | meter / second² (m/s²)          | radian / second² (rad/s²)
+Stiffness       | Newton / meter (N/m)            | Newton x meter / radian (Nxm/rad)
+Damping         | Newton x second / meter (Nxs/m) | N x m x s / rad
 
 
 ## Building
