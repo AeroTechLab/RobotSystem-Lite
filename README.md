@@ -86,14 +86,14 @@ Messages transporting online updates for robot DoFs ([axes or joints](https://gi
 
 In order to keep consistency across developed [**robot control**](https://github.com/LabDin/Robot-Control-Interface) and [**signal I/O**](https://github.com/LabDin/Signal-IO-Interface) plug-ins and configuration files, and allow easier interoperation between them, the following unit conventions for control variables (input and output) are adopted:  
 
-Control Variabe |        Translational Unit       |              Rotational Unit
-:-------------: | :-----------------------------: | :------------------------------------------:
-Position        | meter (m)                       | radian (rad)
-Velocity        | meter / second (m/s)            | rad / second (rad/s)
-Force/Torque    | Newton (N)                      | Newton x meter (N.m)
-Acceleration    | meter / second² (m/s²)          | radian / second² (rad/s²)
-Stiffness       | Newton / meter (N/m)            | Newton x meter / radian (N.m/rad)
-Damping         | Newton x second / meter (Nxs/m) | Newton x meter x second / radian (N.m.s/rad)
+Control Variable |        Translational Unit       |              Rotational Unit
+:--------------: | :-----------------------------: | :------------------------------------------:
+Position         | meter (m)                       | radian (rad)
+Velocity         | meter / second (m/s)            | rad / second (rad/s)
+Force/Torque     | Newton (N)                      | Newton x meter (N.m)
+Acceleration     | meter / second² (m/s²)          | radian / second² (rad/s²)
+Stiffness        | Newton / meter (N/m)            | Newton x meter / radian (N.m/rad)
+Damping          | Newton x second / meter (Nxs/m) | Newton x meter x second / radian (N.m.s/rad)
 
 
 ## Building
