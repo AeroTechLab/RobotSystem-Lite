@@ -20,13 +20,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "actuators.h"
+#include "actuator.h"
 
-#include "motors.h"
-#include "sensors.h"
+#include "config_keys.h"
+
+#include "motor.h"
+#include "sensor.h"
+
 #include "kalman/kalman_filters.h"
-
 #include "debug/data_logging.h"
+#include "timing/timing.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,7 +62,7 @@ Actuator Actuator_Init( DataHandle configuration )
   const char* actuatorName = DataIO_GetStringValue( configuration, NULL, "" );
   if( actuatorName != NULL )
   {
-    sprintf( filePath, ACTUATORS_CONFIG_PATH "/%s", actuatorName );
+    sprintf( filePath, CONFIG "/" ACTUATOR "/%s", actuatorName );
     if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
   }
   
@@ -68,33 +71,41 @@ Actuator Actuator_Init( DataHandle configuration )
   
   bool loadSuccess = true;
   
-  if( (newActuator->sensorsNumber = DataIO_GetListSize( configuration, "sensors" )) > 0 )
+  if( (newActuator->sensorsNumber = DataIO_GetListSize( configuration, SENSOR "s" )) > 0 )
   {
     newActuator->motionFilter = Kalman_CreateFilter( CONTROL_VARS_NUMBER );
     
     newActuator->sensorsList = (Sensor*) calloc( newActuator->sensorsNumber, sizeof(Sensor) );
     for( size_t sensorIndex = 0; sensorIndex < newActuator->sensorsNumber; sensorIndex++ )
     {
-      DataHandle sensorConfiguration = DataIO_GetSubData( configuration, "sensors.%lu.config", sensorIndex );
+      DataHandle sensorConfiguration = DataIO_GetSubData( configuration, SENSOR "s.%lu." CONFIG, sensorIndex );
       newActuator->sensorsList[ sensorIndex ] = Sensor_Init( sensorConfiguration );
       Sensor_Reset( newActuator->sensorsList[ sensorIndex ] );
-      const char* sensorType = DataIO_GetStringValue( configuration, "", "sensors.%lu.input_variable", sensorIndex );
+      const char* sensorType = DataIO_GetStringValue( configuration, "", SENSOR "s.%lu." INPUT "_" VARIABLE, sensorIndex );
       for( int controlModeIndex = 0; controlModeIndex < CONTROL_VARS_NUMBER; controlModeIndex++ )
       {
         if( strcmp( sensorType, CONTROL_MODE_NAMES[ controlModeIndex ] ) == 0 ) 
           Kalman_AddInput( newActuator->motionFilter, controlModeIndex );
       }
-      Kalman_SetInputMaxError( newActuator->motionFilter, sensorIndex, DataIO_GetNumericValue( configuration, 1.0, "sensors.%lu.deviation" ) );
+      Kalman_SetInputMaxError( newActuator->motionFilter, sensorIndex, DataIO_GetNumericValue( configuration, 1.0, SENSOR "s.%lu.deviation" ) );
     }
   }
   
-  DataHandle motorConfiguration = DataIO_GetSubData( configuration, "motor.config" );
+  DataHandle motorConfiguration = DataIO_GetSubData( configuration, MOTOR "." CONFIG );
   if( (newActuator->motor = Motor_Init( motorConfiguration )) == NULL ) loadSuccess = false;
   
-  const char* controlModeName = DataIO_GetStringValue( configuration, (char*) CONTROL_MODE_NAMES[ 0 ], "motor.output_variable" );
+  const char* controlModeName = DataIO_GetStringValue( configuration, (char*) CONTROL_MODE_NAMES[ 0 ], MOTOR "." OUTPUT "_" VARIABLE );
   for( newActuator->controlMode = 0; newActuator->controlMode < CONTROL_VARS_NUMBER; newActuator->controlMode++ )
   {
     if( strcmp( controlModeName, CONTROL_MODE_NAMES[ newActuator->controlMode ] ) == 0 ) break;
+  }
+  
+  if( DataIO_HasKey( configuration, LOG ) )
+  {
+    const char* logFileName = DataIO_GetStringValue( configuration, "", LOG "." FILE_NAME );
+    if( logFileName[ 0 ] == '\0' ) strcpy( filePath, "" );
+    else sprintf( filePath, ACTUATOR "/%s", logFileName );
+    newActuator->log = Log_Init( filePath, (size_t) DataIO_GetNumericValue( configuration, 3, LOG "." PRECISION ) );
   }
   
   newActuator->controlState = ACTUATOR_OPERATION;
@@ -121,6 +132,8 @@ void Actuator_End( Actuator actuator )
   Motor_End( actuator->motor );
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
     Sensor_End( actuator->sensorsList[ sensorIndex ] );
+  
+  Log_End( actuator->log );
 }
 
 bool Actuator_Enable( Actuator actuator )
@@ -213,7 +226,10 @@ bool Actuator_GetMeasures( Actuator actuator, ActuatorVariables* ref_measures, d
   ref_measures->velocity -= actuator->offset.velocity;
   ref_measures->acceleration -= actuator->offset.acceleration;
   ref_measures->force -= actuator->offset.force;
-    
+  
+  Log_EnterNewLine( actuator->log, Time_GetExecSeconds() );
+  Log_RegisterList( actuator->log, 4, (double*) ref_measures );
+  
   return true;
 }
 

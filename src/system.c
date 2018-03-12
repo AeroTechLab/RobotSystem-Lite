@@ -33,6 +33,8 @@
 
 #include "debug/data_logging.h"
 
+#include "config_keys.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -69,7 +71,7 @@ bool System_Init( const int argc, const char** argv )
   
   const char* rootDirectory = ".";
   const char* connectionAddress = NULL;
-  const char* logDirectory = "./log/";
+  const char* logDirectory = "./" LOG "/";
   const char* robotConfigName = argv[ argc - 1 ];
   
   for( int optionIndex = 1; optionIndex < argc - 1; optionIndex+=2 )

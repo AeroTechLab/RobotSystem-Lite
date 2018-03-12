@@ -20,15 +20,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "sensors.h"
+#include "sensor.h"
+
+#include "config_keys.h"
 
 #include "signal_processing/signal_processing.h" 
-
 #include "signal_io/signal_io.h"
-
-//#include "debug/async_debug.h"
 #include "debug/data_logging.h"
-
 #include "timing/timing.h"
 
 #include <math.h>
@@ -36,7 +34,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-
 
 struct _SensorData
 {
@@ -60,7 +57,7 @@ Sensor Sensor_Init( DataHandle configuration )
   const char* sensorName = DataIO_GetStringValue( configuration, NULL, "" );
   if( sensorName != NULL )
   {
-    sprintf( filePath, SENSORS_CONFIG_PATH "/%s", sensorName );
+    sprintf( filePath, CONFIG "/" SENSOR "/%s", sensorName );
     if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
   }
   
@@ -70,41 +67,42 @@ Sensor Sensor_Init( DataHandle configuration )
   memset( newSensor, 0, sizeof(SensorData) );  
   
   bool loadSuccess;
-  sprintf( filePath, SIGNAL_IO_MODULES_PATH "/%s", DataIO_GetStringValue( configuration, "", "input_interface.type" ) );
+  sprintf( filePath, MODULES "/" SIGNAL_IO "/%s", DataIO_GetStringValue( configuration, "", INPUT "_" INTERFACE "." TYPE ) );
   LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newSensor, &loadSuccess );
   if( loadSuccess )
   {
-    newSensor->deviceID = newSensor->InitDevice( DataIO_GetStringValue( configuration, "", "input_interface.config" ) );
+    newSensor->deviceID = newSensor->InitDevice( DataIO_GetStringValue( configuration, "", INPUT "_" INTERFACE "." CONFIG ) );
     if( newSensor->deviceID != SIGNAL_IO_DEVICE_INVALID_ID )
     {
-      newSensor->channel = (unsigned int) DataIO_GetNumericValue( configuration, -1, "input_interface.channel" );
+      newSensor->channel = (unsigned int) DataIO_GetNumericValue( configuration, -1, INPUT "_" INTERFACE "." CHANNEL );
       loadSuccess = newSensor->CheckInputChannel( newSensor->deviceID, newSensor->channel );
       
       size_t maxInputSamplesNumber = newSensor->GetMaxInputSamplesNumber( newSensor->deviceID );
       newSensor->inputBuffer = (double*) calloc( maxInputSamplesNumber, sizeof(double) );
       
       uint8_t signalProcessingFlags = 0;
-      if( DataIO_GetBooleanValue( configuration, false, "signal_processing.rectified" ) ) signalProcessingFlags |= SIG_PROC_RECTIFY;
-      if( DataIO_GetBooleanValue( configuration, false, "signal_processing.normalized" ) ) signalProcessingFlags |= SIG_PROC_NORMALIZE;
+      if( DataIO_GetBooleanValue( configuration, false, SIGNAL_PROCESSING ".rectified" ) ) signalProcessingFlags |= SIG_PROC_RECTIFY;
+      if( DataIO_GetBooleanValue( configuration, false, SIGNAL_PROCESSING ".normalized" ) ) signalProcessingFlags |= SIG_PROC_NORMALIZE;
       newSensor->processor = SignalProcessor_Create( signalProcessingFlags );
       
-      double inputGain = DataIO_GetNumericValue( configuration, 1.0, "input_gain.multiplier" );
-      inputGain /= DataIO_GetNumericValue( configuration, 1.0, "input_gain.divisor" );
+      double inputGain = DataIO_GetNumericValue( configuration, 1.0, INPUT "_" GAIN "." MULTIPLIER );
+      inputGain /= DataIO_GetNumericValue( configuration, 1.0, INPUT "_" GAIN "." DIVISOR );
       SignalProcessor_SetInputGain( newSensor->processor, inputGain );
       
-      double relativeMinCutFrequency = DataIO_GetNumericValue( configuration, 0.0, "signal_processing.min_frequency" );
+      double relativeMinCutFrequency = DataIO_GetNumericValue( configuration, 0.0, SIGNAL_PROCESSING ".min_frequency" );
       SignalProcessor_SetMinFrequency( newSensor->processor, relativeMinCutFrequency );
-      double relativeMaxCutFrequency = DataIO_GetNumericValue( configuration, 0.0, "signal_processing.max_frequency" );
+      double relativeMaxCutFrequency = DataIO_GetNumericValue( configuration, 0.0, SIGNAL_PROCESSING ".max_frequency" );
       SignalProcessor_SetMaxFrequency( newSensor->processor, relativeMaxCutFrequency );
       
-      newSensor->differentialGain = DataIO_GetNumericValue( configuration, 1.0, "differential_gain.multiplier" );
-      newSensor->differentialGain /= DataIO_GetNumericValue( configuration, 1.0, "differential_gain.divisor" );
+      newSensor->differentialGain = DataIO_GetNumericValue( configuration, 1.0, DIFFERENTIAL "_" GAIN "." MULTIPLIER );
+      newSensor->differentialGain /= DataIO_GetNumericValue( configuration, 1.0, DIFFERENTIAL "_" GAIN "." DIVISOR );
       
-      const char* logFileName = DataIO_GetStringValue( configuration, NULL, "log" );
-      if( logFileName != NULL )
+      if( DataIO_HasKey( configuration, LOG ) )
       {
-        sprintf( filePath, "sensors/%s", logFileName );
-        newSensor->log = Log_Init( filePath, 4 );
+        const char* logFileName = DataIO_GetStringValue( configuration, "", LOG "." FILE_NAME );
+        if( logFileName[ 0 ] == '\0' ) strcpy( filePath, "" );
+        else sprintf( filePath, SENSOR "/%s", logFileName );
+        newSensor->log = Log_Init( filePath, (size_t) DataIO_GetNumericValue( configuration, 3, LOG "." PRECISION ) );
       }
       
       DataHandle referenceConfiguration = DataIO_GetSubData( configuration, "reference" );
@@ -156,11 +154,8 @@ double Sensor_Update( Sensor sensor )
   
   double sensorMeasure = sensor->differentialGain * ( sensorOutput - referenceOutput );
   
-  //if( sensor->reference != NULL && sensor->measurementCurve != NULL ) DEBUG_PRINT( "sensor=%g, reference=%g, measure=%g", sensorOutput, referenceOutput, sensorMeasure );
-  
-  //Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
-  //Log_RegisterList( sensor->log, sensor->maxInputSamplesNumber, sensor->inputBuffer );
-  //Log_RegisterValues( sensor->log, 3, sensorOutput, referenceOutput, sensorMeasure );
+  Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
+  Log_RegisterValues( sensor->log, 3, sensorOutput, referenceOutput, sensorMeasure );
   
   return sensorMeasure;
 }

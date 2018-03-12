@@ -20,11 +20,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "motors.h"
+#include "motor.h"
+
+#include "config_keys.h"
 
 #include "signal_io/signal_io.h"
-
-//#include "debug/async_debug.h"
+#include "debug/data_logging.h"
       
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,6 +39,7 @@ struct _MotorData
   unsigned int outputChannel;
   double outputGain;
   bool isEnabled;
+  Log log;
 };
 
 
@@ -50,7 +52,7 @@ Motor Motor_Init( DataHandle configuration )
   const char* motorName = DataIO_GetStringValue( configuration, NULL, "" );
   if( motorName != NULL )
   {
-    sprintf( filePath, MOTORS_CONFIG_PATH "/%s", motorName );
+    sprintf( filePath, CONFIG "/" MOTOR "/%s", motorName );
     if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
   }
   
@@ -58,24 +60,32 @@ Motor Motor_Init( DataHandle configuration )
   memset( newMotor, 0, sizeof(MotorData) );
 
   bool loadSuccess = true;
-  sprintf( filePath, SIGNAL_IO_MODULES_PATH "/%s", DataIO_GetStringValue( configuration, "", "output_interface.type" ) );
+  sprintf( filePath, MODULES "/" SIGNAL_IO "/%s", DataIO_GetStringValue( configuration, "", OUTPUT "_" INTERFACE "." TYPE ) );
   LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newMotor, &loadSuccess );
   if( loadSuccess )
   {
-    newMotor->interfaceID = newMotor->InitDevice( DataIO_GetStringValue( configuration, "", "output_interface.config" ) );
+    newMotor->interfaceID = newMotor->InitDevice( DataIO_GetStringValue( configuration, "", OUTPUT "_" INTERFACE "." CONFIG ) );
     if( newMotor->interfaceID != SIGNAL_IO_DEVICE_INVALID_ID ) 
     {
-      newMotor->outputChannel = (unsigned int) DataIO_GetNumericValue( configuration, -1, "output_interface.channel" );
+      newMotor->outputChannel = (unsigned int) DataIO_GetNumericValue( configuration, -1, OUTPUT "_" INTERFACE "." CHANNEL );
       //DEBUG_PRINT( "trying to aquire channel %u from interface %d", newMotor->outputChannel, newMotor->interfaceID );
       loadSuccess = newMotor->AcquireOutputChannel( newMotor->interfaceID, newMotor->outputChannel );
     }
     else loadSuccess = false;
   }
   
-  newMotor->outputGain = DataIO_GetNumericValue( configuration, 1.0, "output_gain.multiplier" );
-  newMotor->outputGain /= DataIO_GetNumericValue( configuration, 1.0, "output_gain.divisor" );
+  newMotor->outputGain = DataIO_GetNumericValue( configuration, 1.0, OUTPUT "_" GAIN "." MULTIPLIER );
+  newMotor->outputGain /= DataIO_GetNumericValue( configuration, 1.0, OUTPUT "_" GAIN "." DIVISOR );
   
   newMotor->isEnabled = false;
+  
+  if( DataIO_HasKey( configuration, LOG ) )
+  {
+    const char* logFileName = DataIO_GetStringValue( configuration, "", LOG "." FILE_NAME );
+    if( logFileName[ 0 ] == '\0' ) strcpy( filePath, "" );
+    else sprintf( filePath, MOTOR "/%s", logFileName );
+    newMotor->log = Log_Init( filePath, (size_t) DataIO_GetNumericValue( configuration, 3, LOG "." PRECISION ) );
+  }
   
   if( motorName != NULL ) DataIO_UnloadData( configuration );
   
@@ -93,6 +103,8 @@ void Motor_End( Motor motor )
   if( motor == NULL ) return;
   
   motor->EndDevice( motor->interfaceID );
+  
+  Log_End( motor->log );
   
   free( motor );
 }
@@ -130,7 +142,7 @@ void Motor_WriteControl( Motor motor, double setpoint )
 {
   if( motor == NULL ) return;
   
-  //if( setpoint != 0.0 ) DEBUG_PRINT( "output: %.5f * %.5f = %.5f", motor->outputGain, setpoint, setpoint * motor->outputGain );
+  Log_RegisterValues( motor->log, 2, setpoint, setpoint * motor->outputGain );
   
   setpoint = setpoint * motor->outputGain;
   

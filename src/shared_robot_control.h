@@ -42,8 +42,8 @@ enum RobotControlCode {
        ROBOT_REP_DISABLED = ROBOT_REQ_DISABLE,          ///< Confirmation reply to ROBOT_REQ_DISABLE
        ROBOT_REQ_ENABLE,                                ///< Request turning on the robot and starting its control thread
        ROBOT_REP_ENABLED = ROBOT_REQ_ENABLE,            ///< Confirmation reply to ROBOT_REQ_ENABLE
-       ROBOT_REQ_RESET,                                 ///< clear errors and calibration values for the robot of corresponding index
-       ROBOT_REP_ERROR = ROBOT_REQ_RESET,               ///< Confirmation reply to ROBOT_REQ_RESET
+       ROBOT_REQ_RESET,                                 ///< Clear errors and calibration values for the robot of corresponding index
+       ROBOT_REP_ERROR = ROBOT_REQ_RESET,               ///< Robot error/failure signal, can come before ROBOT_REQ_RESET
        ROBOT_REQ_PASSIVATE,                             ///< Request setting robot to a fully compliant control state (passed on to control implementation)
        ROBOT_REP_PASSIVE = ROBOT_REQ_PASSIVATE,         ///< Confirmation reply to ROBOT_REQ_PASSIVATE
        ROBOT_REQ_OPERATE,                               ///< Request setting robot to normal operation state (passed on to control implementation)

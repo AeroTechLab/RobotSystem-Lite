@@ -20,15 +20,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-/// @file sensors.h
+/// @file sensor.h
 /// @brief Generic sensor (measurement reading) functions
 ///
-/// Interface for configurable sensor reading and state change. Specific underlying implementation (plugin) and further configuration are defined as explained in @ref sensor_config
+/// Interface for configurable sensor reading and state change. Specific underlying implementation (plug-in) and further configuration are defined as explained in @ref sensor_config
 
 /// @page sensor_config Sensor Configuration
-/// The sensor-level configuration (see [Configuration Levels](https://github.com/LabDin/RobotSystem-Lite#robot-multi-level-configuration) is read using the [data I/O interface](https://bitiquinho.github.io/Platform-Utils/structDataIO.html)
+/// The sensor-level configuration (see [Configuration Levels](https://github.com/LabDin/RobotSystem-Lite#robot-multi-level-configuration) is read using the [data I/O interface](https://labdin.github.io/Data-IO-Interface/data__io_8h.html)
 ///
-/// Any configuration file/location path must be provided without its format extension, and relative to CONFIG_DIR/sensors/, where CONFIG_DIR is the [defined base data path](https://bitiquinho.github.io/Platform-Utils/classDATA__IO__INTERFACE.html)
+/// Any configuration file/location path must be provided without its format extension, and relative to [<root_dir>](https://github.com/LabDin/RobotSystem-Lite/blob/master/README.md#running)/config/sensors/
 ///
 /// The possible configuration fields and their values are here exemplified for the case of a JSON format configuration (optional parameters are presented with default values and marked with '[o]' in their description):
 /// @code
@@ -53,12 +53,15 @@
 ///     "multiplier": 1.0,                        // [o] Value that multiplies the signal value
 ///     "divisor": 1.0                            // [o] Value that divides the signal value
 ///   },
-///   "log": "<null>"                   // [o] Path (without extension), relative to to LOGS_DIR/log/sensors/, to file where measurements over time will be logged. Defining the field as an empty string value will set terminal logging
+///   "log": {                                  // [o] Set logging of measurement numeric data over time
+///     "file": "",                               // [o] Path (without extension), relative to to <log_dir>/sensors/, to log file. Default value will set terminal logging
+///     "precision": 3                            // [o] Decimal precision for logged numeric values
+///   }
 /// }
 /// @endcode
 
-#ifndef SENSORS_H
-#define SENSORS_H
+#ifndef SENSOR_H
+#define SENSOR_H
 
 
 #include "data_io/interface/data_io.h" 
@@ -109,4 +112,4 @@ void Sensor_Reset( Sensor sensor );
 void Sensor_SetState( Sensor sensor, enum SensorState newState );
 
 
-#endif // SENSORS_H
+#endif // SENSOR_H

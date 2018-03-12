@@ -112,7 +112,7 @@ To add those repositories to your sources, navigate to the root project folder a
 With dependencies set, you can now build the system executable to a separate build directory with [CMake](https://cmake.org/):
 
     $ mkdir build && cd build
-    $ cmake .. 
+    $ cmake .. # or ccmake for more options
     $ make
     
 ## Running

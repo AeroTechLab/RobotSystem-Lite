@@ -20,16 +20,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-/// @file actuators.h
+/// @file actuator.h
 /// @brief Generic actuator control (measurement + actuation) functions
 ///
 /// Interface for configurable actuator control. Available configuration options are detailed in @ref actuator_config.
-/// Every actuator contains a single motor and a set of sensors combined with a [Kalman filter]() for motion measurements (see [Configuration Levels](https://github.com/LabDin/RobotSystem-Lite#robot-multi-level-configuration). 
+/// Every actuator contains a single motor and a set of sensors combined with a [Kalman filter](https://github.com/LabDin/Simple-Kalman-Filter) for motion measurements (see [Configuration Levels](https://github.com/LabDin/RobotSystem-Lite#robot-multi-level-configuration). 
 
 /// @page actuator_config Actuator Configuration
-/// The actuator-level configuration (see [Configuration Levels](https://github.com/LabDin/RobotSystem-Lite#robot-multi-level-configuration) is read using the [data I/O interface](https://bitiquinho.github.io/Platform-Utils/structDataIO.html). Configuration of sensors and motors listed is loaded recursively (as in @ref sensor_config and @ref motor_config)
+/// The actuator-level configuration (see [Configuration Levels](https://github.com/LabDin/RobotSystem-Lite#robot-multi-level-configuration) is read using the [data I/O interface](https://labdin.github.io/Data-IO-Interface/data__io_8h.html). Configuration of sensors and motors listed is loaded recursively (as in @ref sensor_config and @ref motor_config)
 ///
-/// Any configuration path must be provided without file extension, and relative to CONFIG_DIR/actuators/, where CONFIG_DIR is the [defined base data path](https://bitiquinho.github.io/Platform-Utils/classDATA__IO__INTERFACE.html)
+/// Any configuration path must be provided without file extension, and relative to [<root_dir>](https://github.com/LabDin/RobotSystem-Lite/blob/master/README.md#running)/config/sensors/
 ///
 /// The possible configuration fields and their values are here exemplified for the case of current JSON file I/O implementation (optional parameters are presented with default values and marked with '[o]' in their description):
 /// @code
@@ -49,7 +49,10 @@
 ///     "output_variable": "VELOCITY",      // Controlled dimension/variable (POSITION, VELOCITY, FORCE or ACCELERATION)
 ///     "config": "<motor_identifier>"      // Motor string identifier (configuration file path) or inline configuration object 
 ///   },
-///   "log": "<null>"                // [o] Path (without extension), relative to to LOGS_DIR/log/actuators/, to file where measurements over time will be logged. Defining the field as an empty string value will set terminal logging
+///   "log": {                            // [o] Set logging of measurement numeric data over time
+///     "file": "",                         // [o] Path (without extension), relative to to <log_dir>/actuators/, to log file. Default value will set terminal logging
+///     "precision": 3                      // [o] Decimal precision for logged numeric values
+///   }
 /// }
 /// @endcode
 

@@ -20,15 +20,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-/// @file motors.h
+/// @file motor.h
 /// @brief Generic motors (actuation/signal output) functions
 ///
-/// Interface for configurable motor control. Specific underlying implementation (plugin) and further configuration are defined as explained in @ref motor_config
+/// Interface for configurable motor control. Specific underlying implementation (plug-in) and further configuration are defined as explained in @ref motor_config
 
 /// @page motor_config Motor Configuration
-/// The motor-level configuration (see [Configuration Levels](https://github.com/LabDin/RobotSystem-Lite#robot-multi-level-configuration) is read using the [data I/O interface](https://bitiquinho.github.io/Platform-Utils/structDataIO.html)
+/// The motor-level configuration (see [Configuration Levels](https://github.com/LabDin/RobotSystem-Lite#robot-multi-level-configuration) is read using the [data I/O interface](https://labdin.github.io/Data-IO-Interface/data__io_8h.html)
 ///
-/// Any configuration file/location path must be provided without its format extension, and relative to CONFIG_DIR/motors/, where CONFIG_DIR is the [defined base data path](https://bitiquinho.github.io/Platform-Utils/classDATA__IO__INTERFACE.html)
+/// Any configuration file/location path must be provided without its format extension, and relative to [<root_dir>](https://github.com/LabDin/RobotSystem-Lite/blob/master/README.md#running)/config/sensors/
 ///
 /// The possible configuration fields and their values are here exemplified for the case of a JSON format configuration (optional parameters are presented with default values and marked with '[o]' in their description):
 /// @code
@@ -42,12 +42,15 @@
 ///     "multiplier": 1.0,            // [o] Value that multiplies the signal value
 ///     "divisor": 1.0                // [o] Value that divides the signal value
 ///   },
-///   "log": "<null>"         // [o] Path (without extension), relative to to LOGS_DIR/log/motors/, to file where outputs over time will be logged. Defining the field as an empty string value will set terminal logging
+///   "log": {                      // [o] Set logging of output numeric data over time
+///     "file": "",                   // [o] Path (without extension), relative to to <log_dir>/motors/, to log file. Default value will set terminal logging
+///     "precision": 3                // [o] Decimal precision for logged numeric values
+///   }
 /// }
 /// @endcode
 
-#ifndef MOTORS_H
-#define MOTORS_H
+#ifndef MOTOR_H
+#define MOTOR_H
 
 
 #include "data_io/interface/data_io.h"
@@ -91,4 +94,4 @@ void Motor_Reset( Motor motor );
 void Motor_WriteControl( Motor motor, double setpoint );
 
 
-#endif  // MOTORS_H
+#endif  // MOTOR_H

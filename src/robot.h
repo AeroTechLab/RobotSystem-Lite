@@ -20,17 +20,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-/// @file robots.h
+/// @file robot.h
 /// @brief Generic robot functions
 ///
-/// Interface for configurable robot control. Specific underlying implementation and further configuration are defined as explained in @ref robot_config.
+/// Interface for configurable robot control. Specific underlying implementation (plug-in) and further configuration are defined as explained in @ref robot_config.
 /// A robot works with 2 sets of coordinates: axes (read-write) and joints (read-only). For a detailed explanation, see @ref joint_axis_rationale.
 /// Even if RobotSystem handles one robot at a time, this code supports multiple robots for reusage in different applications.
 
 /// @page robot_config Robot Configuration
-/// The robot-level configuration (see [Configuration Levels](https://github.com/LabDin/RobotSystem-Lite#robot-multi-level-configuration) is read using the [data I/O interface](https://bitiquinho.github.io/Platform-Utils/structDataIO.html). Configuration of listed joint actuators (see @ref joint_axis_rationale) is loaded recursively (as described in @ref actuator_config)
+/// The robot-level configuration (see [Configuration Levels](https://github.com/LabDin/RobotSystem-Lite#robot-multi-level-configuration) is read using the [data I/O interface](https://labdin.github.io/Data-IO-Interface/data__io_8h.html). Configuration of listed joint actuators is loaded recursively (as described in @ref actuator_config)
 ///
-/// Any configuration path must be provided without file extension, and relative to CONFIG_DIR/robots/, where CONFIG_DIR is the [defined base data path](https://bitiquinho.github.io/Platform-Utils/classDATA__IO__INTERFACE.html)
+/// Any configuration path must be provided without file extension, and relative to and relative to [<root_dir>](https://github.com/LabDin/RobotSystem-Lite/blob/master/README.md#running)/config/robots/
 ///
 /// The possible configuration fields and their values are here exemplified for the case of current JSON file I/O implementation (optional parameters are presented with default values and marked with '[o]' in their description):
 /// @code
@@ -46,8 +46,8 @@
 /// }
 /// @endcode
 
-#ifndef ROBOTS_H
-#define ROBOTS_H
+#ifndef ROBOT_H
+#define ROBOT_H
 
 #include "robot_control/robot_control.h"
 
@@ -126,4 +126,4 @@ size_t Robot_GetJointsNumber( Robot robot );
 size_t Robot_GetAxesNumber( Robot robot );
 
 
-#endif // ROBOTS_H 
+#endif // ROBOT_H 

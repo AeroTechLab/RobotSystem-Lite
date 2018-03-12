@@ -20,15 +20,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "robots.h"
+#include "robot.h"
 
-#include "actuators.h"
+#include "config_keys.h"
+
+#include "actuator.h"
 
 #include "data_io/interface/data_io.h"
-
 #include "threads/threads.h"
 #include "timing/timing.h"
-
 #include "debug/data_logging.h"
 
 #include <stdlib.h>
@@ -86,7 +86,7 @@ Robot Robot_Init( const char* configPathName )
   
   Robot newRobot = NULL;
   
-  sprintf( filePath, ROBOTS_CONFIG_PATH "/%s", configPathName );
+  sprintf( filePath, CONFIG "/" ROBOT "/%s", configPathName );
   DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration != NULL )
   {
@@ -94,16 +94,16 @@ Robot Robot_Init( const char* configPathName )
     memset( newRobot, 0, sizeof(RobotData) );
   
     bool loadSuccess = false;
-    sprintf( filePath, ROBOT_CONTROL_MODULES_PATH "/%s", DataIO_GetStringValue( configuration, "", "controller.type" ) );
+    sprintf( filePath, MODULES "/" ROBOT_CONTROL "/%s", DataIO_GetStringValue( configuration, "", CONTROLLER "." TYPE ) );
     LOAD_MODULE_IMPLEMENTATION( ROBOT_CONTROL_INTERFACE, filePath, newRobot, &loadSuccess );
     if( loadSuccess )
     {
-      const char* controllerConfigString = DataIO_GetStringValue( configuration, "", "controller.config" );
+      const char* controllerConfigString = DataIO_GetStringValue( configuration, "", CONTROLLER "." CONFIG );
       DEBUG_PRINT( "loading controller config %s", controllerConfigString ); 
       newRobot->controller = newRobot->InitController( controllerConfigString );
       DEBUG_PRINT( "loaded controller handle %p", newRobot->controller );
       
-      newRobot->controlTimeStep = DataIO_GetNumericValue( configuration, CONTROL_PASS_INTERVAL, "controller.time_step" );   
+      newRobot->controlTimeStep = DataIO_GetNumericValue( configuration, CONTROL_PASS_INTERVAL, CONTROLLER ".time_step" );   
       
       newRobot->jointsNumber = newRobot->GetJointsNumber( newRobot->controller );
       newRobot->jointsList = (JointData*) calloc( newRobot->jointsNumber, sizeof(JointData) );
@@ -111,7 +111,7 @@ Robot Robot_Init( const char* configPathName )
       newRobot->jointSetpointsList = (RobotVariables**) calloc( newRobot->jointsNumber, sizeof(RobotVariables*) );
       for( size_t jointIndex = 0; jointIndex < newRobot->jointsNumber; jointIndex++ )
       {
-        DataHandle actuatorConfiguration = DataIO_GetSubData( configuration, "actuators.%lu", jointIndex );
+        DataHandle actuatorConfiguration = DataIO_GetSubData( configuration, ACTUATOR "s.%lu", jointIndex );
         newRobot->jointsList[ jointIndex ].actuator = Actuator_Init( actuatorConfiguration );
         newRobot->jointMeasuresList[ jointIndex ] = newRobot->jointsList[ jointIndex ].measures = (RobotVariables*) malloc( sizeof(RobotVariables) );
         newRobot->jointSetpointsList[ jointIndex ] = newRobot->jointsList[ jointIndex ].setpoints = (RobotVariables*) malloc( sizeof(RobotVariables) );
