@@ -7,21 +7,6 @@
 [submodule "src/signal_processing"]
 	path = src/signal_processing
 	url = https://github.com/LabDin/Simple-Signal-Processing
-[submodule "src/json"]
-	path = src/json
-	url = https://github.com/LabDin/Simple-JSON
-[submodule "src/curves"]
-	path = src/curves
-	url = https://github.com/LabDin/Simple-Function-Curves
-[submodule "src/plugins"]
-	path = src/plugins
-	url = https://github.com/LabDin/Plugin-Loader
-[submodule "plugin_loader"]
-	path = plugin_loader
-	url = https://github.com/LabDin/Plugin-Loader
-[submodule "src/plugin_loader"]
-	path = src/plugin_loader
-	url = https://github.com/LabDin/Plugin-Loader
 [submodule "src/timing"]
 	path = src/timing
 	url = https://github.com/LabDin/Precise-Timing
@@ -31,3 +16,12 @@
 [submodule "src/ipc"]
 	path = src/ipc
 	url = https://github.com/LabDin/Simple-Async-IPC
+[submodule "src/data_io"]
+	path = src/data_io
+	url = https://github.com/LabDin/Data-IO-JSON.git
+[submodule "src/signal_io"]
+	path = src/signal_io
+	url = https://github.com/LabDin/Signal-IO-Interface.git
+[submodule "src/robot_control"]
+	path = src/robot_control
+	url = https://github.com/LabDin/Robot-Control-Interface.git

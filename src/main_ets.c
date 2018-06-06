@@ -44,6 +44,8 @@
 
 #include "system.h" 
 
+const unsigned long UPDATE_INTERVAL_MS = 5;
+
 
 /* Program entry-point */
 void CVIFUNC_C RTmain( void )

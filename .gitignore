@@ -40,3 +40,6 @@ cvibuild.NISPIPlugin/Debug/NISPI.dll.defs
 cvibuild.NISPIPlugin/Release/Jamfile
 cvibuild.NISPIPlugin/Release/Jamfile_instr
 src/plugins/robot_control/emg/emg_control~cvi173251.c
+*.json
+*.json
+*.json
