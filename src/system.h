@@ -26,8 +26,6 @@
 #include <stdbool.h>
 
 
-extern const unsigned long UPDATE_INTERVAL_MS;
-
 bool System_Init( const int, const char** );
 
 void System_End( void );

@@ -31,13 +31,16 @@
 #include "data_io.h"
 
 #include "debug/data_logging.h"
+#include "timing/timing.h" 
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdio.h>
 
-const unsigned long UPDATE_INTERVAL_MS = 5;
+const unsigned long NETWORK_UPDATE_MIN_INTERVAL_MS = 10;
+static unsigned long lastUpdateTimeMS = 0;
+static unsigned long lastNetworkUpdateElapsedTimeMS = NETWORK_UPDATE_MIN_INTERVAL_MS;
 
 
 Robot robotController = NULL;
@@ -60,13 +63,13 @@ bool System_Init( const int argc, const char** argv )
 {
   if( argc < 2 ) 
   {
-    Log_PrintString( NULL, "wrong usage: type \"%s --help\" for instructions", argv[ 0 ] );
+    DEBUG_PRINT( "wrong usage: type \"%s --help\" for instructions", argv[ 0 ] );
     return false;
   }
   
   if( strcmp( argv[ 1 ], "--help" ) == 0 )
   {
-    Log_PrintString( NULL, "usage: %s [--config <config_dir>] [--addr <connection_address>] <robot_name>", argv[ 0 ] );
+    DEBUG_PRINT( "usage: %s [--config <config_dir>] [--addr <connection_address>] <robot_name>", argv[ 0 ] );
     return false;
   }
   
@@ -78,7 +81,7 @@ bool System_Init( const int argc, const char** argv )
   {
     if( optionIndex + 1 >= argc - 1 )
     {
-      Log_PrintString( NULL, "missing value for option %s. type \"%s --help\" for instructions", argv[ optionIndex ], argv[ 0 ] );
+      DEBUG_PRINT( "missing value for option %s. type \"%s --help\" for instructions", argv[ optionIndex ], argv[ 0 ] );
       return false;
     }
     
@@ -86,7 +89,7 @@ bool System_Init( const int argc, const char** argv )
     else if( strcmp( argv[ optionIndex ], "--addr" ) == 0 ) connectionAddress = argv[ optionIndex + 1 ];
     else
     {
-      Log_PrintString( NULL, "unknown option %s. type \"%s --help\" for instructions", argv[ optionIndex ], argv[ 0 ] );
+      DEBUG_PRINT( "unknown option %s. type \"%s --help\" for instructions", argv[ optionIndex ], argv[ 0 ] );
       return false;
     }
   }
@@ -98,15 +101,17 @@ bool System_Init( const int argc, const char** argv )
   DataIO_SetBaseFilePath( configDirectory );
   
   robotInfo = DataIO_CreateEmptyData();
-  Log_PrintString( NULL, "loading robots configuration from %s", configDirectory );
+  DEBUG_PRINT( "loading robots configuration from %s", configDirectory );
   RefreshRobotsInfo( robotConfigName, NULL );
 
+  lastUpdateTimeMS = Time_GetExecMilliseconds();
+  
   return true;
 }
 
 void System_End()
 {
-  Log_PrintString( NULL, "Ending Robot Control" );
+  DEBUG_PRINT( "Ending Robot Control at time %g", Time_GetExecSeconds() );
 
   IPC_CloseConnection( robotEventsConnection );
   IPC_CloseConnection( robotAxesConnection );
@@ -119,7 +124,7 @@ void System_End()
 
   Robot_End( robotController );
   
-  Log_PrintString( NULL, "Robot Control ended" );
+  DEBUG_PRINT( "Robot Control ended at time %g", Time_GetExecSeconds() );
 }
 
 void UpdateEvents()
@@ -131,7 +136,7 @@ void UpdateEvents()
   {
     Byte robotCommand = (Byte) *(messageIn++);
     
-    Log_PrintString( NULL, "received robot command: %u", robotCommand );
+    DEBUG_PRINT( "received robot command: %u", robotCommand );
     
     Byte* messageOut = (Byte*) messageBuffer;
     memset( messageOut, 0, IPC_MAX_MESSAGE_LENGTH );
@@ -162,7 +167,7 @@ void UpdateEvents()
   }   
 }
 
-void UpdateAxes()
+bool UpdateAxes( unsigned long lastNetworkUpdateElapsedTimeMS )
 {
   static Byte message[ IPC_MAX_MESSAGE_LENGTH ];
 
@@ -170,7 +175,7 @@ void UpdateAxes()
   while( IPC_ReadMessage( robotAxesConnection, messageIn ) ) 
   {
     size_t setpointBlocksNumber = (size_t) *(messageIn++);
-    //Log_PrintString( NULL, "received message for %lu axes", setpointBlocksNumber );
+    //DEBUG_PRINT( "received message for %lu axes", setpointBlocksNumber );
     for( size_t setpointBlockIndex = 0; setpointBlockIndex < setpointBlocksNumber; setpointBlockIndex++ )
     {
       size_t axisIndex = (size_t) *(messageIn++);
@@ -184,7 +189,7 @@ void UpdateAxes()
                                        .acceleration = axisSetpointsList[ DOF_ACCELERATION ], .force = axisSetpointsList[ DOF_FORCE ],
                                        .inertia = axisSetpointsList[ DOF_INERTIA ],
                                        .stiffness = axisSetpointsList[ DOF_STIFFNESS ], .damping = axisSetpointsList[ DOF_DAMPING ] };
-      //if( axisIndex == 0 ) Log_PrintString( NULL, "setpoints: p: %.3f - v: %.3f", axisSetpoints.position, axisSetpoints.velocity );
+      //if( axisIndex == 0 ) DEBUG_PRINT( "setpoints: p: %.3f - v: %.3f", axisSetpoints.position, axisSetpoints.velocity );
       Robot_SetAxisSetpoints( axis, &axisSetpoints );
 
       messageIn += DOF_DATA_BLOCK_SIZE;
@@ -213,20 +218,23 @@ void UpdateAxes()
       axisMeasuresList[ DOF_STIFFNESS ] = (float) axisMeasures.stiffness;
       axisMeasuresList[ DOF_DAMPING ] = (float) axisMeasures.damping;
       
-      //if( axisIndex == 0 ) Log_PrintString( NULL, "measures: p: %+.5f, v: %+.5f, f: %+.5f", axisMeasuresList[ DOF_POSITION ], axisMeasuresList[ DOF_VELOCITY ], axisMeasuresList[ DOF_FORCE ] );
+      //if( axisIndex == 0 ) DEBUG_PRINT( "measures: p: %+.5f, v: %+.5f, f: %+.5f", axisMeasuresList[ DOF_POSITION ], axisMeasuresList[ DOF_VELOCITY ], axisMeasuresList[ DOF_FORCE ] );
     
       axisdataOffset += DOF_DATA_BLOCK_SIZE;
     }
   }
   
-  if( message[ 0 ] > 0 )
+  if( message[ 0 ] > 0 && lastNetworkUpdateElapsedTimeMS >= NETWORK_UPDATE_MIN_INTERVAL_MS )
   {
-    //Log_PrintString( NULL, "sending measures from %lu axes", message[ 0 ] );
+    //DEBUG_PRINT( "sending measures from %lu axes", message[ 0 ] );
     IPC_WriteMessage( robotAxesConnection, (const Byte*) message );
+    return true;
   }
+  
+  return false;
 }
 
-void UpdateJoints()
+bool UpdateJoints( unsigned long lastNetworkUpdateElapsedTimeMS )
 {
   static Byte messageOut[ IPC_MAX_MESSAGE_LENGTH ];
   
@@ -256,18 +264,26 @@ void UpdateJoints()
     jointDataOffset += DOF_DATA_BLOCK_SIZE;
   }
   
-  if( messageOut[ 0 ] > 0 )
+  if( messageOut[ 0 ] > 0 && lastNetworkUpdateElapsedTimeMS >= NETWORK_UPDATE_MIN_INTERVAL_MS )
   {
     //DEBUG_UPDATE( "sending measures for %u joints", messageOut[ 0 ] );
     IPC_WriteMessage( robotJointsConnection, (const Byte*) messageOut );
+    return true;
   }
+  
+  return false;
 }
 
 void System_Update()
-{ 
+{
+  unsigned long lastUpdateElapsedTimeMS = Time_GetExecMilliseconds() - lastUpdateTimeMS;
+  lastUpdateTimeMS = Time_GetExecMilliseconds();
+  
   UpdateEvents();
-  UpdateAxes();
-  UpdateJoints();
+  
+  lastNetworkUpdateElapsedTimeMS += lastUpdateElapsedTimeMS;
+  if( UpdateAxes( lastNetworkUpdateElapsedTimeMS ) || UpdateJoints( lastNetworkUpdateElapsedTimeMS ) )
+    lastNetworkUpdateElapsedTimeMS = 0;
 }
 
 
@@ -315,7 +331,7 @@ void RefreshRobotsInfo( const char* robotName, char* sharedControlsString )
   if( sharedControlsString != NULL )
   {
     char* robotControlsString = DataIO_GetDataString( robotInfo );
-    Log_PrintString( NULL, "robots info string: %s", robotControlsString );
+    DEBUG_PRINT( "robots info string: %s", robotControlsString );
     strncpy( sharedControlsString, robotControlsString, strlen( robotControlsString ) );
     free( robotControlsString );
   }

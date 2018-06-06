@@ -4,5 +4,5 @@
     { "input_variable": "VELOCITY", "config": "sensor_velocity_1" },
     { "input_variable": "FORCE", "config": "sensor_torque_1" }
   ],
-  "motor": { "output_variable": "FORCE", "config": "motor_1_force" },
+  "motor": { "output_variable": "POSITION", "config": "motor_1_position" },
 }
