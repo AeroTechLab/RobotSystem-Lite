@@ -1,83 +1,149 @@
 //////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                      //
 //  Original work Copyright (c) 2014 Wilian dos Santos                                  //
-//  Modified work Copyright (c) 2016-2017 Leonardo Consoni <consoni_2519@hotmail.com>   //
+//  Modified work Copyright (c) 2016-2018 Leonardo Consoni <consoni_2519@hotmail.com>   //
 //                                                                                      //
-//  This file is part of RobRehabSystem.                                                //
+//  This file is part of RobotSystem-Lite.                                              //
 //                                                                                      //
-//  RobRehabSystem is free software: you can redistribute it and/or modify              //
+//  RobotSystem-Lite is free software: you can redistribute it and/or modify            //
 //  it under the terms of the GNU Lesser General Public License as published            //
 //  by the Free Software Foundation, either version 3 of the License, or                //
 //  (at your option) any later version.                                                 //
 //                                                                                      //
-//  RobRehabSystem is distributed in the hope that it will be useful,                   //
+//  RobotSystem-Lite is distributed in the hope that it will be useful,                 //
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of                      //
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                        //
 //  GNU Lesser General Public License for more details.                                 //
 //                                                                                      //
 //  You should have received a copy of the GNU Lesser General Public License            //
-//  along with RobRehabSystem. If not, see <http://www.gnu.org/licenses/>.              //
+//  along with RobotSystem-Lite. If not, see <http://www.gnu.org/licenses/>.            //
 //                                                                                      //
 //////////////////////////////////////////////////////////////////////////////////////////
 
 
-#include "actuator_control/interface.h"
+#include "robot_control/robot_control.h"
 
-#include <string.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h> 
+#include <stdio.h>
+
 
 typedef struct _ControlData
 {
-  double positionErrorSum, positionSetpointSum;
   double velocitySetpoint;
-  double forceError[ 2 ];
-  double controlError;
+  double previousForceError;
+  enum RobotState currentControlState
 }
 ControlData;
 
-typedef ControlData* Controller;
+DECLARE_MODULE_INTERFACE( ROBOT_CONTROL_INTERFACE );
 
-DECLARE_MODULE_INTERFACE( ACTUATOR_CONTROL_INTERFACE )
 
-ActuatorController InitController( void )
+RobotController InitController( const char* configurationString )
 {
-  void* newController = malloc( sizeof(ControlData) );
+  ControlData* newController = (ControlData*) malloc( sizeof(ControlData) );
   memset( newController, 0, sizeof(ControlData) );
-  
-  return (Controller) newController;
+   
+  return (RobotController) newController;
 }
 
-ActuatorVariables RunControlStep( ActuatorController ref_controller, ActuatorVariables* measures, ActuatorVariables* setpoints, double timeDelta )
+void EndController( RobotController ref_controller )
+{
+  if( ref_controller == NULL ) return;
+  
+  free( (void*) ref_controller );
+}
+
+size_t GetJointsNumber( RobotController ref_controller )
+{
+  if( ref_controller == NULL ) return 0;
+  
+  return 1;
+}
+
+const char** GetJointNamesList( RobotController ref_controller )
+{
+  const char** JOINT_NAMES[] = { "dof_joint" };
+  
+  if( ref_controller == NULL ) return NULL;
+  
+  return JOINT_NAMES;
+}
+
+size_t GetAxesNumber( RobotController ref_controller )
+{
+  if( ref_controller == NULL ) return 0;
+  
+  ControlData* controller = (ControlData*) ref_controller;
+  
+  return EMGProcessing_GetJointsCount( controller->emgModel );   
+}
+
+const char** GetAxisNamesList( RobotController ref_controller )
+{
+  const char** AXIS_NAMES[] = { "dof_axis" };
+  
+  if( ref_controller == NULL ) return NULL;
+  
+  return AXIS_NAMES;
+}
+
+void SetControlState( RobotController ref_controller, enum RobotState newControlState )
+{
+  if( ref_controller == NULL ) return;
+  
+  ControlData* controller = (ControlData*) ref_controller;
+  
+  if( newControlState == ROBOT_PASSIVE )
+  {
+    // ...
+  }
+  else if( newControlState == ROBOT_OFFSET )
+  {
+    // ...
+  }
+  else if( newControlState == ROBOT_CALIBRATION )
+  {
+    // ...
+  }
+  else if( newControlState == ROBOT_PREPROCESSING )
+  {
+    // ...
+  }
+  else if( newControlState == ROBOT_OPERATION )
+  {
+    // ...
+  }
+  
+  controller->currentControlState = newControlState;
+}
+
+void RunControlStep( RobotController ref_controller, RobotVariables** jointMeasuresTable, RobotVariables** axisMeasuresTable, RobotVariables** jointSetpointsTable, RobotVariables** axisSetpointsTable, double timeDelta )
 {
   const double K_P = 370;//1.6527; // 370 * ( F_in_max / V_out_max )
   const double K_I = 3.5;//0.0156; // 3.5 * ( F_in_max / V_out_max )
   
-  Controller controller = (ActuatorController) ref_controller;
-  
-  ActuatorVariables outputs = { .position = setpoints->position };
-  
-  double positionError = measures->position - setpoints->position;
-  controller->positionErrorSum += timeDelta * positionError * positionError;
-  controller->positionSetpointSum += timeDelta * setpoints->position * setpoints->position;
-  
-  //controller->controlError = ( controller->positionSetpointSum > 0.0 ) ? controller->positionErrorSum / controller->positionSetpointSum : 1.0;
-  /*if( controller->controlError > 1.0 )*/ controller->controlError = 1.0;
-  
-  double forceSetpoint = controller->controlError * setpoints->force;
-  outputs.force = forceSetpoint;
+  ControlData* controller = (ControlData*) ref_controller;
 
-  controller->forceError[ 0 ] = forceSetpoint - measures->force;
+  axisMeasuresTable[ 0 ]->position = jointMeasuresTable[ 0 ]->position * 180.0 / M_PI - 90.0;
+  axisMeasuresTable[ 0 ]->velocity = jointMeasuresTable[ 0 ]->velocity * 180.0 / M_PI;
+  axisMeasuresTable[ 0 ]->acceleration = jointMeasuresTable[ 0 ]->acceleration * 180.0 / M_PI;
+  axisMeasuresTable[ 0 ]->force = jointMeasuresTable[ 0 ]->force;
+    
+  // Simple PD impedance control example
+  //jointSetpointsTable[ 0 ]->position = axisSetpointsTable[ 0 ]->position * M_PI / 180.0 + M_PI / 2.0;
+  //jointSetpointsTable[ 0 ]->velocity = axisSetpointsTable[ 0 ]->velocity * M_PI / 180.0;
+  //double positionError = jointSetpointsTable[ 0 ]->position - jointMeasuresTable[ 0 ]->position;    // e_p = x_d - x
+  //double velocityError = jointSetpointsTable[ 0 ]->velocity - jointMeasuresTable[ 0 ]->velocity;    // e_v = xdot_d - xdot
+  // F_actuator = K * e_p + B * e_v - D * x_dot
+  //jointSetpointsTable[ 0 ]->force = jointSetpointsTable[ 0 ]->stiffness * positionError - jointSetpointsTable[ 0 ]->damping * velocityError;
   
-  controller->velocitySetpoint += K_P * ( controller->forceError[ 0 ] - controller->forceError[ 1 ] ) + K_I * timeDelta * controller->forceError[ 0 ];
-  outputs.velocity = controller->velocitySetpoint;
-  
-  //velocitySetpoint[0] = 0.9822 * velocitySetpoint[1] + 0.01407 * velocitySetpoint[2] + 338.6 * forceError[1] - 337.4 * forceError[2]; //5ms
-  
-  controller->forceError[ 1 ] = controller->forceError[ 0 ];
+  jointSetpointsTable[ 0 ]->force = // Your control logic implementation
 
-  return outputs;
-}
-
-void EndController( ActuatorController controller )
-{
-  free( (void*) controller );
+  // Simple PI torque/velocity discrete control
+  double forceError = jointSetpointsTable[ 0 ]->force - jointMeasuresTable[ 0 ]->force;  
+  controller->velocitySetpoint += K_P * ( forceError - controller->previousForceError ) + K_I * timeDelta * forceError;
+  jointSetpointsTable[ 0 ]->velocity = controller->velocitySetpoint;
+  controller->previousForceError = forceError;
 }
