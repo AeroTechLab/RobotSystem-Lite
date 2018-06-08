@@ -40,6 +40,11 @@ ControlData;
 DECLARE_MODULE_INTERFACE( ROBOT_CONTROL_INTERFACE );
 
 
+#define DOFS_NUMBER 1
+const char* JOINT_NAMES[ DOFS_NUMBER ] = { "dof_joint" };
+const char* AXIS_NAMES[ DOFS_NUMBER ] = { "dof_axis" };
+
+
 RobotController InitController( const char* configurationString )
 {
   ControlData* newController = (ControlData*) malloc( sizeof(ControlData) );
@@ -59,13 +64,11 @@ size_t GetJointsNumber( RobotController ref_controller )
 {
   if( ref_controller == NULL ) return 0;
   
-  return 1;
+  return DOFS_NUMBER;
 }
 
 const char** GetJointNamesList( RobotController ref_controller )
 {
-  const char** JOINT_NAMES[] = { "dof_joint" };
-  
   if( ref_controller == NULL ) return NULL;
   
   return JOINT_NAMES;
@@ -75,15 +78,11 @@ size_t GetAxesNumber( RobotController ref_controller )
 {
   if( ref_controller == NULL ) return 0;
   
-  ControlData* controller = (ControlData*) ref_controller;
-  
-  return EMGProcessing_GetJointsCount( controller->emgModel );   
+  return DOFS_NUMBER;   
 }
 
 const char** GetAxisNamesList( RobotController ref_controller )
 {
-  const char** AXIS_NAMES[] = { "dof_axis" };
-  
   if( ref_controller == NULL ) return NULL;
   
   return AXIS_NAMES;
@@ -139,7 +138,7 @@ void RunControlStep( RobotController ref_controller, RobotVariables** jointMeasu
   // F_actuator = K * e_p + B * e_v - D * x_dot
   //jointSetpointsTable[ 0 ]->force = jointSetpointsTable[ 0 ]->stiffness * positionError - jointSetpointsTable[ 0 ]->damping * velocityError;
   
-  jointSetpointsTable[ 0 ]->force = // Your control logic implementation
+  //jointSetpointsTable[ 0 ]->force = // Your control logic implementation
 
   // Simple PI torque/velocity discrete control
   double forceError = jointSetpointsTable[ 0 ]->force - jointMeasuresTable[ 0 ]->force;  
