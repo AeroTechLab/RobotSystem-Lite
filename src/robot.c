@@ -43,7 +43,6 @@ typedef struct _JointData       // Single robot joint internal data structure
   Actuator actuator;
   RobotVariables* measures;
   RobotVariables* setpoints;
-  bool hasChanged;
 }
 JointData; 
 
@@ -51,7 +50,6 @@ typedef struct _AxisData         // Single robot axis internal data structure
 {
   RobotVariables* measures;
   RobotVariables* setpoints;
-  bool hasChanged;
 }
 AxisData;
 
@@ -273,12 +271,9 @@ bool Robot_GetJointMeasures( Robot robot, size_t jointIndex, RobotVariables* ref
   
   if( jointIndex >= robot->jointsNumber ) return false;
   
-  bool measuresChanged = robot->jointsList[ jointIndex ].hasChanged;
-  robot->jointsList[ jointIndex ].hasChanged = false;
-  
   *ref_measures = *(robot->jointsList[ jointIndex ].measures);
   
-  return measuresChanged;
+  return true;
 }
 
 bool Robot_GetAxisMeasures( Robot robot, size_t axisIndex, RobotVariables* ref_measures )
@@ -287,12 +282,9 @@ bool Robot_GetAxisMeasures( Robot robot, size_t axisIndex, RobotVariables* ref_m
   
   if( axisIndex >= robot->axesNumber ) return false;
   
-  bool measuresChanged = robot->axesList[ axisIndex ].hasChanged;
-  robot->axesList[ axisIndex ].hasChanged = false;
-  
   *ref_measures = *(robot->axesList[ axisIndex ].measures);
   
-  return measuresChanged;
+  return true;
 }
 
 void Robot_SetAxisSetpoints( Robot robot, size_t axisIndex, RobotVariables* ref_setpoints )
@@ -345,16 +337,9 @@ static void* AsyncControl( void* ref_robot )
     robot->RunControlStep( robot->controller, robot->jointMeasuresList, robot->axisMeasuresList, robot->jointSetpointsList, robot->axisSetpointsList, elapsedTime );
     
     //DEBUG_PRINT( "s1: %.5f, s2: %.5f", robot->jointSetpointsList[ 0 ]->position, robot->jointSetpointsList[ 1 ]->position );
-    
-    const bool* axesChangedList = robot->GetAxesChangedList( robot->controller );
-    for( size_t axisIndex = 0; axisIndex < robot->axesNumber; axisIndex++ )
-      if( axesChangedList[ axisIndex ] ) robot->axesList[ axisIndex ].hasChanged = true;
-    
-    const bool* jointsChangedList = robot->GetJointsChangedList( robot->controller );
+
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
     {
-      if( jointsChangedList[ jointIndex ] ) robot->jointsList[ jointIndex ].hasChanged = true;
-      
       if( Actuator_HasError( robot->jointsList[ jointIndex ].actuator ) ) Actuator_Reset( robot->jointsList[ jointIndex ].actuator );
       
       (void) Actuator_SetSetpoints( robot->jointsList[ jointIndex ].actuator, (ActuatorVariables*) robot->jointSetpointsList[ jointIndex ] );
