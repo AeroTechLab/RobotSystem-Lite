@@ -62,7 +62,7 @@ Actuator Actuator_Init( DataHandle configuration )
   const char* actuatorName = DataIO_GetStringValue( configuration, NULL, "" );
   if( actuatorName != NULL )
   {
-    sprintf( filePath, CONFIG "/" ACTUATOR "/%s", actuatorName );
+    sprintf( filePath, KEY_CONFIG "/" KEY_ACTUATOR "/%s", actuatorName );
     if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
   }
   
@@ -71,41 +71,41 @@ Actuator Actuator_Init( DataHandle configuration )
   
   bool loadSuccess = true;
   
-  if( (newActuator->sensorsNumber = DataIO_GetListSize( configuration, SENSOR "s" )) > 0 )
+  if( (newActuator->sensorsNumber = DataIO_GetListSize( configuration, KEY_SENSOR "s" )) > 0 )
   {
     newActuator->motionFilter = Kalman_CreateFilter( CONTROL_VARS_NUMBER );
     
     newActuator->sensorsList = (Sensor*) calloc( newActuator->sensorsNumber, sizeof(Sensor) );
     for( size_t sensorIndex = 0; sensorIndex < newActuator->sensorsNumber; sensorIndex++ )
     {
-      DataHandle sensorConfiguration = DataIO_GetSubData( configuration, SENSOR "s.%lu." CONFIG, sensorIndex );
+      DataHandle sensorConfiguration = DataIO_GetSubData( configuration, KEY_SENSOR "s.%lu." KEY_CONFIG, sensorIndex );
       newActuator->sensorsList[ sensorIndex ] = Sensor_Init( sensorConfiguration );
       Sensor_Reset( newActuator->sensorsList[ sensorIndex ] );
-      const char* sensorType = DataIO_GetStringValue( configuration, "", SENSOR "s.%lu." INPUT "_" VARIABLE, sensorIndex );
+      const char* sensorType = DataIO_GetStringValue( configuration, "", KEY_SENSOR "s.%lu." KEY_VARIABLE, sensorIndex );
       for( int controlModeIndex = 0; controlModeIndex < CONTROL_VARS_NUMBER; controlModeIndex++ )
       {
         if( strcmp( sensorType, CONTROL_MODE_NAMES[ controlModeIndex ] ) == 0 ) 
           Kalman_AddInput( newActuator->motionFilter, controlModeIndex );
       }
-      Kalman_SetInputMaxError( newActuator->motionFilter, sensorIndex, DataIO_GetNumericValue( configuration, 1.0, SENSOR "s.%lu.deviation" ) );
+      Kalman_SetInputMaxError( newActuator->motionFilter, sensorIndex, DataIO_GetNumericValue( configuration, 1.0, KEY_SENSOR "s.%lu." KEY_DEVIATION ) );
     }
   }
   
-  DataHandle motorConfiguration = DataIO_GetSubData( configuration, MOTOR "." CONFIG );
+  DataHandle motorConfiguration = DataIO_GetSubData( configuration, KEY_MOTOR "." KEY_CONFIG );
   if( (newActuator->motor = Motor_Init( motorConfiguration )) == NULL ) loadSuccess = false;
   
-  const char* controlModeName = DataIO_GetStringValue( configuration, (char*) CONTROL_MODE_NAMES[ 0 ], MOTOR "." OUTPUT "_" VARIABLE );
+  const char* controlModeName = DataIO_GetStringValue( configuration, (char*) CONTROL_MODE_NAMES[ 0 ], KEY_MOTOR "." KEY_VARIABLE );
   for( newActuator->controlMode = 0; newActuator->controlMode < CONTROL_VARS_NUMBER; newActuator->controlMode++ )
   {
     if( strcmp( controlModeName, CONTROL_MODE_NAMES[ newActuator->controlMode ] ) == 0 ) break;
   }
   
-  if( DataIO_HasKey( configuration, LOG ) )
+  if( DataIO_HasKey( configuration, KEY_LOG ) )
   {
-    const char* logFileName = DataIO_GetStringValue( configuration, "", LOG "." FILE_NAME );
+    const char* logFileName = DataIO_GetStringValue( configuration, "", KEY_LOG "." KEY_FILE );
     if( logFileName[ 0 ] == '\0' ) strcpy( filePath, "" );
-    else sprintf( filePath, ACTUATOR "/%s", logFileName );
-    newActuator->log = Log_Init( filePath, (size_t) DataIO_GetNumericValue( configuration, 3, LOG "." PRECISION ) );
+    else sprintf( filePath, KEY_ACTUATOR "/%s", logFileName );
+    newActuator->log = Log_Init( filePath, (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
   }
   
   newActuator->controlState = ACTUATOR_OPERATION;

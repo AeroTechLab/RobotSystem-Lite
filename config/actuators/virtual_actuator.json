@@ -1,8 +1,0 @@
-{
-  "sensors": [
-    { "input_variable": "POSITION", "id": "virtual_sensor_position" },
-    { "input_variable": "VELOCITY", "id": "virtual_sensor_velocity" },
-    { "input_variable": "FORCE", "id": "virtual_sensor_torque" }
-  ],
-  "motor": { "output_variable": "VELOCITY", "id": "virtual_motor" }
-}

@@ -21,7 +21,7 @@
 
 #include <string.h>
 
-#include "robot_control_interface.h"
+#include "robot_control/robot_control.h"
 
 #include "debug/data_logging.h"
 
@@ -52,7 +52,7 @@ RobotController InitController( const char* configurationString )
   ControlData* newController = (ControlData*) malloc( sizeof(ControlData) );
   memset( newController, 0, sizeof(ControlData) );
   
-  Log_SetBaseDirectory( "" );
+  Log_SetDirectory( "" );
   newController->samplingLog = Log_Init( "motor_sampling", 8 );
   
   newController->elapsedTime = 0.0;
@@ -83,14 +83,14 @@ const char** GetJointNamesList( RobotController ref_controller )
   return (const char**) DOF_NAMES;
 }
 
-const bool* GetJointsChangedList( RobotController ref_controller )
-{
-  if( ref_controller == NULL ) return NULL;
-  
-  ControlData* controller = (ControlData*) ref_controller;
-  
-  return (const bool*) controller->jointsChangedList;
-}
+//const bool* GetJointsChangedList( RobotController ref_controller )
+//{
+//  if( ref_controller == NULL ) return NULL;
+//  
+//  ControlData* controller = (ControlData*) ref_controller;
+//  
+//  return (const bool*) controller->jointsChangedList;
+//}
 
 size_t GetAxesNumber( RobotController ref_controller )
 {
@@ -102,14 +102,14 @@ const char** GetAxisNamesList( RobotController ref_controller )
   return (const char**) DOF_NAMES;
 }
 
-const bool* GetAxesChangedList( RobotController ref_controller )
-{
-  if( ref_controller == NULL ) return NULL;
-  
-  ControlData* controller = (ControlData*) ref_controller;
-  
-  return (const bool*) controller->axesChangedList;
-}
+//const bool* GetAxesChangedList( RobotController ref_controller )
+//{
+//  if( ref_controller == NULL ) return NULL;
+//  
+//  ControlData* controller = (ControlData*) ref_controller;
+//  
+//  return (const bool*) controller->axesChangedList;
+//}
 
 void SetControlState( RobotController ref_controller, enum RobotState newControlState )
 {

@@ -1,7 +1,0 @@
-{
-  "controller": {
-    "type": "EMGJointControl",
-    "config": "rna"
-  },
-  "actuators": [ "simple_joint_actuator" ]
-}

@@ -1,7 +1,0 @@
-{
-  "controller": {
-    "type": "DualMotor",
-    "config": "0.0001 0.0001"
-  },
-  "actuators": [ "actuator_1", "actuator_2" ]
-}

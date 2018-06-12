@@ -1,7 +1,0 @@
-{
-  "sensors": [
-    { "input_variable": "POSITION", "config": "hd_joint_sensor_position", "deviation": 1.0 },
-    { "input_variable": "FORCE", "config": "hd_joint_sensor_torque", "deviation": 1.0 }
-  ],
-  "motor": { "output_variable": "VELOCITY", "config": "hd_joint_motor" }
-}

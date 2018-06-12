@@ -1,7 +1,0 @@
-{
-  "controller": {
-    "type": "SimpleJoint",
-    "config": "{ 'joints': [ 'knee' ], 'log_data': true }"
-  },
-  "actuators": [ "simple_joint_actuator" ]
-}

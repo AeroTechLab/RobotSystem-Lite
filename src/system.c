@@ -40,7 +40,14 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdio.h>
+#ifdef _CVI_DLL_
+#define chdir( dirName )
+#elif WIN32
+#include <dirent.h>
+#define chdir _chdir
+#else
 #include <unistd.h>
+#endif
 
 const unsigned long NETWORK_UPDATE_MIN_INTERVAL_MS = 10;
 static unsigned long lastUpdateTimeMS = 0;
@@ -62,6 +69,8 @@ void RefreshRobotsInfo( const char*, char* );
 
 bool System_Init( const int argc, const char** argv )
 {
+  DEBUG_PRINT( "Starting Robot Control at time %g", Time_GetExecSeconds() );
+  
   if( argc < 2 ) 
   {
     DEBUG_PRINT( "wrong usage: type \"%s --help\" for instructions", argv[ 0 ] );
@@ -76,7 +85,7 @@ bool System_Init( const int argc, const char** argv )
   
   const char* rootDirectory = ".";
   const char* connectionAddress = NULL;
-  const char* logDirectory = "./" LOG "/";
+  const char* logDirectory = "./" KEY_LOG "/";
   const char* robotConfigName = argv[ argc - 1 ];
   
   for( int optionIndex = 1; optionIndex < argc - 1; optionIndex+=2 )

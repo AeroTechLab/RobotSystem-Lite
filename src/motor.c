@@ -22,11 +22,11 @@
 
 #include "motor.h"
 
-#include "config_keys.h"
-
 #include "signal_io/signal_io.h"
 #include "debug/data_logging.h"
       
+#include "config_keys.h" 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -52,7 +52,7 @@ Motor Motor_Init( DataHandle configuration )
   const char* motorName = DataIO_GetStringValue( configuration, NULL, "" );
   if( motorName != NULL )
   {
-    sprintf( filePath, CONFIG "/" MOTOR "/%s", motorName );
+    sprintf( filePath, KEY_CONFIG "/" KEY_MOTOR "/%s", motorName );
     if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
   }
   
@@ -60,31 +60,31 @@ Motor Motor_Init( DataHandle configuration )
   memset( newMotor, 0, sizeof(MotorData) );
 
   bool loadSuccess = true;
-  sprintf( filePath, MODULES "/" SIGNAL_IO "/%s", DataIO_GetStringValue( configuration, "", OUTPUT "_" INTERFACE "." TYPE ) );
+  sprintf( filePath, KEY_MODULES "/" KEY_SIGNAL_IO "/%s", DataIO_GetStringValue( configuration, "", KEY_OUTPUT_INTERFACE "." KEY_TYPE ) );
   LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newMotor, &loadSuccess );
   if( loadSuccess )
   {
-    newMotor->interfaceID = newMotor->InitDevice( DataIO_GetStringValue( configuration, "", OUTPUT "_" INTERFACE "." CONFIG ) );
+    newMotor->interfaceID = newMotor->InitDevice( DataIO_GetStringValue( configuration, "", KEY_OUTPUT_INTERFACE "." KEY_CONFIG ) );
     if( newMotor->interfaceID != SIGNAL_IO_DEVICE_INVALID_ID ) 
     {
-      newMotor->outputChannel = (unsigned int) DataIO_GetNumericValue( configuration, -1, OUTPUT "_" INTERFACE "." CHANNEL );
+      newMotor->outputChannel = (unsigned int) DataIO_GetNumericValue( configuration, -1, KEY_OUTPUT_INTERFACE "." KEY_CHANNEL );
       //DEBUG_PRINT( "trying to aquire channel %u from interface %d", newMotor->outputChannel, newMotor->interfaceID );
       loadSuccess = newMotor->AcquireOutputChannel( newMotor->interfaceID, newMotor->outputChannel );
     }
     else loadSuccess = false;
   }
   
-  newMotor->outputGain = DataIO_GetNumericValue( configuration, 1.0, OUTPUT "_" GAIN "." MULTIPLIER );
-  newMotor->outputGain /= DataIO_GetNumericValue( configuration, 1.0, OUTPUT "_" GAIN "." DIVISOR );
+  newMotor->outputGain = DataIO_GetNumericValue( configuration, 1.0, KEY_OUTPUT_GAIN "." KEY_MULTIPLIER );
+  newMotor->outputGain /= DataIO_GetNumericValue( configuration, 1.0, KEY_OUTPUT_GAIN "." KEY_DIVISOR );
   
   newMotor->isEnabled = false;
   
-  if( DataIO_HasKey( configuration, LOG ) )
+  if( DataIO_HasKey( configuration, KEY_LOG ) )
   {
-    const char* logFileName = DataIO_GetStringValue( configuration, "", LOG "." FILE_NAME );
+    const char* logFileName = DataIO_GetStringValue( configuration, "", KEY_LOG "." KEY_FILE );
     if( logFileName[ 0 ] == '\0' ) strcpy( filePath, "" );
-    else sprintf( filePath, MOTOR "/%s", logFileName );
-    newMotor->log = Log_Init( filePath, (size_t) DataIO_GetNumericValue( configuration, 3, LOG "." PRECISION ) );
+    else sprintf( filePath, KEY_MOTOR "/%s", logFileName );
+    newMotor->log = Log_Init( filePath, (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
   }
   
   if( motorName != NULL ) DataIO_UnloadData( configuration );

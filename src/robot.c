@@ -72,7 +72,7 @@ struct _RobotData
 };
 
 
-const double CONTROL_PASS_INTERVAL = 0.005;
+const double CONTROL_PASS_DEFAULT_INTERVAL = 0.005;
 
 static void* AsyncControl( void* );
 
@@ -84,7 +84,7 @@ Robot Robot_Init( const char* configPathName )
   
   Robot newRobot = NULL;
   
-  sprintf( filePath, CONFIG "/" ROBOT "/%s", configPathName );
+  sprintf( filePath, KEY_CONFIG "/" KEY_ROBOT "/%s", configPathName );
   DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration != NULL )
   {
@@ -92,16 +92,16 @@ Robot Robot_Init( const char* configPathName )
     memset( newRobot, 0, sizeof(RobotData) );
   
     bool loadSuccess = false;
-    sprintf( filePath, MODULES "/" ROBOT_CONTROL "/%s", DataIO_GetStringValue( configuration, "", CONTROLLER "." TYPE ) );
+    sprintf( filePath, KEY_MODULES "/" KEY_ROBOT_CONTROL "/%s", DataIO_GetStringValue( configuration, "", KEY_CONTROLLER "." KEY_TYPE ) );
     LOAD_MODULE_IMPLEMENTATION( ROBOT_CONTROL_INTERFACE, filePath, newRobot, &loadSuccess );
     if( loadSuccess )
     {
-      const char* controllerConfigString = DataIO_GetStringValue( configuration, "", CONTROLLER "." CONFIG );
+      const char* controllerConfigString = DataIO_GetStringValue( configuration, "", KEY_CONTROLLER "." KEY_CONFIG );
       DEBUG_PRINT( "loading controller config %s", controllerConfigString ); 
       newRobot->controller = newRobot->InitController( controllerConfigString );
       DEBUG_PRINT( "loaded controller handle %p", newRobot->controller );
       
-      newRobot->controlTimeStep = DataIO_GetNumericValue( configuration, CONTROL_PASS_INTERVAL, CONTROLLER ".time_step" );   
+      newRobot->controlTimeStep = DataIO_GetNumericValue( configuration, CONTROL_PASS_DEFAULT_INTERVAL, KEY_CONTROLLER "." KEY_TIME_STEP );   
       
       newRobot->jointsNumber = newRobot->GetJointsNumber( newRobot->controller );
       newRobot->jointsList = (JointData*) calloc( newRobot->jointsNumber, sizeof(JointData) );
@@ -109,7 +109,7 @@ Robot Robot_Init( const char* configPathName )
       newRobot->jointSetpointsList = (RobotVariables**) calloc( newRobot->jointsNumber, sizeof(RobotVariables*) );
       for( size_t jointIndex = 0; jointIndex < newRobot->jointsNumber; jointIndex++ )
       {
-        DataHandle actuatorConfiguration = DataIO_GetSubData( configuration, ACTUATOR "s.%lu", jointIndex );
+        DataHandle actuatorConfiguration = DataIO_GetSubData( configuration, KEY_ACTUATOR "s.%lu", jointIndex );
         newRobot->jointsList[ jointIndex ].actuator = Actuator_Init( actuatorConfiguration );
         newRobot->jointMeasuresList[ jointIndex ] = newRobot->jointsList[ jointIndex ].measures = (RobotVariables*) malloc( sizeof(RobotVariables) );
         newRobot->jointSetpointsList[ jointIndex ] = newRobot->jointsList[ jointIndex ].setpoints = (RobotVariables*) malloc( sizeof(RobotVariables) );
@@ -134,7 +134,7 @@ Robot Robot_Init( const char* configPathName )
       return NULL;
     }
     
-    Log_PrintString( NULL, "robot %s created (handle: %p)", configPathName, newRobot );
+    DEBUG_PRINT( "robot %s created (handle: %p)", configPathName, newRobot );
   }
   
   return newRobot;
@@ -144,7 +144,7 @@ void Robot_End( Robot robot )
 {
   if( robot == NULL ) return;
   
-  Log_PrintString( NULL, "ending robot robot %p", robot );
+  DEBUG_PRINT( "ending robot robot %p", robot );
   
   Robot_Disable( robot );
   
@@ -172,7 +172,7 @@ void Robot_End( Robot robot )
     
   free( robot );
 
-  Log_PrintString( NULL, "robot robot %p discarded", robot );
+  DEBUG_PRINT( "robot robot %p discarded", robot );
 }
 
 bool Robot_Enable( Robot robot )
