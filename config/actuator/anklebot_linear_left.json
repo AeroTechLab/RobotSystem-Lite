@@ -1,0 +1,8 @@
+{
+  "sensors": [
+    { "variable_type": "POSITION", "config": "anklebot_left_position" },
+    { "variable_type": "FORCE", "config": "anklebot_left_force" }
+  ],
+  "motor": { "variable_type": "FORCE", "config": "anklebot_left_motor" },
+  "controller": "SimpleControl"
+}

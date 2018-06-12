@@ -1,0 +1,7 @@
+{
+  "controller": {
+    "type": "EMGJointControl",
+    "config": "curves"
+  },
+  "actuators": [ "simple_joint_actuator" ]
+}

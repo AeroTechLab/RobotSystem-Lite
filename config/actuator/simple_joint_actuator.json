@@ -1,0 +1,8 @@
+{
+  "sensors": [
+    { "variable_type": "POSITION", "config": "simple_joint_sensor_position", "deviation": 1.0 },
+    { "variable_type": "VELOCITY", "config": "simple_joint_sensor_velocity", "deviation": 10.0 },
+    { "variable_type": "FORCE", "config": "simple_joint_sensor_torque", "deviation": 1.0 }
+  ],
+  "motor": { "variable_type": "VELOCITY", "config": "simple_joint_motor" }
+}

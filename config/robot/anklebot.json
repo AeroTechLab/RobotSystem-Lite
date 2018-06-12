@@ -1,0 +1,7 @@
+{
+  "controller": {
+    "type": "AnkleBot",
+    "config": "{ 'log_data': true }"
+  },
+  "actuators": [ "anklebot_linear_right", "anklebot_linear_left" ]
+}

@@ -1,0 +1,15 @@
+{
+  "output_interface": {
+    "type": "Dummy",
+    "id": "NULL",
+    "channel": 0
+  },
+  "output_gain": {
+    "multiplier": 1,
+    "divisor": 1
+  },
+  "output_limits": {
+    "min": -500,
+    "max": 500
+  }
+}
