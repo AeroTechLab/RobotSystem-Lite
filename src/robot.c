@@ -102,7 +102,7 @@ Robot Robot_Init( const char* configPathName )
       DEBUG_PRINT( "loaded controller handle %p", newRobot->controller );
       
       newRobot->controlTimeStep = DataIO_GetNumericValue( configuration, CONTROL_PASS_DEFAULT_INTERVAL, KEY_CONTROLLER "." KEY_TIME_STEP );   
-      
+      DEBUG_PRINT( "control time step: %g", newRobot->controlTimeStep );
       newRobot->jointsNumber = newRobot->GetJointsNumber( newRobot->controller );
       newRobot->jointsList = (JointData*) calloc( newRobot->jointsNumber, sizeof(JointData) );
       newRobot->jointMeasuresList = (RobotVariables**) calloc( newRobot->jointsNumber, sizeof(RobotVariables*) );

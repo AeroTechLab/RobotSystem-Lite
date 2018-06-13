@@ -62,6 +62,7 @@ Actuator Actuator_Init( DataHandle configuration )
   const char* actuatorName = DataIO_GetStringValue( configuration, NULL, "" );
   if( actuatorName != NULL )
   {
+    DEBUG_PRINT( "trying to create actuator %s", actuatorName );
     sprintf( filePath, KEY_CONFIG "/" KEY_ACTUATOR "/%s", actuatorName );
     if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
   }

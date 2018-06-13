@@ -57,6 +57,7 @@ Sensor Sensor_Init( DataHandle configuration )
   const char* sensorName = DataIO_GetStringValue( configuration, NULL, "" );
   if( sensorName != NULL )
   {
+    DEBUG_PRINT( "trying to create sensor %s", sensorName );
     sprintf( filePath, KEY_CONFIG "/" KEY_SENSOR "/%s", sensorName );
     if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
   }

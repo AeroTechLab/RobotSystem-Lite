@@ -24,12 +24,12 @@
 
 DECLARE_MODULE_INTERFACE( SIGNAL_IO_INTERFACE );
 
-int InitTask( const char* taskConfig )
+int InitDevice( const char* taskConfig )
 {  
   return 0;
 }
 
-void EndTask( int taskID )
+void EndDevice( int taskID )
 {
   return;
 }
@@ -54,22 +54,7 @@ void Reset( int taskID )
   return;
 }
 
-bool AcquireInputChannel( int taskID, unsigned int channel )
-{
-  return true;
-}
-
-void ReleaseInputChannel( int taskID, unsigned int channel )
-{
-  return;
-}
-
-void EnableOutput( int taskID, bool enable )
-{
-  return;
-}
-
-bool IsOutputEnabled( int taskID )
+bool CheckInputChannel( int taskID, unsigned int channel )
 {
   return true;
 }

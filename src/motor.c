@@ -52,6 +52,7 @@ Motor Motor_Init( DataHandle configuration )
   const char* motorName = DataIO_GetStringValue( configuration, NULL, "" );
   if( motorName != NULL )
   {
+    DEBUG_PRINT( "trying to create motor %s", motorName );
     sprintf( filePath, KEY_CONFIG "/" KEY_MOTOR "/%s", motorName );
     if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
   }
