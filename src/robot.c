@@ -322,7 +322,7 @@ static void* AsyncControl( void* ref_robot )
   
   robot->isControlRunning = true;
   
-  //DEBUG_PRINT( "starting to run control for robot %p on thread %lx", robot, THREAD_ID );
+  DEBUG_PRINT( "starting to run control for robot %p on thread %lx", robot, Thread_GetID );
   
   while( robot->isControlRunning )
   {

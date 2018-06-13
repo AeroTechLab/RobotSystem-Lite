@@ -1,7 +1,6 @@
 {
   "sensors": [
     { "variable_type": "POSITION", "config": "sensor_position_2" },
-    { "variable_type": "VELOCITY", "config": "sensor_velocity_2" },
     { "variable_type": "FORCE", "config": "sensor_torque_2" }
   ],
   "motor": { "variable_type": "POSITION", "config": "motor_2_position" },

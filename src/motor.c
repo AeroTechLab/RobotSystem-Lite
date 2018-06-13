@@ -70,7 +70,7 @@ Motor Motor_Init( DataHandle configuration )
     {
       newMotor->outputChannel = (unsigned int) DataIO_GetNumericValue( configuration, -1, KEY_OUTPUT_INTERFACE "." KEY_CHANNEL );
       //DEBUG_PRINT( "trying to aquire channel %u from interface %d", newMotor->outputChannel, newMotor->interfaceID );
-      loadSuccess = newMotor->AcquireOutputChannel( newMotor->interfaceID, newMotor->outputChannel );
+      //loadSuccess = newMotor->AcquireOutputChannel( newMotor->interfaceID, newMotor->outputChannel );
     }
     else loadSuccess = false;
   }
