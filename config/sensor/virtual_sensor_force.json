@@ -1,6 +1,6 @@
 {
   "input_interface": {
-    "type": "Dummy",
+    "type": "DummyIO",
     "config": "",
     "channel": 2
   },

@@ -62,16 +62,18 @@ Sensor Sensor_Init( DataHandle configuration )
     if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
   }
   
-  //DEBUG_PRINT( "sensor configuration found on data handle %p", configuration );
+  DEBUG_PRINT( "sensor configuration found on data handle %p", configuration );
   
   Sensor newSensor = (Sensor) malloc( sizeof(SensorData) );
   memset( newSensor, 0, sizeof(SensorData) );  
   
   bool loadSuccess;
   sprintf( filePath, KEY_MODULES "/" KEY_SIGNAL_IO "/%s", DataIO_GetStringValue( configuration, "", KEY_INPUT_INTERFACE "." KEY_TYPE ) );
+  DEBUG_PRINT( "trying to read signal IO module %s", filePath );
   LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newSensor, &loadSuccess );
   if( loadSuccess )
   {
+    PRINT_PLUGIN_FUNCTIONS( SIGNAL_IO_INTERFACE, newSensor );
     newSensor->deviceID = newSensor->InitDevice( DataIO_GetStringValue( configuration, "", KEY_INPUT_INTERFACE "." KEY_CONFIG ) );
     if( newSensor->deviceID != SIGNAL_IO_DEVICE_INVALID_ID )
     {

@@ -42,10 +42,10 @@ set_target_properties( DummyIO PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MODULES_DIR
 set_target_properties( DummyIO PROPERTIES PREFIX "" )
 target_include_directories( DummyIO PUBLIC ${PLUGIN_SOURCES_DIR}/${SIGNAL_IO_PATH}/ )
  
-# add_library( SimpleJoint MODULE ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/simple_joint.c )
-# set_target_properties( SimpleJoint PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MODULES_DIR}/${ROBOT_CONTROL_PATH} )
-# set_target_properties( SimpleJoint PROPERTIES PREFIX "" )
-# target_include_directories( SimpleJoint PUBLIC ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/ )
+add_library( SimpleJoint MODULE ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/simple_joint.c )
+set_target_properties( SimpleJoint PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MODULES_DIR}/${ROBOT_CONTROL_PATH} )
+set_target_properties( SimpleJoint PROPERTIES PREFIX "" )
+target_include_directories( SimpleJoint PUBLIC ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/ )
  
 # add_library( AnkleBot MODULE ${SOURCES_DIR}/robot_control/anklebot.c )
 # set_target_properties( AnkleBot PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ROBOT_CONTROL_MODULES_DIR} )

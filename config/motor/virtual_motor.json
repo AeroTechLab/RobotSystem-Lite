@@ -1,6 +1,6 @@
 {
   "output_interface": {
-    "type": "Dummy",
+    "type": "DummyIO",
     "id": "NULL",
     "channel": 0
   },
