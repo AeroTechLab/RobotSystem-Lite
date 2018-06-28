@@ -1,21 +1,21 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2017 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2018 Leonardo Consoni <consoni_2519@hotmail.com>       //
 //                                                                            //
-//  This file is part of RobRehabSystem.                                      //
+//  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
-//  RobRehabSystem is free software: you can redistribute it and/or modify    //
+//  RobotSystem-Lite is free software: you can redistribute it and/or modify  //
 //  it under the terms of the GNU Lesser General Public License as published  //
 //  by the Free Software Foundation, either version 3 of the License, or      //
 //  (at your option) any later version.                                       //
 //                                                                            //
-//  RobRehabSystem is distributed in the hope that it will be useful,         //
+//  RobotSystem-Lite is distributed in the hope that it will be useful,       //
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of            //
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the              //
 //  GNU Lesser General Public License for more details.                       //
 //                                                                            //
 //  You should have received a copy of the GNU Lesser General Public License  //
-//  along with RobRehabSystem. If not, see <http://www.gnu.org/licenses/>.    //
+//  along with RobotSystem-Lite. If not, see <http://www.gnu.org/licenses/>.  //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -29,90 +29,98 @@
 #define DOFS_NUMBER 2
 #define DELAY_SETPOINTS_NUMBER 5
 
-const double WAVE_IMPEDANCE = 1.0;
+const double MIN_WAVE_IMPEDANCE = 1.0;
 
-typedef struct _ControllerData
+const char* DOF_NAMES[ DOFS_NUMBER ] = { "angle1", "angle2" };
+
+static struct
 {
   double setpointsTable[ DOFS_NUMBER ][ DELAY_SETPOINTS_NUMBER ];
+  double lastInputWavesList[ DOFS_NUMBER ];
+  double lastFilteredWavesList[ DOFS_NUMBER ];
   size_t setpointCount;
-  enum RobotState controlState;
+  enum RobotState state;
   double elapsedTime;
   Log samplingLog;
 }
-ControlData;
-
-const char* DOF_NAMES[ DOFS_NUMBER ] = { "angle1", "angle2" };
+controlData;
 
 
 DECLARE_MODULE_INTERFACE( ROBOT_CONTROL_INTERFACE );
 
 
-RobotController InitController( const char* configurationString )
+bool InitController( const char* configurationString )
 {
-  ControlData* newController = (ControlData*) malloc( sizeof(ControlData) );
-  memset( newController, 0, sizeof(ControlData) );
+  memset( &controlData, 0, sizeof(controlData) );
   
   Log_SetDirectory( "" );
-  newController->samplingLog = Log_Init( "motor_sampling", 8 );
+  controlData.samplingLog = Log_Init( "motor_sampling", 8 );
   
-  newController->elapsedTime = 0.0;
+  controlData.elapsedTime = 0.0;
   
-  newController->controlState = ROBOT_PASSIVE;
+  controlData.state = ROBOT_PASSIVE;
   
-  return newController;
+  return true;
 }
 
-void EndController( RobotController ref_controller )
+void EndController()
 {
-  if( ref_controller == NULL ) return;
-  
-  ControlData* controller = (ControlData*) ref_controller;
-    
-  Log_End( controller->samplingLog );
-    
-  free( ref_controller );
+  Log_End( controlData.samplingLog );
 }
 
-size_t GetJointsNumber( RobotController controller )
+size_t GetJointsNumber()
 {
   return DOFS_NUMBER;
 }
 
-const char** GetJointNamesList( RobotController ref_controller )
+const char** GetJointNamesList()
 {
   return (const char**) DOF_NAMES;
 }
 
-size_t GetAxesNumber( RobotController ref_controller )
+size_t GetAxesNumber()
 {
   return DOFS_NUMBER;
 }
 
-const char** GetAxisNamesList( RobotController ref_controller )
+const char** GetAxisNamesList()
 {
   return (const char**) DOF_NAMES;
 }
 
-void SetControlState( RobotController ref_controller, enum RobotState newControlState )
+void SetControlState( enum RobotState newControlState )
 {
-  if( ref_controller == NULL ) return;
-  ControlData* controller = (ControlData*) ref_controller;
-  
   fprintf( stderr, "Setting robot control phase: %x\n", newControlState );
   
-  if( newControlState == ROBOT_PREPROCESSING ) controller->elapsedTime = 0.0;
+  if( newControlState == ROBOT_PREPROCESSING ) controlData.elapsedTime = 0.0;
   
-  controller->controlState = newControlState;
+  controlData.state = newControlState;
+}
+
+double FilterWave( double inputWave, double* ref_lastInputWave, double* ref_lastFilteredWave, double filterStrength, double delayTimeDelta )
+{
+  delayTimeDelta = delayTimeDelta * filterStrength / 100.0;
+  double lastInputWave = (*ref_lastInputWave);
+  double lastFilteredWave = (*ref_lastFilteredWave);
+	double filteredWave = ( ( 2 - delayTimeDelta ) * lastFilteredWave + delayTimeDelta * ( inputWave + lastInputWave ) ) / ( 2 + delayTimeDelta );
+	(*ref_lastInputWave) = inputWave;
+  (*ref_lastFilteredWave) = filteredWave;
+  return filteredWave;
 }
 
 double ProcessWave( double inputWave, RobotVariables* ref_jointMeasures, RobotVariables* ref_axisSetpoints, double timeDelta )
 {
+  double waveImpedance = ref_axisSetpoints->damping;
+  
   double outputForce = -ref_jointMeasures->force;
   ref_axisSetpoints->position += ref_axisSetpoints->velocity * timeDelta / 2.0;
-  ref_axisSetpoints->velocity = ( sqrt( 2.0 * WAVE_IMPEDANCE ) * inputWave - outputForce ) / WAVE_IMPEDANCE;
+  ref_axisSetpoints->velocity = ( sqrt( 2.0 * waveImpedance ) * inputWave - outputForce ) / waveImpedance;
   ref_axisSetpoints->position += ref_axisSetpoints->velocity * timeDelta / 2.0;
-  ref_axisSetpoints->stiffness = 0.02;
-  double outputWave = ( WAVE_IMPEDANCE * ref_axisSetpoints->velocity - outputForce ) / sqrt( 2.0 * WAVE_IMPEDANCE );
+  //ref_axisSetpoints->position *= ref_axisSetpoints->stiffness / 100.0;
+  
+  double outputWave = ( waveImpedance * ref_axisSetpoints->velocity - outputForce ) / sqrt( 2.0 * waveImpedance );
+  
+  fprintf( stderr, "ui=%.5f, fo=%.5f, vi=%.5f, uo=%.5f, po=%.3f\n", inputWave, outputForce, ref_axisSetpoints->velocity, outputWave, ref_axisSetpoints->position );
   
   return outputWave;
 }
@@ -140,33 +148,39 @@ void ControlJoint( RobotVariables* ref_jointMeasures, RobotVariables* ref_axisMe
   double dampingForce = ref_jointSetpoints->damping * ref_jointMeasures->velocity;
   ref_jointSetpoints->force += controlForce - dampingForce;
   
-  fprintf( stderr, "position=%.5f, setpoint=%.5f, control force=%.5f\n", ref_jointMeasures->position, ref_jointSetpoints->position, ref_jointSetpoints->force );
+  //fprintf( stderr, "position=%.5f, setpoint=%.5f, control force=%.5f\n", ref_jointMeasures->position, ref_jointSetpoints->position, ref_jointSetpoints->force );
 }
 
-void RunControlStep( RobotController ref_controller, RobotVariables** jointMeasuresList, RobotVariables** axisMeasuresList, 
-                                                     RobotVariables** jointSetpointsList, RobotVariables** axisSetpointsList, double timeDelta )
+void RunControlStep( RobotVariables** jointMeasuresList, RobotVariables** axisMeasuresList, RobotVariables** jointSetpointsList, RobotVariables** axisSetpointsList, double timeDelta )
 {
-  if( ref_controller == NULL ) return;
-  ControlData* controller = (ControlData*) ref_controller;
+  size_t currentSetpointIndex = controlData.setpointCount % DELAY_SETPOINTS_NUMBER;
+  //double setpoint_0 = controlData.setpointsTable[ 0 ][ currentSetpointIndex ];
+  double setpoint_0 = FilterWave( controlData.setpointsTable[ 0 ][ currentSetpointIndex ], 
+                                  &(controlData.lastInputWavesList[ 0 ]), &(controlData.lastFilteredWavesList[ 0 ]),
+                                  axisSetpointsList[ 0 ]->stiffness, timeDelta * DELAY_SETPOINTS_NUMBER );
+  //double setpoint_1 = controlData.setpointsTable[ 1 ][ currentSetpointIndex ];
+  double setpoint_1 = FilterWave( controlData.setpointsTable[ 1 ][ currentSetpointIndex ], 
+                                  &(controlData.lastInputWavesList[ 1 ]), &(controlData.lastFilteredWavesList[ 1 ]),
+                                  axisSetpointsList[ 1 ]->stiffness, timeDelta * DELAY_SETPOINTS_NUMBER );
   
-  size_t currentSetpointIndex = controller->setpointCount % DELAY_SETPOINTS_NUMBER;
+  if( axisSetpointsList[ 0 ]->damping < MIN_WAVE_IMPEDANCE ) axisSetpointsList[ 0 ]->damping = MIN_WAVE_IMPEDANCE;
+  axisSetpointsList[ 1 ]->stiffness = axisSetpointsList[ 0 ]->stiffness;
+  axisSetpointsList[ 1 ]->damping = axisSetpointsList[ 0 ]->damping;
   
-  controller->setpointsTable[ 1 ][ currentSetpointIndex ] = ProcessWave( controller->setpointsTable[ 0 ][ currentSetpointIndex ], 
-                                                                         jointMeasuresList[ 0 ], axisSetpointsList[ 0 ], timeDelta );
+  controlData.setpointsTable[ 1 ][ currentSetpointIndex ] = ProcessWave( setpoint_0, jointMeasuresList[ 0 ], axisSetpointsList[ 0 ], timeDelta );
   ControlJoint( jointMeasuresList[ 0 ], axisMeasuresList[ 0 ], jointSetpointsList[ 0 ], axisSetpointsList[ 0 ], timeDelta );
   
-  //if( controller->controlState == ROBOT_PREPROCESSING )
+  //if( controlData.state == ROBOT_PREPROCESSING )
   //{
-  //  Log_EnterNewLine( controller->samplingLog, controller->elapsedTime );
-  //  Log_RegisterValues( controller->samplingLog, 4, jointMeasuresList[ 0 ]->force, jointMeasuresList[ 0 ]->position, jointMeasuresList[ 0 ]->velocity, jointMeasuresList[ 0 ]->acceleration );
+  //  Log_EnterNewLine( controlData.samplingLog, controlData.elapsedTime );
+  //  Log_RegisterValues( controlData.samplingLog, 4, jointMeasuresList[ 0 ]->force, jointMeasuresList[ 0 ]->position, jointMeasuresList[ 0 ]->velocity, jointMeasuresList[ 0 ]->acceleration );
   //}
   
-  controller->setpointsTable[ 0 ][ currentSetpointIndex ] = ProcessWave( controller->setpointsTable[ 1 ][ currentSetpointIndex ], 
-                                                                         jointMeasuresList[ 1 ], axisSetpointsList[ 1 ], timeDelta );
+  controlData.setpointsTable[ 0 ][ currentSetpointIndex ] = ProcessWave( setpoint_1, jointMeasuresList[ 1 ], axisSetpointsList[ 1 ], timeDelta );
   ControlJoint( jointMeasuresList[ 1 ], axisMeasuresList[ 1 ], jointSetpointsList[ 1 ], axisSetpointsList[ 1 ], timeDelta );
   
-  controller->setpointCount++;
-  controller->elapsedTime += timeDelta;
+  controlData.setpointCount++;
+  controlData.elapsedTime += timeDelta;
   
-  //if( controller->controlState != ROBOT_OPERATION && controller->controlState != ROBOT_PREPROCESSING ) jointSetpointsList[ 0 ]->force = jointSetpointsList[ 1 ]->force = 0.0;
+  //if( controlData.state != ROBOT_OPERATION && controlData.state != ROBOT_PREPROCESSING ) jointSetpointsList[ 0 ]->force = jointSetpointsList[ 1 ]->force = 0.0;
 }

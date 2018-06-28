@@ -49,12 +49,12 @@
 #include <unistd.h>
 #endif
 
-const unsigned long NETWORK_UPDATE_MIN_INTERVAL_MS = 10;
+const unsigned long NETWORK_UPDATE_MIN_INTERVAL_MS = 20;
 static unsigned long lastUpdateTimeMS = 0;
 static unsigned long lastNetworkUpdateElapsedTimeMS = NETWORK_UPDATE_MIN_INTERVAL_MS;
 
 
-Robot robotController = NULL;
+bool robotInitialized = false;
 size_t axesNumber = 0, jointsNumber = 0;
 
 DataHandle robotInfo = NULL;
@@ -132,7 +132,7 @@ void System_End()
 
   DataIO_UnloadData( robotInfo );
 
-  Robot_End( robotController );
+  Robot_End();
   
   DEBUG_PRINT( "Robot Control ended at time %g", Time_GetExecSeconds() );
 }
@@ -156,13 +156,13 @@ void UpdateEvents()
       messageOut[ 0 ] = ROBOT_REP_GOT_INFO;
       RefreshRobotsInfo( NULL, (char*) ( messageOut + 1 ) );
     }
-    else if( robotCommand == ROBOT_REQ_DISABLE ) messageOut[ 0 ] = Robot_Disable( robotController ) ? ROBOT_REP_DISABLED : 0x00;
-    else if( robotCommand == ROBOT_REQ_ENABLE ) messageOut[ 0 ] = Robot_Enable( robotController ) ? ROBOT_REP_ENABLED : 0x00;
-    else if( robotCommand == ROBOT_REQ_PASSIVATE ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_PASSIVE ) ? ROBOT_REP_PASSIVE : 0x00;
-    else if( robotCommand == ROBOT_REQ_OFFSET ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_OFFSET ) ? ROBOT_REP_OFFSETTING : 0x00;
-    else if( robotCommand == ROBOT_REQ_CALIBRATE ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_CALIBRATION ) ? ROBOT_REP_CALIBRATING : 0x00;
-    else if( robotCommand == ROBOT_REQ_PREPROCESS ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_PREPROCESSING ) ? ROBOT_REP_PREPROCESSING : 0x00;
-    else if( robotCommand == ROBOT_REQ_OPERATE ) messageOut[ 0 ] = Robot_SetControlState( robotController, ROBOT_OPERATION ) ? ROBOT_REP_OPERATING : 0x00;
+    else if( robotCommand == ROBOT_REQ_DISABLE ) messageOut[ 0 ] = Robot_Disable() ? ROBOT_REP_DISABLED : 0x00;
+    else if( robotCommand == ROBOT_REQ_ENABLE ) messageOut[ 0 ] = Robot_Enable() ? ROBOT_REP_ENABLED : 0x00;
+    else if( robotCommand == ROBOT_REQ_PASSIVATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_PASSIVE ) ? ROBOT_REP_PASSIVE : 0x00;
+    else if( robotCommand == ROBOT_REQ_OFFSET ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_OFFSET ) ? ROBOT_REP_OFFSETTING : 0x00;
+    else if( robotCommand == ROBOT_REQ_CALIBRATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_CALIBRATION ) ? ROBOT_REP_CALIBRATING : 0x00;
+    else if( robotCommand == ROBOT_REQ_PREPROCESS ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_PREPROCESSING ) ? ROBOT_REP_PREPROCESSING : 0x00;
+    else if( robotCommand == ROBOT_REQ_OPERATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_OPERATION ) ? ROBOT_REP_OPERATING : 0x00;
     else if( robotCommand == ROBOT_REQ_SET_USER )
     {
       char* userName = (char*) messageIn;
@@ -202,7 +202,7 @@ bool UpdateAxes( unsigned long lastNetworkUpdateElapsedTimeMS )
                                        .inertia = axisSetpointsList[ DOF_INERTIA ],
                                        .stiffness = axisSetpointsList[ DOF_STIFFNESS ], .damping = axisSetpointsList[ DOF_DAMPING ] };
       //if( axisIndex == 0 ) DEBUG_PRINT( "setpoints: p: %.3f - v: %.3f", axisSetpoints.position, axisSetpoints.velocity );
-      Robot_SetAxisSetpoints( robotController, axisIndex, &axisSetpoints );
+      Robot_SetAxisSetpoints( axisIndex, &axisSetpoints );
 
       messageIn += DOF_DATA_BLOCK_SIZE;
     }
@@ -213,7 +213,7 @@ bool UpdateAxes( unsigned long lastNetworkUpdateElapsedTimeMS )
   for( size_t axisIndex = 0; axisIndex < axesNumber; axisIndex++ )
   {    
     RobotVariables axisMeasures = { 0 };
-    if( Robot_GetAxisMeasures( robotController, axisIndex, &axisMeasures ) )
+    if( Robot_GetAxisMeasures( axisIndex, &axisMeasures ) )
     {
       message[ 0 ]++;
       message[ axisdataOffset++ ] = (Byte) axisIndex;
@@ -258,7 +258,7 @@ bool UpdateJoints( unsigned long lastNetworkUpdateElapsedTimeMS )
     float* jointMeasuresList = (float*) ( messageOut + jointDataOffset );
     
     RobotVariables jointMeasures = { 0 };
-    if( Robot_GetJointMeasures( robotController, jointIndex, &jointMeasures ) )
+    if( Robot_GetJointMeasures( jointIndex, &jointMeasures ) )
     {
       jointMeasuresList[ DOF_POSITION ] = (float) jointMeasures.position;
       jointMeasuresList[ DOF_VELOCITY ] = (float) jointMeasures.velocity;
@@ -299,28 +299,28 @@ void RefreshRobotsInfo( const char* robotName, char* sharedControlsString )
 { 
   if( robotName != NULL )
   {     
-    if( robotController != NULL ) Robot_End( robotController );
-    robotController = Robot_Init( robotName );
-    if( robotController != NULL )
+    if( robotInitialized ) Robot_End();
+    
+    if( (robotInitialized = Robot_Init( robotName )) )
     {
       DataIO_SetStringValue( robotInfo, "id", robotName );   
       
       DataHandle sharedJointsList = DataIO_AddList( robotInfo, "joints" );
       DataHandle sharedAxesList = DataIO_AddList( robotInfo, "axes" );
       
-      axesNumber = Robot_GetAxesNumber( robotController ); 
+      axesNumber = Robot_GetAxesNumber(); 
 
       for( size_t axisIndex = 0; axisIndex < axesNumber; axisIndex++ )
       {
-        const char* axisName = Robot_GetAxisName( robotController, axisIndex );
+        const char* axisName = Robot_GetAxisName( axisIndex );
         if( axisName != NULL ) DataIO_SetStringValue( sharedAxesList, NULL, axisName );
       }
       
-      jointsNumber = Robot_GetJointsNumber( robotController );
+      jointsNumber = Robot_GetJointsNumber();
 
       for( size_t jointIndex = 0; jointIndex < jointsNumber; jointIndex++ )
       {
-        const char* jointName = Robot_GetJointName( robotController, jointIndex );
+        const char* jointName = Robot_GetJointName( jointIndex );
         if( jointName != NULL ) DataIO_SetStringValue( sharedJointsList, NULL, jointName );
       }
     }

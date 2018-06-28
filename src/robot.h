@@ -54,76 +54,62 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-typedef struct _RobotData RobotData;      ///< Single robot internal data structure    
-typedef RobotData* Robot;                 ///< Opaque reference to robot internal data structure
-
                   
 /// @brief Creates and initializes robot data structure based on given information                                              
 /// @param[in] configPathName path to robot configuration, as explained at @ref robot_config
-/// @return identifier to newly created and initialized robot
-Robot Robot_Init( const char* configPathName );
+/// @return true on successful initialization, false otherwise
+bool Robot_Init( const char* configPathName );
 
 /// @brief Deallocates internal data of given robot                        
-/// @param[in] robot robot identifier
-void Robot_End( Robot robot );
+void Robot_End();
 
 /// @brief Initializes (if not running) update/operation thread for the given robot
-/// @param[in] robot robot identifier
 /// @return true if control state was changed, false otherwise
-bool Robot_Enable( Robot robot );
+bool Robot_Enable();
                                                                  
 /// @brief Terminates (if running) update/operation thread for the given robot
-/// @param[in] robot robot identifier
 /// @return true if control state was changed, false otherwise
-bool Robot_Disable( Robot robot );
+bool Robot_Disable();
 
 /// @brief Change control state of given robot actuators and underlying (plugin) control implementation           
-/// @param[in] robot robot identifier
 /// @param[in] controlState new control state to be set
 /// @return true if control state was changed, false otherwise
-bool Robot_SetControlState( Robot robot, enum RobotState controlState );
+bool Robot_SetControlState( enum RobotState controlState );
 
 /// @brief Calls underlying (plugin) implementation to get string identifier for specified joint in given robot                
-/// @param[in] robot robot identifier
 /// @param[in] jointIndex index of robot joint (in the order listed on robot's configuration)
 /// @return pointer to string of robot joint name (NULL on errors or no joint of specified index)
-const char* Robot_GetJointName( Robot robot, size_t jointIndex );
+const char* Robot_GetJointName( size_t jointIndex );
 
 /// @brief Calls underlying (plugin) implementation to get string identifier for specified axis in given robot               
-/// @param[in] robot robot identifier
 /// @param[in] axisIndex index of robot axis (in the order listed on robot's configuration)
 /// @return pointer to string of robot axis name (NULL on errors or no axis of specified index)
-const char* Robot_GetAxisName( Robot robot, size_t axisIndex );
+const char* Robot_GetAxisName( size_t axisIndex );
 
 /// @brief Gets current value of specified joint measurements (see @ref joint_axis_rationale)          
-/// @param[in] robot robot identifier
 /// @param[in] jointIndex index of robot axis (in the order listed on robot's configuration)
 /// @param[out] ref_measures pointer/reference to variables structure where values will be stored
 /// @return true on if new values were acquired, false otherwise
-bool Robot_GetJointMeasures( Robot robot, size_t jointIndex, RobotVariables* ref_measures );
+bool Robot_GetJointMeasures( size_t jointIndex, RobotVariables* ref_measures );
 
 /// @brief Gets current value of specified axis measurements (see @ref joint_axis_rationale)          
-/// @param[in] robot robot identifier
 /// @param[in] axisIndex index of robot axis (in the order listed on robot's configuration)
 /// @param[out] ref_measures pointer/reference to variables structure where values will be stored
 /// @return true on if new values were acquired, false otherwise
-bool Robot_GetAxisMeasures( Robot robot, size_t axisIndex, RobotVariables* ref_measures );
+bool Robot_GetAxisMeasures( size_t axisIndex, RobotVariables* ref_measures );
 
 /// @brief Sets value of specified setpoint for given axis       
-/// @param[in] robot robot identifier
 /// @param[in] axisIndex index of robot axis (in the order listed on robot's configuration)
 /// @param[in] ref_setpoints pointer/reference to variables structure with the new setpoints
-void Robot_SetAxisSetpoints( Robot robot, size_t axisIndex, RobotVariables* ref_setpoints );
+void Robot_SetAxisSetpoints( size_t axisIndex, RobotVariables* ref_setpoints );
 
 /// @brief Calls underlying (plugin) implementation to get number of joint degrees-of-freedom for given robot        
-/// @param[in] robot robot identifier
 /// @return number of joint degrees-of-freedom
-size_t Robot_GetJointsNumber( Robot robot );
+size_t Robot_GetJointsNumber();
 
 /// @brief Calls underlying (plugin) implementation to get number of axis degrees-of-freedom for given robot              
-/// @param[in] robot robot identifier
 /// @return number of axis degrees-of-freedom
-size_t Robot_GetAxesNumber( Robot robot );
+size_t Robot_GetAxesNumber();
 
 
 #endif // ROBOT_H 
