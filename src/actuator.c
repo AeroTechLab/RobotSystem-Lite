@@ -42,7 +42,6 @@ struct _ActuatorData
 {
   enum ActuatorState controlState;
   enum ControlVariable controlMode;
-  ActuatorVariables offset;
   Motor motor;
   Sensor* sensorsList;
   size_t sensorsNumber;
@@ -171,12 +170,16 @@ bool Actuator_SetControlState( Actuator actuator, enum ActuatorState newState )
   
   if( newState >= ACTUATOR_STATES_NUMBER ) return false;
 
+  DEBUG_PRINT( "setting state %d on actuator %p", newState, actuator );
+  
   enum SensorState sensorsState = SENSOR_STATE_MEASUREMENT;
   if( newState == ACTUATOR_OFFSET ) sensorsState = SENSOR_STATE_OFFSET;
   else if( newState == ACTUATOR_CALIBRATION ) sensorsState = SENSOR_STATE_CALIBRATION;
   
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
     Sensor_SetState( actuator->sensorsList[ sensorIndex ], sensorsState );
+  
+  Motor_SetOffset( actuator->motor, ( newState == ACTUATOR_OFFSET ) );
   
   actuator->controlState = newState;
   
@@ -217,17 +220,6 @@ bool Actuator_GetMeasures( Actuator actuator, ActuatorVariables* ref_measures, d
   
   //DEBUG_PRINT( "p=%.5f, v=%.5f, f=%.5f", ref_measures->position, ref_measures->velocity, ref_measures->force );
   
-  if( actuator->controlState == ACTUATOR_OFFSET ) 
-  {
-    actuator->offset = *ref_measures;
-    return false;
-  }
-  
-  ref_measures->position -= actuator->offset.position;
-  ref_measures->velocity -= actuator->offset.velocity;
-  ref_measures->acceleration -= actuator->offset.acceleration;
-  ref_measures->force -= actuator->offset.force;
-  
   Log_EnterNewLine( actuator->log, Time_GetExecSeconds() );
   Log_RegisterList( actuator->log, 4, (double*) ref_measures );
   
@@ -239,7 +231,6 @@ double Actuator_SetSetpoints( Actuator actuator, ActuatorVariables* ref_setpoint
   if( actuator == NULL ) return 0.0;
   
   double motorSetpoint = ( (double*) ref_setpoints )[ actuator->controlMode ];
-  motorSetpoint += ( (double*) &(actuator->offset) )[ actuator->controlMode ];
   
   // If the motor is being actually controlled, write its control output
   if( actuator->controlState != ACTUATOR_OFFSET ) 

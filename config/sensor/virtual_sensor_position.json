@@ -1,12 +1,11 @@
 {
   "input_interface": {
     "type": "DummyIO",
-    "id": "NULL",
+    "config": "NULL",
     "channel": 0
   },
   "input_gain": {
     "multiplier": 1,
     "divisor": 1
-  },
-  "log_data": false
+  }
 }

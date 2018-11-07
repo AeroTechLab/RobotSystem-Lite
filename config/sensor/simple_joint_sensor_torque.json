@@ -9,8 +9,8 @@
     "divisor": 2048
   },
   "reference": "simple_joint_sensor_motor",
-  "conversion_curve": {
-    "scale_factor": -104.0
+  "differential_gain": {
+    "multiplier": -104.0
   },
   "signal_processing": {
     "max_frequency": 0.25

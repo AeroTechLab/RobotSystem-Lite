@@ -73,7 +73,7 @@ Sensor Sensor_Init( DataHandle configuration )
   LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newSensor, &loadSuccess );
   if( loadSuccess )
   {
-    PRINT_PLUGIN_FUNCTIONS( SIGNAL_IO_INTERFACE, newSensor );
+    //PRINT_PLUGIN_FUNCTIONS( SIGNAL_IO_INTERFACE, newSensor );
     newSensor->deviceID = newSensor->InitDevice( DataIO_GetStringValue( configuration, "", KEY_INPUT_INTERFACE "." KEY_CONFIG ) );
     if( newSensor->deviceID != SIGNAL_IO_DEVICE_INVALID_ID )
     {
@@ -157,8 +157,9 @@ double Sensor_Update( Sensor sensor )
   
   double sensorMeasure = sensor->differentialGain * ( sensorOutput - referenceOutput );
   
-  Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
-  Log_RegisterValues( sensor->log, 3, sensorOutput, referenceOutput, sensorMeasure );
+  //Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
+  //Log_RegisterValues( sensor->log, 3, sensorOutput, referenceOutput, sensorMeasure );
+  //if( sensor->reference != NULL ) fprintf( stderr, "out=%+.6f, in=%+.6f, res=%+.6f\r", sensorOutput, referenceOutput, sensorMeasure );   
   
   return sensorMeasure;
 }
@@ -182,10 +183,21 @@ void Sensor_SetState( Sensor sensor, enum SensorState newState )
 {
   if( sensor == NULL ) return;
   
+  double measurement = Sensor_Update( sensor->reference );
+  
   enum SigProcState newProcessingState = SIG_PROC_STATE_MEASUREMENT;
   if( newState == SENSOR_STATE_OFFSET ) newProcessingState = SIG_PROC_STATE_OFFSET;
   else if( newState == SENSOR_STATE_CALIBRATION ) newProcessingState = SIG_PROC_STATE_CALIBRATION;
   
   SignalProcessor_SetState( sensor->processor, newProcessingState );
   Sensor_SetState( sensor->reference, newState );
+  
+  DEBUG_PRINT( "input measurement=%.6f, offset=%.6f", measurement, SignalProcessor_GetOffset( sensor->processor ) );
 }
+
+//double Sensor_GetOffset( Sensor sensor )
+//{
+//  if( sensor == NULL ) return 0.0;
+//  
+//  return SignalProcessor_GetOffset( sensor->processor );
+//}

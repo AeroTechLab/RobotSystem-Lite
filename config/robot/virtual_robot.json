@@ -1,6 +1,6 @@
 {
   "controller": {
-    "type": "SimpleJoint",
+    "type": "HDJointControl",
     "config": ""
   },
   "actuators": [ "virtual_actuator" ]

@@ -24,11 +24,9 @@
 
 #include <math.h>
 
-#define DOFS_NUMBER 1
+#define DOFS_NUMBER 3
 
-const char* DOF_NAMES[ DOFS_NUMBER ] = { "angle" };
-
-double proportionalGain = 500.0;
+const char* DOF_NAMES[ DOFS_NUMBER ] = { "X", "Y", "Z" };
 
 DECLARE_MODULE_INTERFACE( ROBOT_CONTROL_INTERFACE );
 
@@ -65,29 +63,24 @@ const char** GetAxisNamesList()
 void SetControlState( enum RobotState newControlState )
 {
   fprintf( stderr, "Setting robot control phase: %x\n", newControlState );
-  
-  proportionalGain = ( newControlState == ROBOT_OPERATION ) ? 500.0 : 0.0; 
 }
 
 void RunControlStep( RobotVariables** jointMeasuresTable, RobotVariables** axisMeasuresTable, RobotVariables** jointSetpointsTable, RobotVariables** axisSetpointsTable, double timeDelta )
 {
-  axisMeasuresTable[ 0 ]->position = jointMeasuresTable[ 0 ]->position;
-  axisMeasuresTable[ 0 ]->velocity = jointMeasuresTable[ 0 ]->velocity;
-  axisMeasuresTable[ 0 ]->acceleration = jointMeasuresTable[ 0 ]->acceleration;
-  axisMeasuresTable[ 0 ]->force = jointMeasuresTable[ 0 ]->force;
-  axisMeasuresTable[ 0 ]->stiffness = jointMeasuresTable[ 0 ]->stiffness;
-  axisMeasuresTable[ 0 ]->damping = jointMeasuresTable[ 0 ]->damping;
+  for( size_t dofIndex = 0; dofIndex < DOFS_NUMBER; dofIndex++ )
+  {
+    axisMeasuresTable[ dofIndex ]->position = jointMeasuresTable[ dofIndex ]->position;
+    axisMeasuresTable[ dofIndex ]->velocity = jointMeasuresTable[ dofIndex ]->velocity;
+    axisMeasuresTable[ dofIndex ]->acceleration = jointMeasuresTable[ dofIndex ]->acceleration;
+    axisMeasuresTable[ dofIndex ]->force = jointMeasuresTable[ dofIndex ]->force;
+    axisMeasuresTable[ dofIndex ]->stiffness = jointMeasuresTable[ dofIndex ]->stiffness;
+    axisMeasuresTable[ dofIndex ]->damping = jointMeasuresTable[ dofIndex ]->damping;
   
-  jointSetpointsTable[ 0 ]->position = axisSetpointsTable[ 0 ]->position;
-  jointSetpointsTable[ 0 ]->velocity = axisSetpointsTable[ 0 ]->velocity;
-  jointSetpointsTable[ 0 ]->acceleration = axisSetpointsTable[ 0 ]->acceleration;
-  jointSetpointsTable[ 0 ]->force = axisSetpointsTable[ 0 ]->force;
-  jointSetpointsTable[ 0 ]->stiffness = axisSetpointsTable[ 0 ]->stiffness;
-  jointSetpointsTable[ 0 ]->damping = axisSetpointsTable[ 0 ]->damping;
-  
-  jointSetpointsTable[ 0 ]->velocity = proportionalGain * ( jointSetpointsTable[ 0 ]->position - jointMeasuresTable[ 0 ]->position );
-  
-  //double stiffness = jointSetpointsTable[ 0 ]->stiffness; 
-  //double positionError = jointSetpointsTable[ 0 ]->position - jointMeasuresTable[ 0 ]->position;
-  //jointSetpointsTable[ 0 ]->force = stiffness * positionError;
+    jointSetpointsTable[ dofIndex ]->position = axisSetpointsTable[ dofIndex ]->position;
+    jointSetpointsTable[ dofIndex ]->velocity = axisSetpointsTable[ dofIndex ]->velocity;
+    jointSetpointsTable[ dofIndex ]->acceleration = axisSetpointsTable[ dofIndex ]->acceleration;
+    jointSetpointsTable[ dofIndex ]->force = axisSetpointsTable[ dofIndex ]->force;
+    jointSetpointsTable[ dofIndex ]->stiffness = axisSetpointsTable[ dofIndex ]->stiffness;
+    jointSetpointsTable[ dofIndex ]->damping = axisSetpointsTable[ dofIndex ]->damping;
+  }
 }

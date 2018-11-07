@@ -22,6 +22,8 @@
 
 #include "signal_io/signal_io.h"
 
+#include <stdlib.h>
+
 DECLARE_MODULE_INTERFACE( SIGNAL_IO_INTERFACE );
 
 int InitDevice( const char* taskConfig )
@@ -41,6 +43,8 @@ size_t GetMaxInputSamplesNumber( int taskID )
 
 size_t Read( int taskID, unsigned int channel, double* ref_value )
 {
+  *ref_value = ( rand() % 1001 ) / 1000.0 - 0.5;
+  
   return 1;
 }
 

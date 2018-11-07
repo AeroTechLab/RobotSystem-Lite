@@ -22,6 +22,8 @@
 
 #include "motor.h"
 
+#include "sensor.h"
+
 #include "signal_io/signal_io.h"
 #include "debug/data_logging.h"
       
@@ -38,7 +40,9 @@ struct _MotorData
   int interfaceID;
   unsigned int outputChannel;
   double outputGain;
-  bool isEnabled;
+  Sensor reference;
+  double outputOffset;
+  bool isOffsetting;
   Log log;
 };
 
@@ -78,7 +82,11 @@ Motor Motor_Init( DataHandle configuration )
   newMotor->outputGain = DataIO_GetNumericValue( configuration, 1.0, KEY_OUTPUT_GAIN "." KEY_MULTIPLIER );
   newMotor->outputGain /= DataIO_GetNumericValue( configuration, 1.0, KEY_OUTPUT_GAIN "." KEY_DIVISOR );
   
-  newMotor->isEnabled = false;
+  DataHandle referenceConfiguration = DataIO_GetSubData( configuration, KEY_REFERENCE );
+  newMotor->reference = Sensor_Init( referenceConfiguration );
+  if( referenceConfiguration != NULL ) DataIO_UnloadData( referenceConfiguration );
+  
+  newMotor->isOffsetting = false;
   
   if( DataIO_HasKey( configuration, KEY_LOG ) )
   {
@@ -139,13 +147,28 @@ bool Motor_HasError( Motor motor )
   return motor->HasError( motor->interfaceID );
 }
 
+void Motor_SetOffset( Motor motor, bool enabled )
+{
+  if( motor == NULL ) return;
+  
+  motor->outputOffset = 0.0;
+  if( motor->isOffsetting ) motor->outputOffset = Sensor_Update( motor->reference );
+  motor->isOffsetting = enabled;
+  
+  Sensor_SetState( motor->reference, enabled ? SENSOR_STATE_OFFSET : SENSOR_STATE_MEASUREMENT );
+  
+  DEBUG_PRINT( "output gain=%.6f. offset=%.6f", motor->outputGain, motor->outputOffset );
+  
+  Motor_WriteControl( motor, 0.0 );
+}
+
 void Motor_WriteControl( Motor motor, double setpoint )
 {
   if( motor == NULL ) return;
   
   Log_RegisterValues( motor->log, 2, setpoint, setpoint * motor->outputGain );
   
-  setpoint = setpoint * motor->outputGain;
+  setpoint = ( setpoint + motor->outputOffset ) * motor->outputGain;
   
-  motor->Write( motor->interfaceID, motor->outputChannel, setpoint );
+  if( ! motor->isOffsetting ) motor->Write( motor->interfaceID, motor->outputChannel, setpoint );
 }

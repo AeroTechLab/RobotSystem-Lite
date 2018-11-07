@@ -88,6 +88,11 @@ bool Motor_HasError( Motor motor );
 /// @param[in] motor reference to motor
 void Motor_Reset( Motor motor );
 
+/// @brief Enables/disables motor setpoint offset acquisition                
+/// @param[in] motor reference to motor
+/// @param[in] enabled true to start offset aquisition, false otherwise
+void Motor_SetOffset( Motor motor, bool enabled );
+
 /// @brief Writes specified value to given motor ouput device                
 /// @param[in] motor reference to motor
 /// @param[in] setpoint value to be written/generated
