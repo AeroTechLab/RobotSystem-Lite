@@ -54,10 +54,10 @@ From top to bottom levels, the control application is expected to have/define:
     - A list of generic actuators list, each one, in turn, complemented by:
         - An [actuator configuration](https://labdin.github.io/RobotSystem-Lite/actuator_config.html) JSON file (inside **<root_dir>/config/actuators/**), defining the lower-level control implementation, sensors and motor configuration and their related control variables (position, force, etc.)
         - A list of generic sensors, each one, in turn, complemented by:
-            - [Sensor configuration](docs/sensor_config.html) JSON file (inside **<root_dir>/config/sensors/**), defining the hardware/virtual input device/channel, reference sensor (if needed) and signal processing/conversion options
+            - [Sensor configuration](https://labdin.github.io/RobotSystem-Lite/sensor_config.html) JSON file (inside **<root_dir>/config/sensors/**), defining the hardware/virtual input device/channel, reference sensor (if needed) and signal processing/conversion options
             - The signal input code itself, implemented as a plug-in library (inside **<root_dir>/plugins/signal_io/**), according to [Signal I/O Interface](https://github.com/LabDin/Signal-IO-Interface) description
         - Generic actuation motor, complemented by:
-            - [Motor configuration](docs/motor_config.html) JSON file (inside **<root_dir>/config/motors/**), defining the hardware/virtual output device/channel and signal generation options
+            - [Motor configuration](https://labdin.github.io/RobotSystem-Lite/motor_config.html) JSON file (inside **<root_dir>/config/motors/**), defining the hardware/virtual output device/channel and signal generation options
             - The signal output code itself, implemented as a plug-in library (inside **<root_dir>/plugins/signal_io/**), according to [Signal I/O Interface](https://github.com/LabDin/Signal-IO-Interface) description
 
 With that structure, a multi-level control process can interact with external clients through a single interface (for comprehending the difference between **joints** and **axes**, see [**Robot Control Interface** rationale](https://github.com/LabDin/Robot-Control-Interface#the-jointaxis-rationale)):
