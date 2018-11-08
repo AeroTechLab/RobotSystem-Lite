@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['robot',['Robot',['../robot_8h.html#a8823dc8d8da2fc89ca4885241ddb826c',1,'robot.h']]],
-  ['robotdata',['RobotData',['../robot_8h.html#a7f794cbf3668a01b160a93f2ed690bc5',1,'robot.h']]]
+  ['sensor',['Sensor',['../sensor_8h.html#a31b44f125e6e6a5234a7bdd4b1256e97',1,'sensor.h']]],
+  ['sensordata',['SensorData',['../sensor_8h.html#adaf2adc3465e6ea3d1ba322d602918c9',1,'sensor.h']]]
 ];
