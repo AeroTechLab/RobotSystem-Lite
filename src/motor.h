@@ -42,6 +42,7 @@
 ///     "multiplier": 1.0,            // [o] Value that multiplies the signal value
 ///     "divisor": 1.0                // [o] Value that divides the signal value
 ///   },
+///   "reference": "<sensor_identifier>",       // [o] String identifier (file name) or data object of configuration for motor reference sensor, if any 
 ///   "log": {                      // [o] Set logging of output numeric data over time
 ///     "file": "",                   // [o] Path (without extension), relative to to <log_dir>/motors/, to log file. Default value will set terminal logging
 ///     "precision": 3                // [o] Decimal precision for logged numeric values
