@@ -170,8 +170,6 @@ bool Actuator_SetControlState( Actuator actuator, enum ActuatorState newState )
   
   if( newState >= ACTUATOR_STATES_NUMBER ) return false;
 
-  DEBUG_PRINT( "setting state %d on actuator %p", newState, actuator );
-  
   enum SensorState sensorsState = SENSOR_STATE_MEASUREMENT;
   if( newState == ACTUATOR_OFFSET ) sensorsState = SENSOR_STATE_OFFSET;
   else if( newState == ACTUATOR_CALIBRATION ) sensorsState = SENSOR_STATE_CALIBRATION;

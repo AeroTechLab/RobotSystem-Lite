@@ -191,13 +191,4 @@ void Sensor_SetState( Sensor sensor, enum SensorState newState )
   
   SignalProcessor_SetState( sensor->processor, newProcessingState );
   Sensor_SetState( sensor->reference, newState );
-  
-  DEBUG_PRINT( "input measurement=%.6f, offset=%.6f", measurement, SignalProcessor_GetOffset( sensor->processor ) );
 }
-
-//double Sensor_GetOffset( Sensor sensor )
-//{
-//  if( sensor == NULL ) return 0.0;
-//  
-//  return SignalProcessor_GetOffset( sensor->processor );
-//}

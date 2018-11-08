@@ -157,8 +157,6 @@ void Motor_SetOffset( Motor motor, bool enabled )
   
   Sensor_SetState( motor->reference, enabled ? SENSOR_STATE_OFFSET : SENSOR_STATE_MEASUREMENT );
   
-  DEBUG_PRINT( "output gain=%.6f. offset=%.6f", motor->outputGain, motor->outputOffset );
-  
   Motor_WriteControl( motor, 0.0 );
 }
 
