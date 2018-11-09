@@ -31,7 +31,7 @@
 
 /// Single byte codes used in request/receive messages for robot state/configuration control
 enum RobotControlCode { 
-       /// Request information about current robot, its available [axes and joints](https://github.com/LabDin/Robot-Control-Interface#the-jointaxis-rationale))
+       /// Request information about current robot, its available [axes and joints](https://github.com/EESC-MKGroup/Robot-Control-Interface#the-jointaxis-rationale))
        ROBOT_REQ_GET_INFO = 1,
        /// Reply code for ROBOT_REQ_GET_INFO. Followed, in the same message, by a JSON info string like:
        /// @code
@@ -54,7 +54,7 @@ enum RobotControlCode {
        ROBOT_REP_CALIBRATING = ROBOT_REQ_CALIBRATE,     ///< Confirmation reply to ROBOT_REQ_CALIBRATE
        ROBOT_REQ_PREPROCESS,                            ///< Request setting robot to implementation-specific pre-operation state (passed on to control implementation)
        ROBOT_REP_PREPROCESSING = ROBOT_REQ_PREPROCESS,  ///< Confirmation reply to ROBOT_REQ_PREPROCESS
-       ROBOT_REQ_SET_USER,                              ///< Request setting new user/folder name for [data logging](https://github.com/LabDin/Simple-Data-Logging). Must be followed, in the same message, by a string with the name
+       ROBOT_REQ_SET_USER,                              ///< Request setting new user/folder name for [data logging](https://github.com/EESC-MKGroup/Simple-Data-Logging). Must be followed, in the same message, by a string with the name
        ROBOT_REP_USER_SET = ROBOT_REQ_SET_USER,         ///< Confirmation reply to ROBOT_REQ_SET_USER
        ROBOT_REQ_SET_CONFIG,                            ///< Request setting new @ref robot_config, reloading all parameters. Must be followed, in the same message, by a string with the new @ref robot_config name
        ROBOT_REP_CONFIG_SET = ROBOT_REQ_SET_CONFIG,     ///< Confirmation reply to ROBOT_REQ_SET_CONFIG. Followed by the same JSON string type as in ROBOT_REP_GOT_INFO

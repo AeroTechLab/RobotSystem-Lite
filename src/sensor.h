@@ -26,9 +26,9 @@
 /// Interface for configurable sensor reading and state change. Specific underlying implementation (plug-in) and further configuration are defined as explained in @ref sensor_config
 
 /// @page sensor_config Sensor Configuration
-/// The sensor-level configuration (see [Configuration Levels](https://github.com/LabDin/RobotSystem-Lite#robot-multi-level-configuration) is read using the [data I/O interface](https://labdin.github.io/Data-IO-Interface/data__io_8h.html)
+/// The sensor-level configuration (see [Configuration Levels](https://github.com/EESC-MKGroup/RobotSystem-Lite#robot-multi-level-configuration) is read using the [data I/O interface](https://labdin.github.io/Data-IO-Interface/data__io_8h.html)
 ///
-/// Any configuration file/location path must be provided without its format extension, and relative to [<root_dir>](https://github.com/LabDin/RobotSystem-Lite/blob/master/README.md#running)/config/sensors/
+/// Any configuration file/location path must be provided without its format extension, and relative to [<root_dir>](https://github.com/EESC-MKGroup/RobotSystem-Lite/blob/master/README.md#running)/config/sensors/
 ///
 /// The possible configuration fields and their values are here exemplified for the case of a JSON format configuration (optional parameters are presented with default values and marked with '[o]' in their description):
 /// @code

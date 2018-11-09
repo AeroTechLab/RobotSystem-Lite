@@ -28,9 +28,9 @@
 /// Even if RobotSystem handles one robot at a time, this code supports multiple robots for reusage in different applications.
 
 /// @page robot_config Robot Configuration
-/// The robot-level configuration (see [Configuration Levels](https://github.com/LabDin/RobotSystem-Lite#robot-multi-level-configuration) is read using the [data I/O interface](https://labdin.github.io/Data-IO-Interface/data__io_8h.html). Configuration of listed joint actuators is loaded recursively (as described in @ref actuator_config)
+/// The robot-level configuration (see [Configuration Levels](https://github.com/EESC-MKGroup/RobotSystem-Lite#robot-multi-level-configuration) is read using the [data I/O interface](https://labdin.github.io/Data-IO-Interface/data__io_8h.html). Configuration of listed joint actuators is loaded recursively (as described in @ref actuator_config)
 ///
-/// Any configuration path must be provided without file extension, and relative to and relative to [<root_dir>](https://github.com/LabDin/RobotSystem-Lite/blob/master/README.md#running)/config/robots/
+/// Any configuration path must be provided without file extension, and relative to and relative to [<root_dir>](https://github.com/EESC-MKGroup/RobotSystem-Lite/blob/master/README.md#running)/config/robots/
 ///
 /// The possible configuration fields and their values are here exemplified for the case of current JSON file I/O implementation (optional parameters are presented with default values and marked with '[o]' in their description):
 /// @code

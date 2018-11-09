@@ -159,7 +159,7 @@ double Sensor_Update( Sensor sensor )
   
   //Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
   //Log_RegisterValues( sensor->log, 3, sensorOutput, referenceOutput, sensorMeasure );
-  //if( sensor->reference != NULL ) fprintf( stderr, "out=%+.6f, in=%+.6f, res=%+.6f\r", sensorOutput, referenceOutput, sensorMeasure );   
+  if( sensor->reference != NULL ) fprintf( stderr, "in=%+.6f, out=%+.6f, res=%+.6f\r", referenceOutput, sensorOutput, sensorMeasure );   
   
   return sensorMeasure;
 }
