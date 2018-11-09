@@ -127,7 +127,7 @@ Enumerations</h2></td></tr>
 
 <p>Single byte codes used in request/receive messages for robot state/configuration control. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62a7d6aebdcdbc7c6521a934a4c49935e7c"></a>ROBOT_REQ_GET_INFO&#160;</td><td class="fielddoc"><p>Request information about current robot, its available <a href="https://github.com/LabDin/Robot-Control-Interface#the-jointaxis-rationale">axes and joints</a>) </p>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62a7d6aebdcdbc7c6521a934a4c49935e7c"></a>ROBOT_REQ_GET_INFO&#160;</td><td class="fielddoc"><p>Request information about current robot, its available <a href="https://github.com/EESC-MKGroup/Robot-Control-Interface#the-jointaxis-rationale">axes and joints</a>) </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62a10dce8048db58dcdf9edb71f2adf3104"></a>ROBOT_REP_GOT_INFO&#160;</td><td class="fielddoc"><p>Reply code for ROBOT_REQ_GET_INFO. Followed, in the same message, by a JSON info string like: </p><div class="fragment"><div class="line">{ &quot;id&quot;:&quot;&lt;robot_name&gt;&quot;, &quot;axes&quot;:[ &quot;&lt;axis1_name&gt;&quot;, &quot;&lt;axis2_name&gt;&quot; ], &quot;joints&quot;:[ &quot;&lt;joint1_name&gt;&quot;, &quot;&lt;joint2_name&gt;&quot; ] }</div></div><!-- fragment --> </td></tr>
 <tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62af60b2bb9f883f450a964e78e9b47ac70"></a>ROBOT_REQ_DISABLE&#160;</td><td class="fielddoc"><p>Request turning off the robot and stopping its control thread. </p>
@@ -162,7 +162,7 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62af2d58f76016e72b599c6fe7a9b7c6d0e"></a>ROBOT_REP_PREPROCESSING&#160;</td><td class="fielddoc"><p>Confirmation reply to ROBOT_REQ_PREPROCESS. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62ae89d0757048587be53e947c44ce7f9de"></a>ROBOT_REQ_SET_USER&#160;</td><td class="fielddoc"><p>Request setting new user/folder name for <a href="https://github.com/LabDin/Simple-Data-Logging">data logging</a>. Must be followed, in the same message, by a string with the name. </p>
+<tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62ae89d0757048587be53e947c44ce7f9de"></a>ROBOT_REQ_SET_USER&#160;</td><td class="fielddoc"><p>Request setting new user/folder name for <a href="https://github.com/EESC-MKGroup/Simple-Data-Logging">data logging</a>. Must be followed, in the same message, by a string with the name. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62ac7826a1f687a695aca85469e250ce080"></a>ROBOT_REP_USER_SET&#160;</td><td class="fielddoc"><p>Confirmation reply to ROBOT_REQ_SET_USER. </p>
 </td></tr>
