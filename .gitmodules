@@ -1,27 +1,27 @@
 [submodule "src/kalman"]
 	path = src/kalman
-	url = https://github.com/LabDin/Simple-Kalman-Filter
+	url = https://github.com/EESC-MKGroup/Simple-Kalman-Filter
 [submodule "src/threads"]
 	path = src/threads
-	url = https://github.com/LabDin/Simple-Multithreading
+	url = https://github.com/EESC-MKGroup/Simple-Multithreading
 [submodule "src/signal_processing"]
 	path = src/signal_processing
-	url = https://github.com/LabDin/Simple-Signal-Processing
+	url = https://github.com/EESC-MKGroup/Simple-Signal-Processing
 [submodule "src/timing"]
 	path = src/timing
-	url = https://github.com/LabDin/Precise-Timing
+	url = https://github.com/EESC-MKGroup/Precise-Timing
 [submodule "src/debug"]
 	path = src/debug
-	url = https://github.com/LabDin/Simple-Data-Logging
+	url = https://github.com/EESC-MKGroup/Simple-Data-Logging
 [submodule "src/ipc"]
 	path = src/ipc
-	url = https://github.com/LabDin/Simple-Async-IPC
+	url = https://github.com/EESC-MKGroup/Simple-Async-IPC
 [submodule "src/data_io"]
 	path = src/data_io
-	url = https://github.com/LabDin/Data-IO-JSON.git
+	url = https://github.com/EESC-MKGroup/Data-IO-JSON.git
 [submodule "src/signal_io"]
 	path = src/signal_io
-	url = https://github.com/LabDin/Signal-IO-Interface.git
+	url = https://github.com/EESC-MKGroup/Signal-IO-Interface.git
 [submodule "src/robot_control"]
 	path = src/robot_control
-	url = https://github.com/LabDin/Robot-Control-Interface.git
+	url = https://github.com/EESC-MKGroup/Robot-Control-Interface.git
