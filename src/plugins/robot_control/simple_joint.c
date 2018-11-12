@@ -30,42 +30,42 @@ const char* DOF_NAMES[ DOFS_NUMBER ] = { "angle" };
 
 DECLARE_MODULE_INTERFACE( ROBOT_CONTROL_INTERFACE );
 
-RobotController InitController( const char* configurationString )
+bool InitController( const char* configurationString )
 {
-  return NULL;
+  return true;
 }
 
-void EndController( RobotController controller )
+void EndController()
 {
   
 }
 
-size_t GetJointsNumber( RobotController controller )
+size_t GetJointsNumber()
 {
   return DOFS_NUMBER;
 }
 
-const char** GetJointNamesList( RobotController controller )
+const char** GetJointNamesList()
 {
   return DOF_NAMES;
 }
 
-size_t GetAxesNumber( RobotController controller )
+size_t GetAxesNumber()
 {
   return DOFS_NUMBER;
 }
 
-const char** GetAxisNamesList( RobotController controller )
+const char** GetAxisNamesList()
 {
   return DOF_NAMES;
 }
 
-void SetControlState( RobotController ref_controller, enum RobotState controlState )
+void SetControlState( enum RobotState controlState )
 {
   fprintf( stderr, "Setting robot control phase: %x\n", controlState );
 }
 
-void RunControlStep( RobotController controller, RobotVariables** jointMeasuresTable, RobotVariables** axisMeasuresTable, RobotVariables** jointSetpointsTable, RobotVariables** axisSetpointsTable, double elapsedTime )
+void RunControlStep( RobotVariables** jointMeasuresTable, RobotVariables** axisMeasuresTable, RobotVariables** jointSetpointsTable, RobotVariables** axisSetpointsTable, double elapsedTime )
 {
   axisMeasuresTable[ 0 ]->position = jointMeasuresTable[ 0 ]->position;
   axisMeasuresTable[ 0 ]->velocity = jointMeasuresTable[ 0 ]->velocity;

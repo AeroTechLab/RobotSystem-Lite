@@ -37,7 +37,7 @@
 /// {
 ///   "controller": {               // Robot controller configuration
 ///     "type": "<library_name>",     // Path (without extension, relative to MODULES_DIR/robot_control/) to plugin with robot controller implementation
-///     "parameters": ""              // [o] Custom-format configuration string passed to controller (plugin) specific initialization
+///     "config": ""                // [o] Custom-format configuration string passed to controller (plugin) specific initialization
 ///   },
 ///   "actuators": [                // List of robot actuators identifiers (strings) or configurations (objects)
 ///     "<actuator_identifier>",      // Actuator string identifier (configuration file name)
