@@ -183,8 +183,6 @@ void Sensor_SetState( Sensor sensor, enum SensorState newState )
 {
   if( sensor == NULL ) return;
   
-  double measurement = Sensor_Update( sensor->reference );
-  
   enum SigProcState newProcessingState = SIG_PROC_STATE_MEASUREMENT;
   if( newState == SENSOR_STATE_OFFSET ) newProcessingState = SIG_PROC_STATE_OFFSET;
   else if( newState == SENSOR_STATE_CALIBRATION ) newProcessingState = SIG_PROC_STATE_CALIBRATION;

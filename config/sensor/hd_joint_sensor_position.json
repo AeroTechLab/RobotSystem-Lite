@@ -8,5 +8,8 @@
     "multiplier": -6.28,
     "divisor": 65536
   },
+  "signal_processing": {
+    "max_frequency": 0.001
+  },
   "log_data": false
 }
