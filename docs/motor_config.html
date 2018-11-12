@@ -9,6 +9,14 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+  $(document).ready(initResizable);
+/* @license-end */</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
@@ -45,6 +53,23 @@ $(function() {
 });
 /* @license-end */</script>
 <div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('motor_config.html','');});
+/* @license-end */
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -59,7 +84,6 @@ $(function() {
 </iframe>
 </div>
 
-</div><!-- top -->
 <div class="header">
   <div class="headertitle">
 <div class="title">Motor Configuration </div>  </div>
@@ -68,11 +92,14 @@ $(function() {
 <div class="textblock"><p>The motor-level configuration (see <a href="https://github.com/EESC-MKGroup/RobotSystem-Lite#robot-multi-level-configuration">Configuration Levels</a> is read using the <a href="https://labdin.github.io/Data-IO-Interface/data__io_8h.html">data I/O interface</a></p>
 <p>Any configuration file/location path must be provided without its format extension, and relative to <a href="https://github.com/EESC-MKGroup/RobotSystem-Lite/blob/master/README.md#running"></a>/config/sensors/</p>
 <p>The possible configuration fields and their values are here exemplified for the case of a JSON format configuration (optional parameters are presented with default values and marked with '[o]' in their description): </p><div class="fragment"><div class="line">{</div><div class="line">  <span class="stringliteral">&quot;output_interface&quot;</span>: {         <span class="comment">// Hardware/virtual interface properties</span></div><div class="line">    <span class="stringliteral">&quot;type&quot;</span>: <span class="stringliteral">&quot;&lt;library_name&gt;&quot;</span>,     <span class="comment">// Path (without extension) to plugin with signal output implementation (loaded from MODULES_DIR/signal_io/)</span></div><div class="line">    <span class="stringliteral">&quot;config&quot;</span>: <span class="stringliteral">&quot;&quot;</span>,                 <span class="comment">// [o] Signal input/output device configuration string passed to plugin initialization call</span></div><div class="line">    <span class="stringliteral">&quot;channel&quot;</span>: 0                  <span class="comment">// Device channel to which output/actuation values will be sent</span></div><div class="line">  },</div><div class="line">  <span class="stringliteral">&quot;output_gain&quot;</span>: {              <span class="comment">// [o] Signal scaling parameters</span></div><div class="line">    <span class="stringliteral">&quot;multiplier&quot;</span>: 1.0,            <span class="comment">// [o] Value that multiplies the signal value</span></div><div class="line">    <span class="stringliteral">&quot;divisor&quot;</span>: 1.0                <span class="comment">// [o] Value that divides the signal value</span></div><div class="line">  },</div><div class="line">  <span class="stringliteral">&quot;reference&quot;</span>: <span class="stringliteral">&quot;&lt;sensor_identifier&gt;&quot;</span>,       <span class="comment">// [o] String identifier (file name) or data object of configuration for motor reference sensor, if any </span></div><div class="line">  <span class="stringliteral">&quot;log&quot;</span>: {                      <span class="comment">// [o] Set logging of output numeric data over time</span></div><div class="line">    <span class="stringliteral">&quot;file&quot;</span>: <span class="stringliteral">&quot;&quot;</span>,                   <span class="comment">// [o] Path (without extension), relative to to &lt;log_dir&gt;/motors/, to log file. Default value will set terminal logging</span></div><div class="line">    <span class="stringliteral">&quot;precision&quot;</span>: 3                <span class="comment">// [o] Decimal precision for logged numeric values</span></div><div class="line">  }</div><div class="line">}</div></div><!-- fragment --> </div></div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.14
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.14 </li>
+  </ul>
+</div>
 </body>
 </html>
