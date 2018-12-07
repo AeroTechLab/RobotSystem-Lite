@@ -7,5 +7,6 @@
   "output_gain": {
     "multiplier": 4096,
     "divisor": 6.28
-  }
+  },
+  "reference": "sensor_position_1"
 }

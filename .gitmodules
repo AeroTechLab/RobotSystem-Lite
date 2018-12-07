@@ -25,3 +25,6 @@
 [submodule "src/robot_control"]
 	path = src/robot_control
 	url = https://github.com/EESC-MKGroup/Robot-Control-Interface.git
+[submodule "src/function_loader"]
+	path = src/function_loader
+	url = https://github.com/EESC-MKGroup/2D-Function-Grid-Loader

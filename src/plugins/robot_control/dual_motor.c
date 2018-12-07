@@ -120,7 +120,7 @@ double ProcessWave( double inputWave, RobotVariables* ref_jointMeasures, RobotVa
   
   double outputWave = ( waveImpedance * ref_axisSetpoints->velocity - outputForce ) / sqrt( 2.0 * waveImpedance );
   
-  fprintf( stderr, "ui=%.5f, fo=%.5f, vi=%.5f, uo=%.5f, po=%.3f\r", inputWave, outputForce, ref_axisSetpoints->velocity, outputWave, ref_axisSetpoints->position );
+  //fprintf( stderr, "ui=%.5f, fo=%.5f, vi=%.5f, uo=%.5f, po=%.3f\r", inputWave, outputForce, ref_axisSetpoints->velocity, outputWave, ref_axisSetpoints->position );
   
   return outputWave;
 }
