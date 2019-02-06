@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2018 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2019 Leonardo Consoni <consoni_2519@hotmail.com>       //
 //                                                                            //
 //  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
@@ -27,7 +27,7 @@
 #include "debug/data_logging.h"
 
 #define DOFS_NUMBER 2
-#define DELAY_SETPOINTS_NUMBER 5
+#define DELAY_SETPOINTS_NUMBER 1//5
 
 const double MIN_WAVE_IMPEDANCE = 1.0;
 
@@ -97,7 +97,7 @@ void SetControlState( enum RobotState newControlState )
   controlData.state = newControlState;
 }
 
-double FilterWave( double inputWave, double* ref_lastInputWave, double* ref_lastFilteredWave, double filterStrength, double delayTimeDelta )
+/*double FilterWave( double inputWave, double* ref_lastInputWave, double* ref_lastFilteredWave, double filterStrength, double delayTimeDelta )
 {
   delayTimeDelta = delayTimeDelta * filterStrength / 100.0;
   double lastInputWave = (*ref_lastInputWave);
@@ -123,9 +123,9 @@ double ProcessWave( double inputWave, RobotVariables* ref_jointMeasures, RobotVa
   //fprintf( stderr, "ui=%.5f, fo=%.5f, vi=%.5f, uo=%.5f, po=%.3f\r", inputWave, outputForce, ref_axisSetpoints->velocity, outputWave, ref_axisSetpoints->position );
   
   return outputWave;
-}
+}*/
 
-void ControlJoint( RobotVariables* ref_jointMeasures, RobotVariables* ref_axisMeasures, RobotVariables* ref_jointSetpoints, RobotVariables* ref_axisSetpoints, double timeDelta )
+void ControlJoint( RobotVariables* ref_jointMeasures, RobotVariables* ref_axisMeasures, RobotVariables* ref_jointSetpoints, RobotVariables* ref_axisSetpoints )
 {
   ref_axisMeasures->acceleration = ref_jointMeasures->acceleration;
   ref_axisMeasures->velocity = ref_jointMeasures->velocity;
@@ -142,16 +142,19 @@ void ControlJoint( RobotVariables* ref_jointMeasures, RobotVariables* ref_axisMe
   ref_jointSetpoints->damping = ref_axisSetpoints->damping;                             // B = D = lamda * m
   
   double positionError = ref_jointSetpoints->position - ref_jointMeasures->position;    // e_p = x_d - x
-  double velocityError = ref_jointSetpoints->velocity - ref_jointMeasures->velocity;    // e_v = xdot_d - xdot
+  //double velocityError = ref_jointSetpoints->velocity - ref_jointMeasures->velocity;    // e_v = xdot_d - xdot
+  double velocityError = - ref_jointMeasures->velocity; 
+  
   // F_actuator = K * e_p + B * e_v - D * x_dot
-  double controlForce = ref_jointSetpoints->stiffness * positionError - ref_jointSetpoints->damping * velocityError;
-  double dampingForce = ref_jointSetpoints->damping * ref_jointMeasures->velocity;
-  ref_jointSetpoints->force += controlForce - dampingForce;
+  //double controlForce = ref_jointSetpoints->stiffness * positionError - ref_jointSetpoints->damping * velocityError;
+  //double dampingForce = ref_jointSetpoints->damping * ref_jointMeasures->velocity;
+  //ref_jointSetpoints->force += controlForce - dampingForce;
+  //ref_jointSetpoints->force = 0.0015 * positionError + 0.0001 * velocityError; 
   
   //fprintf( stderr, "position=%.5f, setpoint=%.5f, control force=%.5f\n", ref_jointMeasures->position, ref_jointSetpoints->position, ref_jointSetpoints->force );
 }
 
-void RunControlStep( RobotVariables** jointMeasuresList, RobotVariables** axisMeasuresList, RobotVariables** jointSetpointsList, RobotVariables** axisSetpointsList, double timeDelta )
+/*void RunControlStep( RobotVariables** jointMeasuresList, RobotVariables** axisMeasuresList, RobotVariables** jointSetpointsList, RobotVariables** axisSetpointsList, double timeDelta )
 {
   size_t currentSetpointIndex = controlData.setpointCount % DELAY_SETPOINTS_NUMBER;
   //double setpoint_0 = controlData.setpointsTable[ 0 ][ currentSetpointIndex ];
@@ -168,7 +171,7 @@ void RunControlStep( RobotVariables** jointMeasuresList, RobotVariables** axisMe
   axisSetpointsList[ 1 ]->damping = axisSetpointsList[ 0 ]->damping;
   
   controlData.setpointsTable[ 1 ][ currentSetpointIndex ] = ProcessWave( setpoint_0, jointMeasuresList[ 0 ], axisSetpointsList[ 0 ], timeDelta );
-  ControlJoint( jointMeasuresList[ 0 ], axisMeasuresList[ 0 ], jointSetpointsList[ 0 ], axisSetpointsList[ 0 ], timeDelta );
+  ControlJoint( jointMeasuresList[ 0 ], axisMeasuresList[ 0 ], jointSetpointsList[ 0 ], axisSetpointsList[ 0 ] );
   
   //if( controlData.state == ROBOT_PREPROCESSING )
   //{
@@ -177,9 +180,24 @@ void RunControlStep( RobotVariables** jointMeasuresList, RobotVariables** axisMe
   //}
   
   controlData.setpointsTable[ 0 ][ currentSetpointIndex ] = ProcessWave( setpoint_1, jointMeasuresList[ 1 ], axisSetpointsList[ 1 ], timeDelta );
-  ControlJoint( jointMeasuresList[ 1 ], axisMeasuresList[ 1 ], jointSetpointsList[ 1 ], axisSetpointsList[ 1 ], timeDelta );
+  ControlJoint( jointMeasuresList[ 1 ], axisMeasuresList[ 1 ], jointSetpointsList[ 1 ], axisSetpointsList[ 1 ] );
   
   controlData.setpointCount++;
+  controlData.elapsedTime += timeDelta;
+  
+  //if( controlData.state != ROBOT_OPERATION && controlData.state != ROBOT_PREPROCESSING ) jointSetpointsList[ 0 ]->force = jointSetpointsList[ 1 ]->force = 0.0;
+}*/
+
+void RunControlStep( RobotVariables** jointMeasuresList, RobotVariables** axisMeasuresList, RobotVariables** jointSetpointsList, RobotVariables** axisSetpointsList, double timeDelta )
+{
+  axisSetpointsList[ 0 ]->position = 0.0;//jointMeasuresList[ 1 ]->position;
+  axisSetpointsList[ 1 ]->position = jointMeasuresList[ 0 ]->position;
+  axisSetpointsList[ 0 ]->velocity = 0.0;//jointMeasuresList[ 1 ]->velocity;
+  axisSetpointsList[ 1 ]->velocity = 0.0;//jointMeasuresList[ 0 ]->velocity;
+  
+  ControlJoint( jointMeasuresList[ 0 ], axisMeasuresList[ 0 ], jointSetpointsList[ 0 ], axisSetpointsList[ 0 ] );
+  ControlJoint( jointMeasuresList[ 1 ], axisMeasuresList[ 1 ], jointSetpointsList[ 1 ], axisSetpointsList[ 1 ] );
+  
   controlData.elapsedTime += timeDelta;
   
   //if( controlData.state != ROBOT_OPERATION && controlData.state != ROBOT_PREPROCESSING ) jointSetpointsList[ 0 ]->force = jointSetpointsList[ 1 ]->force = 0.0;

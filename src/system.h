@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2018 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2019 Leonardo Consoni <consoni_2519@hotmail.com>       //
 //                                                                            //
 //  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //

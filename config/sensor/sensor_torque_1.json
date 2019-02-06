@@ -5,11 +5,14 @@
     "channel": 2
   },
   "input_gain": {
-    "multiplier": -30.2,
+    "multiplier": -60.3,
     "divisor": 1000
   },
   "signal_processing": {
     "low_pass_frequency": 0.1
   },
-  "log_data": false
+  "log": {
+    "file": "torque_1",
+    "precision": 5
+  }
 }

@@ -6,6 +6,6 @@
   },
   "output_gain": {
     "multiplier": 1000,
-    "divisor": 30.2
+    "divisor": 60.3
   }
 }

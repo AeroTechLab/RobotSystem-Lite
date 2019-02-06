@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2018 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2019 Leonardo Consoni <consoni_2519@hotmail.com>       //
 //                                                                            //
 //  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
@@ -85,7 +85,7 @@ bool System_Init( const int argc, const char** argv )
   
   const char* rootDirectory = ".";
   const char* connectionAddress = NULL;
-  const char* logDirectory = "./" KEY_LOG "/";
+  const char* logDirectory = "./" KEY_LOG "s/";
   const char* robotConfigName = argv[ argc - 1 ];
   
   for( int optionIndex = 1; optionIndex < argc - 1; optionIndex+=2 )
@@ -111,7 +111,8 @@ bool System_Init( const int argc, const char** argv )
   robotJointsConnection = IPC_OpenConnection( IPC_UDP | IPC_SERVER, connectionAddress, 50002 );
   
   Log_SetDirectory( logDirectory );
-  
+  Log_SetTimeStamp();
+
   chdir( rootDirectory );
   robotInfo = DataIO_CreateEmptyData();
   DEBUG_PRINT( "loading robot configuration from %s", robotConfigName );
@@ -300,6 +301,8 @@ void RefreshRobotsInfo( const char* robotName, char* sharedControlsString )
   if( robotName != NULL )
   {     
     if( robotInitialized ) Robot_End();
+    
+    robotInfo = DataIO_CreateEmptyData();
     
     if( (robotInitialized = Robot_Init( robotName )) )
     {

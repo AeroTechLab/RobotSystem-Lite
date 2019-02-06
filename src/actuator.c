@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2018 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2019 Leonardo Consoni <consoni_2519@hotmail.com>       //
 //                                                                            //
 //  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
@@ -103,9 +103,7 @@ Actuator Actuator_Init( DataHandle configuration )
   if( DataIO_HasKey( configuration, KEY_LOG ) )
   {
     const char* logFileName = DataIO_GetStringValue( configuration, "", KEY_LOG "." KEY_FILE );
-    if( logFileName[ 0 ] == '\0' ) strcpy( filePath, "" );
-    else sprintf( filePath, KEY_ACTUATOR "/%s", logFileName );
-    newActuator->log = Log_Init( filePath, (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
+    newActuator->log = Log_Init( logFileName, (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
   }
   
   newActuator->controlState = ACTUATOR_OPERATION;

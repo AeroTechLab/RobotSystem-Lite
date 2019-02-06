@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2018 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2019 Leonardo Consoni <consoni_2519@hotmail.com>       //
 //                                                                            //
 //  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
@@ -83,7 +83,7 @@ Sensor Sensor_Init( DataHandle configuration )
       size_t maxInputSamplesNumber = newSensor->GetMaxInputSamplesNumber( newSensor->deviceID );
       newSensor->inputBuffer = (double*) calloc( maxInputSamplesNumber, sizeof(double) );
       
-      uint8_t signalProcessingFlags = 0;
+      uint8_t signalProcessingFlags = 0x00;
       if( DataIO_GetBooleanValue( configuration, false, KEY_SIGNAL_PROCESSING "." KEY_RECTIFIED ) ) signalProcessingFlags |= SIG_PROC_RECTIFY;
       if( DataIO_GetBooleanValue( configuration, false, KEY_SIGNAL_PROCESSING "." KEY_NORMALIZED ) ) signalProcessingFlags |= SIG_PROC_NORMALIZE;
       newSensor->processor = SignalProcessor_Create( signalProcessingFlags );
@@ -103,9 +103,7 @@ Sensor Sensor_Init( DataHandle configuration )
       if( DataIO_HasKey( configuration, KEY_LOG ) )
       {
         const char* logFileName = DataIO_GetStringValue( configuration, "", KEY_LOG "." KEY_FILE );
-        if( logFileName[ 0 ] == '\0' ) strcpy( filePath, "" );
-        else sprintf( filePath, KEY_SENSOR "/%s", logFileName );
-        newSensor->log = Log_Init( filePath, (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
+        newSensor->log = Log_Init( logFileName, (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
       }
       
       DataHandle referenceConfiguration = DataIO_GetSubData( configuration, KEY_REFERENCE );
@@ -148,7 +146,7 @@ void Sensor_End( Sensor sensor )
 double Sensor_Update( Sensor sensor )
 {
   if( sensor == NULL ) return 0.0;
-  
+  //if( sensor->channel == 1 ) DEBUG_PRINT( "reading device %d channel %u", sensor->deviceID, sensor->channel );
   size_t aquiredSamplesNumber = sensor->Read( sensor->deviceID, sensor->channel, sensor->inputBuffer );
     
   double sensorOutput = SignalProcessor_UpdateSignal( sensor->processor, sensor->inputBuffer, aquiredSamplesNumber );
@@ -157,9 +155,9 @@ double Sensor_Update( Sensor sensor )
   
   double sensorMeasure = sensor->differentialGain * ( sensorOutput - referenceOutput );
   
-  //Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
-  //Log_RegisterValues( sensor->log, 3, sensorOutput, referenceOutput, sensorMeasure );
-  if( sensor->reference != NULL ) fprintf( stderr, "in=%+.6f, out=%+.6f, res=%+.6f\r", referenceOutput, sensorOutput, sensorMeasure );   
+  Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
+  Log_RegisterValues( sensor->log, 3, sensorOutput, referenceOutput, sensorMeasure );
+  //if( sensor->reference != NULL ) fprintf( stderr, "in=%+.6f, out=%+.6f, res=%+.6f\r", referenceOutput, sensorOutput, sensorMeasure );   
   
   return sensorMeasure;
 }

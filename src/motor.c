@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2018 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2019 Leonardo Consoni <consoni_2519@hotmail.com>       //
 //                                                                            //
 //  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
@@ -26,6 +26,7 @@
 
 #include "signal_io/signal_io.h"
 #include "debug/data_logging.h"
+#include "timing/timing.h"
       
 #include "config_keys.h" 
 
@@ -91,9 +92,7 @@ Motor Motor_Init( DataHandle configuration )
   if( DataIO_HasKey( configuration, KEY_LOG ) )
   {
     const char* logFileName = DataIO_GetStringValue( configuration, "", KEY_LOG "." KEY_FILE );
-    if( logFileName[ 0 ] == '\0' ) strcpy( filePath, "" );
-    else sprintf( filePath, KEY_MOTOR "/%s", logFileName );
-    newMotor->log = Log_Init( filePath, (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
+    newMotor->log = Log_Init( logFileName, (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
   }
   
   if( motorName != NULL ) DataIO_UnloadData( configuration );
@@ -164,9 +163,10 @@ void Motor_WriteControl( Motor motor, double setpoint )
 {
   if( motor == NULL ) return;
   
+  Log_EnterNewLine( motor->log, Time_GetExecSeconds() );
   Log_RegisterValues( motor->log, 2, setpoint, setpoint * motor->outputGain );
   
   setpoint = ( setpoint + motor->outputOffset ) * motor->outputGain;
-  
+
   if( ! motor->isOffsetting ) motor->Write( motor->interfaceID, motor->outputChannel, setpoint );
 }

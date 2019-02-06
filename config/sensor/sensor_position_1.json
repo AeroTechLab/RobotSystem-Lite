@@ -8,5 +8,8 @@
     "multiplier": 6.28,
     "divisor": 4096
   },
-  "log_data": false
+  "log": {
+    "file": "position_1",
+    "precision": 5
+  }
 }

@@ -8,5 +8,8 @@
     "multiplier": 6.28,
     "divisor": 60
   },
-  "log_data": false
+  "log": {
+    "file": "velocity_1",
+    "precision": 5
+  }
 }

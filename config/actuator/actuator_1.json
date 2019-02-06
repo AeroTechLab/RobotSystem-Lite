@@ -1,7 +1,8 @@
 {
   "sensors": [
-    { "variable_type": "POSITION", "config": "sensor_position_1" },
-    { "variable_type": "FORCE", "config": "sensor_torque_1" }
+    { "variable_type": "POSITION", "config": "sensor_position_1", "deviation": 1.0 },
+    { "variable_type": "VELOCITY", "config": "sensor_velocity_1", "deviation": 1.0 },
+    { "variable_type": "FORCE", "config": "sensor_torque_1", "deviation": 1.0 }
   ],
-  "motor": { "variable_type": "POSITION", "config": "motor_1_position" },
+  "motor": { "variable_type": "POSITION", "config": "motor_1_position" }
 }
