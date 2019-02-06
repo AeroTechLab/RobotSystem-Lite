@@ -22,6 +22,8 @@
 
 #include "sensor.h"
 
+#include "tinyexpr/tinyexpr.h"
+
 #include "signal_processing/signal_processing.h" 
 #include "signal_io/signal_io.h"
 #include "debug/data_logging.h"
@@ -35,18 +37,35 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct _InputData
+{
+  unsigned int channel;
+  double* buffer;
+  SignalProcessor processor;
+}
+InputData;
+
 struct _SensorData
 {
   DECLARE_MODULE_INTERFACE_REF( SIGNAL_IO_INTERFACE );
   int deviceID;
-  unsigned int channel;
-  double* inputBuffer;
-  SignalProcessor processor;
-  Sensor reference;
-  double differentialGain;
+  InputData* inputsList;
+  size_t inputsNumber;
+  te_variable* inputVariables;
+  te_expr* sensorFunction;
   Log log;
 };
 
+Channel Channel_Init( DataHandle configuration )
+{
+  if( configuration == NULL ) return NULL;
+  
+  Channel newChannel = (Channel) malloc( sizeof(ChannelData) );
+  memset( newChannel, 0, sizeof(ChannelData) ); 
+  
+  newChannel->index = (unsigned int) DataIO_GetNumericValue( configuration, -1, KEY_INPUT_INTERFACE "." KEY_CHANNEL );
+  newChannel->CheckInputChannel( newSensor->deviceID, newSensor->channel );
+}
 
 Sensor Sensor_Init( DataHandle configuration )
 {
@@ -77,28 +96,33 @@ Sensor Sensor_Init( DataHandle configuration )
     newSensor->deviceID = newSensor->InitDevice( DataIO_GetStringValue( configuration, "", KEY_INPUT_INTERFACE "." KEY_CONFIG ) );
     if( newSensor->deviceID != SIGNAL_IO_DEVICE_INVALID_ID )
     {
-      newSensor->channel = (unsigned int) DataIO_GetNumericValue( configuration, -1, KEY_INPUT_INTERFACE "." KEY_CHANNEL );
-      loadSuccess = newSensor->CheckInputChannel( newSensor->deviceID, newSensor->channel );
+      newSensor->inputsNumber = DataIO_GetListSize( configuration, KEY_INPUT "s" );
+      newSensor->inputsList = (InputData*) calloc( newSensor->inputsNumber, sizeof(InputData) );
+      for( InputData* input = newSensor->inputsList; input < newSensor->inputsList + newSensor->inputsNumber; input++ )
+      {
+        input->channel = (unsigned int) DataIO_GetNumericValue( configuration, -1, KEY_INPUT "s." KEY_CHANNEL );
+        loadSuccess = newSensor->CheckInputChannel( newSensor->deviceID, input->channel );
       
-      size_t maxInputSamplesNumber = newSensor->GetMaxInputSamplesNumber( newSensor->deviceID );
-      newSensor->inputBuffer = (double*) calloc( maxInputSamplesNumber, sizeof(double) );
+        size_t maxInputSamplesNumber = newSensor->GetMaxInputSamplesNumber( newSensor->deviceID );
+        input->buffer = (double*) calloc( maxInputSamplesNumber, sizeof(double) );
       
-      uint8_t signalProcessingFlags = 0x00;
-      if( DataIO_GetBooleanValue( configuration, false, KEY_SIGNAL_PROCESSING "." KEY_RECTIFIED ) ) signalProcessingFlags |= SIG_PROC_RECTIFY;
-      if( DataIO_GetBooleanValue( configuration, false, KEY_SIGNAL_PROCESSING "." KEY_NORMALIZED ) ) signalProcessingFlags |= SIG_PROC_NORMALIZE;
-      newSensor->processor = SignalProcessor_Create( signalProcessingFlags );
+        uint8_t signalProcessingFlags = 0x00;
+        if( DataIO_GetBooleanValue( configuration, false, KEY_SIGNAL_PROCESSING "." KEY_RECTIFIED ) ) signalProcessingFlags |= SIG_PROC_RECTIFY;
+        if( DataIO_GetBooleanValue( configuration, false, KEY_SIGNAL_PROCESSING "." KEY_NORMALIZED ) ) signalProcessingFlags |= SIG_PROC_NORMALIZE;
+        input->processor = SignalProcessor_Create( signalProcessingFlags );
       
-      double inputGain = DataIO_GetNumericValue( configuration, 1.0, KEY_INPUT_GAIN "." KEY_MULTIPLIER );
-      inputGain /= DataIO_GetNumericValue( configuration, 1.0, KEY_INPUT_GAIN "." KEY_DIVISOR );
-      SignalProcessor_SetInputGain( newSensor->processor, inputGain );
+        //double inputGain = DataIO_GetNumericValue( configuration, 1.0, KEY_INPUT_GAIN "." KEY_MULTIPLIER );
+        //inputGain /= DataIO_GetNumericValue( configuration, 1.0, KEY_INPUT_GAIN "." KEY_DIVISOR );
+        //SignalProcessor_SetInputGain( newSensor->processor, inputGain );
       
-      double relativeMinCutFrequency = DataIO_GetNumericValue( configuration, 0.0, KEY_SIGNAL_PROCESSING "." KEY_MIN_FREQUENCY );
-      SignalProcessor_SetMinFrequency( newSensor->processor, relativeMinCutFrequency );
-      double relativeMaxCutFrequency = DataIO_GetNumericValue( configuration, 0.0, KEY_SIGNAL_PROCESSING "." KEY_MAX_FREQUENCY );
-      SignalProcessor_SetMaxFrequency( newSensor->processor, relativeMaxCutFrequency );
+        double relativeMinCutFrequency = DataIO_GetNumericValue( configuration, 0.0, KEY_SIGNAL_PROCESSING "." KEY_MIN_FREQUENCY );
+        SignalProcessor_SetMinFrequency( input->processor, relativeMinCutFrequency );
+        double relativeMaxCutFrequency = DataIO_GetNumericValue( configuration, 0.0, KEY_SIGNAL_PROCESSING "." KEY_MAX_FREQUENCY );
+        SignalProcessor_SetMaxFrequency( input->processor, relativeMaxCutFrequency );
+      }
       
-      newSensor->differentialGain = DataIO_GetNumericValue( configuration, 1.0, KEY_DIFFERENTIAL_GAIN "." KEY_MULTIPLIER );
-      newSensor->differentialGain /= DataIO_GetNumericValue( configuration, 1.0, KEY_DIFFERENTIAL_GAIN "." KEY_DIVISOR );
+      //newSensor->differentialGain = DataIO_GetNumericValue( configuration, 1.0, KEY_DIFFERENTIAL_GAIN "." KEY_MULTIPLIER );
+      //newSensor->differentialGain /= DataIO_GetNumericValue( configuration, 1.0, KEY_DIFFERENTIAL_GAIN "." KEY_DIVISOR );
       
       if( DataIO_HasKey( configuration, KEY_LOG ) )
       {

@@ -24,6 +24,8 @@
 
 #include "sensor.h"
 
+#include "tinyexpr/tinyexpr.h"
+
 #include "signal_io/signal_io.h"
 #include "debug/data_logging.h"
 #include "timing/timing.h"

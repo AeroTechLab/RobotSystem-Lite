@@ -28,3 +28,6 @@
 [submodule "src/function_loader"]
 	path = src/function_loader
 	url = https://github.com/EESC-MKGroup/Simple-Function-Loader
+[submodule "src/tinyexpr"]
+	path = src/tinyexpr
+	url = https://github.com/codeplea/tinyexpr.git
