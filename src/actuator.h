@@ -60,7 +60,6 @@
 #ifndef ACTUATOR_H
 #define ACTUATOR_H 
 
-#include "data_io/interface/data_io.h"
 
 /// Defined possible control states enumeration. Passed to internal motor and sensors
 enum ActuatorState 
@@ -83,9 +82,9 @@ typedef ActuatorData* Actuator;                 ///< Opaque reference to actuato
 
                                                                   
 /// @brief Creates and initializes actuator data structure based on given information                                              
-/// @param[in] configuration reference to data object containing configuration parameters, as explained at @ref actuator_config
+/// @param[in] configName name of file containing configuration parameters, as explained at @ref actuator_config
 /// @return reference/pointer to newly created and initialized actuator data structure
-Actuator Actuator_Init( DataHandle configuration );
+Actuator Actuator_Init( const char* configName );
 
 /// @brief Deallocates internal data of given actuator                        
 /// @param[in] actuator reference to actuator

@@ -26,6 +26,7 @@
 
 #include "tinyexpr/tinyexpr.h"
 
+#include "data_io/interface/data_io.h"
 #include "signal_io/signal_io.h"
 #include "debug/data_logging.h"
 #include "timing/timing.h"
@@ -36,6 +37,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+      
+const char* INPUT_VARIABLE_NAMES[] = { "set", "ref" };
       
 struct _MotorData
 {
@@ -50,19 +53,14 @@ struct _MotorData
 };
 
 
-Motor Motor_Init( DataHandle configuration )
+Motor Motor_Init( const char* configName )
 {
-  static char filePath[ DATA_IO_MAX_PATH_LENGTH ];
+  char filePath[ DATA_IO_MAX_PATH_LENGTH ];
   
+  DEBUG_PRINT( "trying to create motor %s", configName );
+  sprintf( filePath, KEY_CONFIG "/" KEY_MOTOR "/%s", configName );
+  DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration == NULL ) return NULL;
-  
-  const char* motorName = DataIO_GetStringValue( configuration, NULL, "" );
-  if( motorName != NULL )
-  {
-    DEBUG_PRINT( "trying to create motor %s", motorName );
-    sprintf( filePath, KEY_CONFIG "/" KEY_MOTOR "/%s", motorName );
-    if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
-  }
   
   Motor newMotor = (Motor) malloc( sizeof(MotorData) );
   memset( newMotor, 0, sizeof(MotorData) );

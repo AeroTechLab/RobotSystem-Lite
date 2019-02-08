@@ -64,8 +64,6 @@
 #define SENSOR_H
 
 
-#include "data_io/interface/data_io.h" 
-
 #include <stdbool.h>
 
 
@@ -84,9 +82,9 @@ typedef SensorData* Sensor;               ///< Opaque reference to sensor intern
 
                                                                    
 /// @brief Creates and initializes sensor data structure based on given information                                              
-/// @param[in] configuration reference to data object containing configuration parameters, as explained at @ref sensor_config
+/// @param[in] configName name of file containing configuration parameters, as explained at @ref sensor_config
 /// @return reference/pointer to newly created and initialized sensor data structure
-Sensor Sensor_Init( DataHandle configuration );
+Sensor Sensor_Init( const char* configName );
 
 /// @brief Deallocates internal data of given sensor                        
 /// @param[in] sensor reference to sensor

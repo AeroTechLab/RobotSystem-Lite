@@ -22,10 +22,11 @@
 
 #include "sensor.h"
 
+#include "input.h"
+
 #include "tinyexpr/tinyexpr.h"
 
-#include "signal_processing/signal_processing.h" 
-#include "signal_io/signal_io.h"
+#include "data_io/interface/data_io.h" 
 #include "debug/data_logging.h"
 #include "timing/timing.h"
 
@@ -37,109 +38,58 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct _InputData
-{
-  unsigned int channel;
-  double* buffer;
-  SignalProcessor processor;
-}
-InputData;
+const char* INPUT_VARIABLE_NAMES[] = { "in0", "in1", "in2", "in3", "in4", "in5" };
 
 struct _SensorData
 {
-  DECLARE_MODULE_INTERFACE_REF( SIGNAL_IO_INTERFACE );
-  int deviceID;
-  InputData* inputsList;
+  Input* inputsList;
   size_t inputsNumber;
+  double* inputValuesList;
   te_variable* inputVariables;
-  te_expr* sensorFunction;
+  te_expr* transformFunction;
   Log log;
 };
 
-Channel Channel_Init( DataHandle configuration )
+Sensor Sensor_Init( const char* configName )
 {
+  char filePath[ DATA_IO_MAX_PATH_LENGTH ];
+  
+  DEBUG_PRINT( "trying to create sensor %s", configName );
+  sprintf( filePath, KEY_CONFIG "/" KEY_SENSOR "/%s", configName );
+  DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration == NULL ) return NULL;
-  
-  Channel newChannel = (Channel) malloc( sizeof(ChannelData) );
-  memset( newChannel, 0, sizeof(ChannelData) ); 
-  
-  newChannel->index = (unsigned int) DataIO_GetNumericValue( configuration, -1, KEY_INPUT_INTERFACE "." KEY_CHANNEL );
-  newChannel->CheckInputChannel( newSensor->deviceID, newSensor->channel );
-}
-
-Sensor Sensor_Init( DataHandle configuration )
-{
-  static char filePath[ DATA_IO_MAX_PATH_LENGTH ];
-  
-  if( configuration == NULL ) return NULL;
-  
-  const char* sensorName = DataIO_GetStringValue( configuration, NULL, "" );
-  if( sensorName != NULL )
-  {
-    DEBUG_PRINT( "trying to create sensor %s", sensorName );
-    sprintf( filePath, KEY_CONFIG "/" KEY_SENSOR "/%s", sensorName );
-    if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
-  }
   
   DEBUG_PRINT( "sensor configuration found on data handle %p", configuration );
   
   Sensor newSensor = (Sensor) malloc( sizeof(SensorData) );
   memset( newSensor, 0, sizeof(SensorData) );  
   
-  bool loadSuccess;
-  sprintf( filePath, KEY_MODULES "/" KEY_SIGNAL_IO "/%s", DataIO_GetStringValue( configuration, "", KEY_INPUT_INTERFACE "." KEY_TYPE ) );
-  DEBUG_PRINT( "trying to read signal IO module %s", filePath );
-  LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newSensor, &loadSuccess );
-  if( loadSuccess )
+  bool loadSuccess = true;
+  
+  newSensor->inputsNumber = DataIO_GetListSize( configuration, KEY_INPUT "s" );
+  newSensor->inputsList = (Input*) calloc( newSensor->inputsNumber, sizeof(Input) );
+  newSensor->inputValuesList = (double*) calloc( newSensor->inputsNumber, sizeof(double) );
+  newSensor->inputVariables = (te_variable*) calloc( newSensor->inputsNumber, sizeof(te_variable) );
+  for( size_t inputIndex = newSensor->inputsNumber; inputIndex < newSensor->inputsNumber; inputIndex++ )
   {
-    //PRINT_PLUGIN_FUNCTIONS( SIGNAL_IO_INTERFACE, newSensor );
-    newSensor->deviceID = newSensor->InitDevice( DataIO_GetStringValue( configuration, "", KEY_INPUT_INTERFACE "." KEY_CONFIG ) );
-    if( newSensor->deviceID != SIGNAL_IO_DEVICE_INVALID_ID )
-    {
-      newSensor->inputsNumber = DataIO_GetListSize( configuration, KEY_INPUT "s" );
-      newSensor->inputsList = (InputData*) calloc( newSensor->inputsNumber, sizeof(InputData) );
-      for( InputData* input = newSensor->inputsList; input < newSensor->inputsList + newSensor->inputsNumber; input++ )
-      {
-        input->channel = (unsigned int) DataIO_GetNumericValue( configuration, -1, KEY_INPUT "s." KEY_CHANNEL );
-        loadSuccess = newSensor->CheckInputChannel( newSensor->deviceID, input->channel );
-      
-        size_t maxInputSamplesNumber = newSensor->GetMaxInputSamplesNumber( newSensor->deviceID );
-        input->buffer = (double*) calloc( maxInputSamplesNumber, sizeof(double) );
-      
-        uint8_t signalProcessingFlags = 0x00;
-        if( DataIO_GetBooleanValue( configuration, false, KEY_SIGNAL_PROCESSING "." KEY_RECTIFIED ) ) signalProcessingFlags |= SIG_PROC_RECTIFY;
-        if( DataIO_GetBooleanValue( configuration, false, KEY_SIGNAL_PROCESSING "." KEY_NORMALIZED ) ) signalProcessingFlags |= SIG_PROC_NORMALIZE;
-        input->processor = SignalProcessor_Create( signalProcessingFlags );
-      
-        //double inputGain = DataIO_GetNumericValue( configuration, 1.0, KEY_INPUT_GAIN "." KEY_MULTIPLIER );
-        //inputGain /= DataIO_GetNumericValue( configuration, 1.0, KEY_INPUT_GAIN "." KEY_DIVISOR );
-        //SignalProcessor_SetInputGain( newSensor->processor, inputGain );
-      
-        double relativeMinCutFrequency = DataIO_GetNumericValue( configuration, 0.0, KEY_SIGNAL_PROCESSING "." KEY_MIN_FREQUENCY );
-        SignalProcessor_SetMinFrequency( input->processor, relativeMinCutFrequency );
-        double relativeMaxCutFrequency = DataIO_GetNumericValue( configuration, 0.0, KEY_SIGNAL_PROCESSING "." KEY_MAX_FREQUENCY );
-        SignalProcessor_SetMaxFrequency( input->processor, relativeMaxCutFrequency );
-      }
-      
-      //newSensor->differentialGain = DataIO_GetNumericValue( configuration, 1.0, KEY_DIFFERENTIAL_GAIN "." KEY_MULTIPLIER );
-      //newSensor->differentialGain /= DataIO_GetNumericValue( configuration, 1.0, KEY_DIFFERENTIAL_GAIN "." KEY_DIVISOR );
-      
-      if( DataIO_HasKey( configuration, KEY_LOG ) )
-      {
-        const char* logFileName = DataIO_GetStringValue( configuration, "", KEY_LOG "." KEY_FILE );
-        newSensor->log = Log_Init( logFileName, (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
-      }
-      
-      DataHandle referenceConfiguration = DataIO_GetSubData( configuration, KEY_REFERENCE );
-      newSensor->reference = Sensor_Init( referenceConfiguration );
-      if( referenceConfiguration != NULL ) DataIO_UnloadData( referenceConfiguration );
-      
-      newSensor->Reset( newSensor->deviceID );
-    }
-    else loadSuccess = false;
+    newSensor->inputsList[ inputIndex ] = Input_Init( DataIO_GetSubData( configuration, KEY_INPUT "s.%lu", inputIndex ) );
+    if( newSensor->inputsList[ inputIndex ] == NULL ) loadSuccess = false;
+   
+    newSensor->inputVariables[ inputIndex ].name = INPUT_VARIABLE_NAMES[ inputIndex ];
+    newSensor->inputVariables[ inputIndex ].address = &(newSensor->inputValuesList[ inputIndex ]);
   }
   
-  if( sensorName != NULL ) DataIO_UnloadData( configuration );
+  int functionError;
+  const char* functionExpression = DataIO_GetStringValue( configuration, "", KEY_OUTPUT );
+  newSensor->transformFunction = te_compile( functionExpression, newSensor->inputVariables, newSensor->inputsNumber, &functionError );
+      
+  if( DataIO_HasKey( configuration, KEY_LOG ) )
+  {
+    const char* logFileName = DataIO_GetStringValue( configuration, "", KEY_LOG "." KEY_FILE );
+    newSensor->log = Log_Init( logFileName, (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
+  }
+  
+  DataIO_UnloadData( configuration );
   
   if( !loadSuccess )
   {
@@ -154,15 +104,15 @@ void Sensor_End( Sensor sensor )
 {
   if( sensor == NULL ) return;
   
-  sensor->EndDevice( sensor->deviceID );
+  for( size_t inputIndex = sensor->inputsNumber; inputIndex < sensor->inputsNumber; inputIndex++ )
+    Input_End( sensor->inputsList[ inputIndex ] );
+  free( sensor->inputsList );
+  free( sensor->inputValuesList );
+  free( sensor->inputVariables );
   
-  SignalProcessor_Discard( sensor->processor );
-  
-  free( sensor->inputBuffer );
+  te_free( sensor->transformFunction );
   
   Log_End( sensor->log );
-  
-  Sensor_End( sensor->reference );
   
   free( sensor );
 }
@@ -170,35 +120,35 @@ void Sensor_End( Sensor sensor )
 double Sensor_Update( Sensor sensor )
 {
   if( sensor == NULL ) return 0.0;
-  //if( sensor->channel == 1 ) DEBUG_PRINT( "reading device %d channel %u", sensor->deviceID, sensor->channel );
-  size_t aquiredSamplesNumber = sensor->Read( sensor->deviceID, sensor->channel, sensor->inputBuffer );
+  
+  for( size_t inputIndex = sensor->inputsNumber; inputIndex < sensor->inputsNumber; inputIndex++ )
+    sensor->inputValuesList[ inputIndex ] = Input_Update( sensor->inputsList[ inputIndex ] );
     
-  double sensorOutput = SignalProcessor_UpdateSignal( sensor->processor, sensor->inputBuffer, aquiredSamplesNumber );
-  
-  double referenceOutput = Sensor_Update( sensor->reference );
-  
-  double sensorMeasure = sensor->differentialGain * ( sensorOutput - referenceOutput );
+  double sensorOutput = te_eval( sensor->transformFunction );
   
   Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
-  Log_RegisterValues( sensor->log, 3, sensorOutput, referenceOutput, sensorMeasure );
-  //if( sensor->reference != NULL ) fprintf( stderr, "in=%+.6f, out=%+.6f, res=%+.6f\r", referenceOutput, sensorOutput, sensorMeasure );   
+  Log_RegisterList( sensor->log, sensor->inputsNumber, sensor->inputValuesList );
+  Log_RegisterValues( sensor->log, 1, sensorOutput ); 
   
-  return sensorMeasure;
+  return sensorOutput;
 }
   
 bool Sensor_HasError( Sensor sensor )
 {
   if( sensor == NULL ) return false;
   
-  return sensor->HasError( sensor->deviceID );
+  for( size_t inputIndex = sensor->inputsNumber; inputIndex < sensor->inputsNumber; inputIndex++ )
+    if( Input_HasError( sensor->inputsList[ inputIndex ] ) ) return true;
+  
+  return false;
 }
 
 void Sensor_Reset( Sensor sensor )
 {
   if( sensor == NULL ) return;
   
-  SignalProcessor_SetState( sensor->processor, SIG_PROC_STATE_MEASUREMENT );
-  sensor->Reset( sensor->deviceID );
+  for( size_t inputIndex = sensor->inputsNumber; inputIndex < sensor->inputsNumber; inputIndex++ )
+    Input_Reset( sensor->inputsList[ inputIndex ] );
 }
 
 void Sensor_SetState( Sensor sensor, enum SensorState newState )
@@ -209,6 +159,6 @@ void Sensor_SetState( Sensor sensor, enum SensorState newState )
   if( newState == SENSOR_STATE_OFFSET ) newProcessingState = SIG_PROC_STATE_OFFSET;
   else if( newState == SENSOR_STATE_CALIBRATION ) newProcessingState = SIG_PROC_STATE_CALIBRATION;
   
-  SignalProcessor_SetState( sensor->processor, newProcessingState );
-  Sensor_SetState( sensor->reference, newState );
+  for( size_t inputIndex = sensor->inputsNumber; inputIndex < sensor->inputsNumber; inputIndex++ )
+    Input_SetState( sensor->inputsList[ inputIndex ], newProcessingState );
 }

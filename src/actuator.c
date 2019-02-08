@@ -27,6 +27,7 @@
 #include "motor.h"
 #include "sensor.h"
 
+#include "data_io/interface/data_io.h"
 #include "kalman/kalman_filters.h"
 #include "debug/data_logging.h"
 #include "timing/timing.h"
@@ -52,19 +53,14 @@ struct _ActuatorData
 
 const char* CONTROL_MODE_NAMES[ CONTROL_VARS_NUMBER ] = { [ POSITION ] = "POSITION", [ VELOCITY ] = "VELOCITY", 
                                                           [ FORCE ] = "FORCE", [ ACCELERATION ] = "ACCELERATION" };
-Actuator Actuator_Init( DataHandle configuration )
+Actuator Actuator_Init( const char* configName )
 {
-  static char filePath[ DATA_IO_MAX_PATH_LENGTH ];
+  char filePath[ DATA_IO_MAX_PATH_LENGTH ];
   
+  DEBUG_PRINT( "trying to create actuator %s", configName );
+  sprintf( filePath, KEY_CONFIG "/" KEY_ACTUATOR "/%s", configName );
+  DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration == NULL ) return NULL;
-  
-  const char* actuatorName = DataIO_GetStringValue( configuration, NULL, "" );
-  if( actuatorName != NULL )
-  {
-    DEBUG_PRINT( "trying to create actuator %s", actuatorName );
-    sprintf( filePath, KEY_CONFIG "/" KEY_ACTUATOR "/%s", actuatorName );
-    if( (configuration = DataIO_LoadStorageData( filePath )) == NULL ) return NULL;
-  }
   
   Actuator newActuator = (Actuator) malloc( sizeof(ActuatorData) );
   memset( newActuator, 0, sizeof(ActuatorData) );
@@ -78,8 +74,8 @@ Actuator Actuator_Init( DataHandle configuration )
     newActuator->sensorsList = (Sensor*) calloc( newActuator->sensorsNumber, sizeof(Sensor) );
     for( size_t sensorIndex = 0; sensorIndex < newActuator->sensorsNumber; sensorIndex++ )
     {
-      DataHandle sensorConfiguration = DataIO_GetSubData( configuration, KEY_SENSOR "s.%lu." KEY_CONFIG, sensorIndex );
-      newActuator->sensorsList[ sensorIndex ] = Sensor_Init( sensorConfiguration );
+      const char* sensorName = DataIO_GetStringValue( configuration, "", KEY_SENSOR "s.%lu." KEY_CONFIG, sensorIndex );
+      if( (newActuator->sensorsList[ sensorIndex ] = Sensor_Init( sensorName )) ) loadSuccess = false;
       Sensor_Reset( newActuator->sensorsList[ sensorIndex ] );
       const char* sensorType = DataIO_GetStringValue( configuration, "", KEY_SENSOR "s.%lu." KEY_VARIABLE, sensorIndex );
       for( int controlModeIndex = 0; controlModeIndex < CONTROL_VARS_NUMBER; controlModeIndex++ )
@@ -108,7 +104,7 @@ Actuator Actuator_Init( DataHandle configuration )
   
   newActuator->controlState = ACTUATOR_OPERATION;
   
-  if( actuatorName != NULL ) DataIO_UnloadData( configuration );
+  DataIO_UnloadData( configuration );
   
   if( !loadSuccess )
   {

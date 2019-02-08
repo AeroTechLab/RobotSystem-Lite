@@ -54,8 +54,6 @@
 #define MOTOR_H
 
 
-#include "data_io/interface/data_io.h"
-
 #include <stdbool.h>
 
 typedef struct _MotorData MotorData;       ///< Single motor internal data structure    
@@ -63,9 +61,9 @@ typedef MotorData* Motor;                  ///< Opaque reference to motor intern
 
                                                               
 /// @brief Creates and initializes motor data structure based on given information                                              
-/// @param[in] configuration reference to data object containing configuration parameters, as explained at @ref motor_config
+/// @param[in] configName name of file containing configuration parameters, as explained at @ref motor_config
 /// @return reference/pointer to newly created and initialized motor data structure
-Motor Motor_Init( DataHandle configuration );
+Motor Motor_Init( const char* configName );
 
 /// @brief Deallocates internal data of given motor                        
 /// @param[in] motor reference to motor

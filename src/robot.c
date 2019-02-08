@@ -80,7 +80,7 @@ static void* AsyncControl( void* );
 
 bool Robot_Init( const char* configPathName )
 {
-  static char filePath[ DATA_IO_MAX_PATH_LENGTH ];
+  char filePath[ DATA_IO_MAX_PATH_LENGTH ];
 
   DEBUG_PRINT( "trying to initialize robot %s", configPathName );
   
@@ -105,8 +105,8 @@ bool Robot_Init( const char* configPathName )
         robot.jointSetpointsList = (RobotVariables**) calloc( robot.jointsNumber, sizeof(RobotVariables*) );
         for( size_t jointIndex = 0; jointIndex < robot.jointsNumber; jointIndex++ )
         {
-          DataHandle actuatorConfiguration = DataIO_GetSubData( configuration, KEY_ACTUATOR "s.%lu", jointIndex );
-          robot.jointsList[ jointIndex ].actuator = Actuator_Init( actuatorConfiguration );
+          const char* actuatorName = DataIO_GetStringValue( configuration, "", KEY_ACTUATOR "s.%lu", jointIndex );
+          robot.jointsList[ jointIndex ].actuator = Actuator_Init( actuatorName );
           robot.jointMeasuresList[ jointIndex ] = robot.jointsList[ jointIndex ].measures = (RobotVariables*) malloc( sizeof(RobotVariables) );
           robot.jointSetpointsList[ jointIndex ] = robot.jointsList[ jointIndex ].setpoints = (RobotVariables*) malloc( sizeof(RobotVariables) );
         }

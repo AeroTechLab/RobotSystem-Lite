@@ -20,6 +20,8 @@
 #define KEY_MULTIPLIER            "multiplier"
 #define KEY_DIVISOR               "divisor"
 #define KEY_REFERENCE             "reference"
+#define KEY_INPUT                 "input"
+#define KEY_OUTPUT                "output"
 #define KEY_INPUT_GAIN            "input_gain"
 #define KEY_OUTPUT_GAIN           "output_gain"
 #define KEY_DIFFERENTIAL_GAIN     "differential_gain"
