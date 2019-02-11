@@ -22,8 +22,7 @@
 
 #include "motor.h"
 
-#include "sensor.h"
-
+#include "input.h"
 #include "tinyexpr/tinyexpr.h"
 
 #include "data_io/interface/data_io.h"
@@ -38,16 +37,18 @@
 #include <stddef.h>
 #include <string.h>
       
-const char* INPUT_VARIABLE_NAMES[] = { "set", "ref" };
+const char* SETPOINT_VARIABLE_NAME = "set";
+const char* REFERENCE_VARIABLE_NAME = "ref";
       
 struct _MotorData
 {
   DECLARE_MODULE_INTERFACE_REF( SIGNAL_IO_INTERFACE );
   int interfaceID;
   unsigned int outputChannel;
-  double outputGain;
-  Sensor reference;
-  double outputOffset;
+  Input reference;
+  double setpoint, offset;
+  te_variable inputVariables[ 2 ];
+  te_expr* transformFunction;
   bool isOffsetting;
   Log log;
 };
@@ -66,28 +67,32 @@ Motor Motor_Init( const char* configName )
   memset( newMotor, 0, sizeof(MotorData) );
 
   bool loadSuccess = true;
-  sprintf( filePath, KEY_MODULES "/" KEY_SIGNAL_IO "/%s", DataIO_GetStringValue( configuration, "", KEY_OUTPUT_INTERFACE "." KEY_TYPE ) );
+  sprintf( filePath, KEY_MODULES "/" KEY_SIGNAL_IO "/%s", DataIO_GetStringValue( configuration, "", KEY_INTERFACE "." KEY_TYPE ) );
   LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newMotor, &loadSuccess );
   if( loadSuccess )
   {
-    newMotor->interfaceID = newMotor->InitDevice( DataIO_GetStringValue( configuration, "", KEY_OUTPUT_INTERFACE "." KEY_CONFIG ) );
+    newMotor->interfaceID = newMotor->InitDevice( DataIO_GetStringValue( configuration, "", KEY_INTERFACE "." KEY_CONFIG ) );
     if( newMotor->interfaceID != SIGNAL_IO_DEVICE_INVALID_ID ) 
     {
-      newMotor->outputChannel = (unsigned int) DataIO_GetNumericValue( configuration, -1, KEY_OUTPUT_INTERFACE "." KEY_CHANNEL );
+      newMotor->outputChannel = (unsigned int) DataIO_GetNumericValue( configuration, -1, KEY_INTERFACE "." KEY_CHANNEL );
       //DEBUG_PRINT( "trying to aquire channel %u from interface %d", newMotor->outputChannel, newMotor->interfaceID );
       //loadSuccess = newMotor->AcquireOutputChannel( newMotor->interfaceID, newMotor->outputChannel );
     }
     else loadSuccess = false;
   }
   
-  newMotor->outputGain = DataIO_GetNumericValue( configuration, 1.0, KEY_OUTPUT_GAIN "." KEY_MULTIPLIER );
-  newMotor->outputGain /= DataIO_GetNumericValue( configuration, 1.0, KEY_OUTPUT_GAIN "." KEY_DIVISOR );
-  
-  DataHandle referenceConfiguration = DataIO_GetSubData( configuration, KEY_REFERENCE );
-  newMotor->reference = Sensor_Init( referenceConfiguration );
-  if( referenceConfiguration != NULL ) DataIO_UnloadData( referenceConfiguration );
-  
+  newMotor->reference = Input_Init( DataIO_GetSubData( configuration, KEY_REFERENCE ) );
   newMotor->isOffsetting = false;
+  
+  int expressionError;
+  newMotor->inputVariables[ 0 ].name = SETPOINT_VARIABLE_NAME;
+  newMotor->inputVariables[ 0 ].address = &(newMotor->setpoint);
+  newMotor->inputVariables[ 1 ].name = REFERENCE_VARIABLE_NAME;
+  newMotor->inputVariables[ 1 ].address = &(newMotor->offset);
+  const char* transformExpression = DataIO_GetStringValue( configuration, "", KEY_OUTPUT );
+  newMotor->transformFunction = te_compile( transformExpression, newMotor->inputVariables, 2, &expressionError ); 
+  if( expressionError > 0 ) loadSuccess = false;
+  //DEBUG_PRINT( "tranform function: %s", transformExpression );
   
   if( DataIO_HasKey( configuration, KEY_LOG ) )
   {
@@ -95,7 +100,7 @@ Motor Motor_Init( const char* configName )
     newMotor->log = Log_Init( logFileName, (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
   }
   
-  if( motorName != NULL ) DataIO_UnloadData( configuration );
+  DataIO_UnloadData( configuration );
   
   if( !loadSuccess )
   {
@@ -111,6 +116,10 @@ void Motor_End( Motor motor )
   if( motor == NULL ) return;
   
   motor->EndDevice( motor->interfaceID );
+  
+  Input_End( motor->reference );
+  
+  te_free( motor->transformFunction );
   
   Log_End( motor->log );
   
@@ -150,11 +159,11 @@ void Motor_SetOffset( Motor motor, bool enabled )
 {
   if( motor == NULL ) return;
   
-  motor->outputOffset = 0.0;
-  if( motor->isOffsetting ) motor->outputOffset = Sensor_Update( motor->reference );
+  motor->offset = 0.0;
+  if( motor->isOffsetting ) motor->offset = Input_Update( motor->reference );
   motor->isOffsetting = enabled;
   
-  Sensor_SetState( motor->reference, enabled ? SENSOR_STATE_OFFSET : SENSOR_STATE_MEASUREMENT );
+  Input_SetState( motor->reference, enabled ? SIG_PROC_STATE_OFFSET : SIG_PROC_STATE_MEASUREMENT );
   
   Motor_WriteControl( motor, 0.0 );
 }
@@ -163,10 +172,11 @@ void Motor_WriteControl( Motor motor, double setpoint )
 {
   if( motor == NULL ) return;
   
-  Log_EnterNewLine( motor->log, Time_GetExecSeconds() );
-  Log_RegisterValues( motor->log, 2, setpoint, setpoint * motor->outputGain );
+  motor->setpoint = setpoint;
+  double output = te_eval( motor->transformFunction );
   
-  setpoint = ( setpoint + motor->outputOffset ) * motor->outputGain;
+  Log_EnterNewLine( motor->log, Time_GetExecSeconds() );
+  Log_RegisterValues( motor->log, 3, motor->setpoint, motor->offset, output );
 
-  if( ! motor->isOffsetting ) motor->Write( motor->interfaceID, motor->outputChannel, setpoint );
+  if( ! motor->isOffsetting ) motor->Write( motor->interfaceID, motor->outputChannel, output );
 }

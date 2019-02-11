@@ -55,16 +55,16 @@ Input Input_Init( DataHandle configuration )
   
   bool loadSuccess;
   char filePath[ DATA_IO_MAX_PATH_LENGTH ];
-  sprintf( filePath, KEY_MODULES "/" KEY_SIGNAL_IO "/%s", DataIO_GetStringValue( configuration, "", KEY_INPUT_INTERFACE "." KEY_TYPE ) );
+  sprintf( filePath, KEY_MODULES "/" KEY_SIGNAL_IO "/%s", DataIO_GetStringValue( configuration, "", KEY_INTERFACE "." KEY_TYPE ) );
   DEBUG_PRINT( "trying to read signal IO module %s", filePath );
   LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newInput, &loadSuccess );
   if( loadSuccess )
   {
     //PRINT_PLUGIN_FUNCTIONS( SIGNAL_IO_INTERFACE, newInput );
-    newInput->deviceID = newInput->InitDevice( DataIO_GetStringValue( configuration, "", KEY_INPUT_INTERFACE "." KEY_CONFIG ) );
+    newInput->deviceID = newInput->InitDevice( DataIO_GetStringValue( configuration, "", KEY_INTERFACE "." KEY_CONFIG ) );
     if( newInput->deviceID != SIGNAL_IO_DEVICE_INVALID_ID )
     {
-      newInput->channel = (unsigned int) DataIO_GetNumericValue( configuration, -1, KEY_INPUT_INTERFACE "." KEY_CHANNEL );
+      newInput->channel = (unsigned int) DataIO_GetNumericValue( configuration, -1, KEY_INTERFACE "." KEY_CHANNEL );
       loadSuccess = newInput->CheckInputChannel( newInput->deviceID, newInput->channel );
       
       size_t maxInputSamplesNumber = newInput->GetMaxInputSamplesNumber( newInput->deviceID );

@@ -87,8 +87,8 @@ Actuator Actuator_Init( const char* configName )
     }
   }
   
-  DataHandle motorConfiguration = DataIO_GetSubData( configuration, KEY_MOTOR "." KEY_CONFIG );
-  if( (newActuator->motor = Motor_Init( motorConfiguration )) == NULL ) loadSuccess = false;
+  const char* motorName = DataIO_GetStringValue( configuration, "", KEY_MOTOR "." KEY_CONFIG );
+  if( (newActuator->motor = Motor_Init( motorName )) == NULL ) loadSuccess = false;
   
   const char* controlModeName = DataIO_GetStringValue( configuration, (char*) CONTROL_MODE_NAMES[ 0 ], KEY_MOTOR "." KEY_VARIABLE );
   for( newActuator->controlMode = 0; newActuator->controlMode < CONTROL_VARS_NUMBER; newActuator->controlMode++ )

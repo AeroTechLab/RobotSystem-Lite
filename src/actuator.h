@@ -61,6 +61,8 @@
 #define ACTUATOR_H 
 
 
+#include <stdbool.h>
+
 /// Defined possible control states enumeration. Passed to internal motor and sensors
 enum ActuatorState 
 { 

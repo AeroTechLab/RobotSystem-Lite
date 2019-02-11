@@ -1,11 +1,6 @@
 {
-  "input_interface": {
-    "type": "DummyIO",
-    "config": "NULL",
-    "channel": 0
-  },
-  "input_gain": {
-    "multiplier": 1,
-    "divisor": 1
-  }
+  "inputs": [
+  { "interface": { "type": "DummyIO", "config": "NULL", "channel": 0 } }
+  ],
+  "output": "in0 * 2.0 / 3.0"
 }

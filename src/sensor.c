@@ -70,8 +70,9 @@ Sensor Sensor_Init( const char* configName )
   newSensor->inputsList = (Input*) calloc( newSensor->inputsNumber, sizeof(Input) );
   newSensor->inputValuesList = (double*) calloc( newSensor->inputsNumber, sizeof(double) );
   newSensor->inputVariables = (te_variable*) calloc( newSensor->inputsNumber, sizeof(te_variable) );
-  for( size_t inputIndex = newSensor->inputsNumber; inputIndex < newSensor->inputsNumber; inputIndex++ )
+  for( size_t inputIndex = 0; inputIndex < newSensor->inputsNumber; inputIndex++ )
   {
+    DEBUG_PRINT( "%s", DataIO_GetDataString( DataIO_GetSubData( configuration, KEY_INPUT "s.%lu", inputIndex ) ) );
     newSensor->inputsList[ inputIndex ] = Input_Init( DataIO_GetSubData( configuration, KEY_INPUT "s.%lu", inputIndex ) );
     if( newSensor->inputsList[ inputIndex ] == NULL ) loadSuccess = false;
    
@@ -79,9 +80,11 @@ Sensor Sensor_Init( const char* configName )
     newSensor->inputVariables[ inputIndex ].address = &(newSensor->inputValuesList[ inputIndex ]);
   }
   
-  int functionError;
-  const char* functionExpression = DataIO_GetStringValue( configuration, "", KEY_OUTPUT );
-  newSensor->transformFunction = te_compile( functionExpression, newSensor->inputVariables, newSensor->inputsNumber, &functionError );
+  int expressionError;
+  const char* transformExpression = DataIO_GetStringValue( configuration, "", KEY_OUTPUT );
+  newSensor->transformFunction = te_compile( transformExpression, newSensor->inputVariables, newSensor->inputsNumber, &expressionError );
+  if( expressionError > 0 ) loadSuccess = false;
+  //DEBUG_PRINT( "tranform function: %s", transformExpression );
       
   if( DataIO_HasKey( configuration, KEY_LOG ) )
   {
@@ -104,7 +107,7 @@ void Sensor_End( Sensor sensor )
 {
   if( sensor == NULL ) return;
   
-  for( size_t inputIndex = sensor->inputsNumber; inputIndex < sensor->inputsNumber; inputIndex++ )
+  for( size_t inputIndex = 0; inputIndex < sensor->inputsNumber; inputIndex++ )
     Input_End( sensor->inputsList[ inputIndex ] );
   free( sensor->inputsList );
   free( sensor->inputValuesList );
@@ -121,7 +124,7 @@ double Sensor_Update( Sensor sensor )
 {
   if( sensor == NULL ) return 0.0;
   
-  for( size_t inputIndex = sensor->inputsNumber; inputIndex < sensor->inputsNumber; inputIndex++ )
+  for( size_t inputIndex = 0; inputIndex < sensor->inputsNumber; inputIndex++ )
     sensor->inputValuesList[ inputIndex ] = Input_Update( sensor->inputsList[ inputIndex ] );
     
   double sensorOutput = te_eval( sensor->transformFunction );
@@ -137,7 +140,7 @@ bool Sensor_HasError( Sensor sensor )
 {
   if( sensor == NULL ) return false;
   
-  for( size_t inputIndex = sensor->inputsNumber; inputIndex < sensor->inputsNumber; inputIndex++ )
+  for( size_t inputIndex = 0; inputIndex < sensor->inputsNumber; inputIndex++ )
     if( Input_HasError( sensor->inputsList[ inputIndex ] ) ) return true;
   
   return false;
@@ -147,7 +150,7 @@ void Sensor_Reset( Sensor sensor )
 {
   if( sensor == NULL ) return;
   
-  for( size_t inputIndex = sensor->inputsNumber; inputIndex < sensor->inputsNumber; inputIndex++ )
+  for( size_t inputIndex = 0; inputIndex < sensor->inputsNumber; inputIndex++ )
     Input_Reset( sensor->inputsList[ inputIndex ] );
 }
 
@@ -159,6 +162,6 @@ void Sensor_SetState( Sensor sensor, enum SensorState newState )
   if( newState == SENSOR_STATE_OFFSET ) newProcessingState = SIG_PROC_STATE_OFFSET;
   else if( newState == SENSOR_STATE_CALIBRATION ) newProcessingState = SIG_PROC_STATE_CALIBRATION;
   
-  for( size_t inputIndex = sensor->inputsNumber; inputIndex < sensor->inputsNumber; inputIndex++ )
+  for( size_t inputIndex = 0; inputIndex < sensor->inputsNumber; inputIndex++ )
     Input_SetState( sensor->inputsList[ inputIndex ], newProcessingState );
 }

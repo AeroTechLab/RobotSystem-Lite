@@ -315,7 +315,6 @@ static void* AsyncControl( void* ref_robot )
     elapsedTime = Time_GetExecSeconds() - execTime;
     //DEBUG_PRINT( "step time for robot %p (before delay): %.5f s", robot, elapsedTime );
     if( elapsedTime < robot->controlTimeStep ) Time_Delay( (unsigned long) ( 1000 * ( robot->controlTimeStep - elapsedTime ) ) );
-    //DEBUG_PRINT( "step time: before delay=%.5fs, after delay=%.5f", elapsedTime, Time_GetExecSeconds() - execTime );
   }
   
   return NULL;
