@@ -80,10 +80,9 @@ Sensor Sensor_Init( const char* configName )
   }
   
   int expressionError;
-  const char* transformExpression = DataIO_GetStringValue( configuration, "", KEY_OUTPUT );
+  const char* transformExpression = DataIO_GetStringValue( configuration, INPUT_VARIABLE_NAMES[ 0 ], KEY_OUTPUT );
   newSensor->transformFunction = te_compile( transformExpression, newSensor->inputVariables, newSensor->inputsNumber, &expressionError );
   if( expressionError > 0 ) loadSuccess = false;
-  //DEBUG_PRINT( "tranform function: %s", transformExpression );
       
   if( DataIO_HasKey( configuration, KEY_LOG ) )
     newSensor->log = Log_Init( DataIO_GetBooleanValue( configuration, false, KEY_LOG "." KEY_FILE ) ? configName : "", 

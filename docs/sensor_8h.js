@@ -10,7 +10,7 @@ var sensor_8h =
     ] ],
     [ "Sensor_End", "sensor_8h.html#ad180a8f351618ce96bde169c7aa9255e", null ],
     [ "Sensor_HasError", "sensor_8h.html#ac7a01ce8076c830219d43f6cc03166b5", null ],
-    [ "Sensor_Init", "sensor_8h.html#a6b268b92efc9146605b8d8ff2dae5377", null ],
+    [ "Sensor_Init", "sensor_8h.html#ad64ebc831b832eb1dcbb581e3a30f565", null ],
     [ "Sensor_Reset", "sensor_8h.html#a86e0bd84bb90261e20e67de290011f81", null ],
     [ "Sensor_SetState", "sensor_8h.html#a2f3641861d2e45a260fed804d2489e6b", null ],
     [ "Sensor_Update", "sensor_8h.html#a7f9637ddc32d729cc0a995cec26e036d", null ]

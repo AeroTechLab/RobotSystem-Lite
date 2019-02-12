@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['sensor',['Sensor',['../sensor_8h.html#a31b44f125e6e6a5234a7bdd4b1256e97',1,'sensor.h']]],
-  ['sensordata',['SensorData',['../sensor_8h.html#adaf2adc3465e6ea3d1ba322d602918c9',1,'sensor.h']]]
+  ['motor',['Motor',['../motor_8h.html#abf461155037199f0a5cfa434a9ea5efb',1,'motor.h']]],
+  ['motordata',['MotorData',['../motor_8h.html#adf79242f08129627a3e3678869cf5731',1,'motor.h']]]
 ];

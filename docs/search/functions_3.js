@@ -1,12 +1,15 @@
 var searchData=
 [
-  ['sensor_5fend',['Sensor_End',['../sensor_8h.html#ad180a8f351618ce96bde169c7aa9255e',1,'sensor.h']]],
-  ['sensor_5fhaserror',['Sensor_HasError',['../sensor_8h.html#ac7a01ce8076c830219d43f6cc03166b5',1,'sensor.h']]],
-  ['sensor_5finit',['Sensor_Init',['../sensor_8h.html#a6b268b92efc9146605b8d8ff2dae5377',1,'sensor.h']]],
-  ['sensor_5freset',['Sensor_Reset',['../sensor_8h.html#a86e0bd84bb90261e20e67de290011f81',1,'sensor.h']]],
-  ['sensor_5fsetstate',['Sensor_SetState',['../sensor_8h.html#a2f3641861d2e45a260fed804d2489e6b',1,'sensor.h']]],
-  ['sensor_5fupdate',['Sensor_Update',['../sensor_8h.html#a7f9637ddc32d729cc0a995cec26e036d',1,'sensor.h']]],
-  ['system_5fend',['System_End',['../system_8h.html#a9f149471dab4ed557d1d3bb194dca8ab',1,'system.h']]],
-  ['system_5finit',['System_Init',['../system_8h.html#aa1d94da7dbbe8cb3360447deae99da5f',1,'system.h']]],
-  ['system_5fupdate',['System_Update',['../system_8h.html#a2fc3f6933c82f8d10aa10954f14fb1e3',1,'system.h']]]
+  ['robot_5fdisable',['Robot_Disable',['../robot_8h.html#a80e90d8bccfb5145d9e715918aa17b96',1,'robot.h']]],
+  ['robot_5fenable',['Robot_Enable',['../robot_8h.html#a217cb75fa3a4b3e7f9aa66597da7198c',1,'robot.h']]],
+  ['robot_5fend',['Robot_End',['../robot_8h.html#a3e33258cf97c33a09545a14a8f65497c',1,'robot.h']]],
+  ['robot_5fgetaxesnumber',['Robot_GetAxesNumber',['../robot_8h.html#aee8cd1a53b9863a9e3eea73e600fb373',1,'robot.h']]],
+  ['robot_5fgetaxismeasures',['Robot_GetAxisMeasures',['../robot_8h.html#a1758b1969d198174b2f9de06bb12de09',1,'robot.h']]],
+  ['robot_5fgetaxisname',['Robot_GetAxisName',['../robot_8h.html#a777ae06d45acb3271db012929eb39e51',1,'robot.h']]],
+  ['robot_5fgetjointmeasures',['Robot_GetJointMeasures',['../robot_8h.html#a1a8c6a51732cd0f8560bcf3522f3cdc7',1,'robot.h']]],
+  ['robot_5fgetjointname',['Robot_GetJointName',['../robot_8h.html#a2098368a06b849450a3bbbdc6e73a655',1,'robot.h']]],
+  ['robot_5fgetjointsnumber',['Robot_GetJointsNumber',['../robot_8h.html#adca7c76726c86f9bc020ec3832f908ba',1,'robot.h']]],
+  ['robot_5finit',['Robot_Init',['../robot_8h.html#a1fd70b199447ba3d69e1f433348d0bc7',1,'robot.h']]],
+  ['robot_5fsetaxissetpoints',['Robot_SetAxisSetpoints',['../robot_8h.html#a34e0aba6572269c442de7b4a9b37aa44',1,'robot.h']]],
+  ['robot_5fsetcontrolstate',['Robot_SetControlState',['../robot_8h.html#adca92562de2ab78471fda1643d102338',1,'robot.h']]]
 ];

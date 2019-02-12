@@ -49,8 +49,9 @@
 ///     "variable_type": "VELOCITY",      // Controlled dimension/variable (POSITION, VELOCITY, FORCE or ACCELERATION)
 ///     "config": "<motor_identifier>"      // Motor string identifier (configuration file path) or inline configuration object 
 ///   },
-///   "log": {                            // [o] Set logging of measurement numeric data over time
-///     "file": "",                         // [o] Path (without extension), relative to to <log_dir>/actuators/, to log file. Default value will set terminal logging
+///   "log": {                            // [o] Set logging of measurement and setpoint numeric data over time
+///     "to_file": false,                   // [o] Save data logging to <log_dir>/[<user_name>-]<actuator_name>-<time_stamp>.log, to log file 
+///                                         //     Default value will set terminal logging
 ///     "precision": 3                      // [o] Decimal precision for logged numeric values
 ///   }
 /// }

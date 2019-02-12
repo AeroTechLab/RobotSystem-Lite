@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['motor',['Motor',['../motor_8h.html#abf461155037199f0a5cfa434a9ea5efb',1,'motor.h']]],
-  ['motordata',['MotorData',['../motor_8h.html#adf79242f08129627a3e3678869cf5731',1,'motor.h']]]
+  ['input',['Input',['../input_8h.html#ac21fc59546e266b8905ddb34dc392866',1,'input.h']]],
+  ['inputdata',['InputData',['../input_8h.html#aac8ba5b94a928e3295dfa706019f8799',1,'input.h']]]
 ];

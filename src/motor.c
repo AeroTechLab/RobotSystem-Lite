@@ -88,10 +88,9 @@ Motor Motor_Init( const char* configName )
   newMotor->inputVariables[ 0 ].address = &(newMotor->setpoint);
   newMotor->inputVariables[ 1 ].name = REFERENCE_VARIABLE_NAME;
   newMotor->inputVariables[ 1 ].address = &(newMotor->offset);
-  const char* transformExpression = DataIO_GetStringValue( configuration, "", KEY_OUTPUT );
+  const char* transformExpression = DataIO_GetStringValue( configuration, SETPOINT_VARIABLE_NAME, KEY_OUTPUT );
   newMotor->transformFunction = te_compile( transformExpression, newMotor->inputVariables, 2, &expressionError ); 
   if( expressionError > 0 ) loadSuccess = false;
-  //DEBUG_PRINT( "tranform function: %s", transformExpression );
   
   if( DataIO_HasKey( configuration, KEY_LOG ) )
     newMotor->log = Log_Init( DataIO_GetBooleanValue( configuration, false, KEY_LOG "." KEY_FILE ) ? configName : "", 

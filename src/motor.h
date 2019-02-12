@@ -33,19 +33,21 @@
 /// The possible configuration fields and their values are here exemplified for the case of a JSON format configuration (optional parameters are presented with default values and marked with '[o]' in their description):
 /// @code
 /// {
-///   "output_interface": {         // Hardware/virtual interface properties
-///     "type": "<library_name>",     // Path (without extension) to plugin with signal output implementation (loaded from MODULES_DIR/signal_io/)
-///     "config": "",                 // [o] Signal input/output device configuration string passed to plugin initialization call
-///     "channel": 0                  // Device channel to which output/actuation values will be sent
+///   "interface": {                  // Hardware/virtual output interface properties
+///     "type": "<library_name>",       // Path (without extension) to plugin with signal output implementation (loaded from MODULES_DIR/signal_io/)
+///     "config": "",                   // [o] Signal input/output device configuration string passed to plugin initialization call
+///     "channel": 0                    // Device channel to which output/actuation values will be sent
 ///   },
-///   "output_gain": {              // [o] Signal scaling parameters
-///     "multiplier": 1.0,            // [o] Value that multiplies the signal value
-///     "divisor": 1.0                // [o] Value that divides the signal value
+///   "reference": {                  // [o] Offset reference ("ref") input configuration (as for single input configuration in sensor configuration)
+///     "interface": { ... },         //     Values for offset reference are only aquired during control offset state
+///     "signal_processing": { ... }
 ///   },
-///   "reference": "<sensor_identifier>",       // [o] String identifier (file name) or data object of configuration for motor reference sensor, if any 
-///   "log": {                      // [o] Set logging of output numeric data over time
-///     "file": "",                   // [o] Path (without extension), relative to to <log_dir>/motors/, to log file. Default value will set terminal logging
-///     "precision": 3                // [o] Decimal precision for logged numeric values
+///   "output": "set",                // [o] String with math expression for conversion from control setpoint ("set") and offset reference ("ref") to output
+///                                   //     Possible operations are the ones supported by [TinyExpr library](https://codeplea.com/tinyexpr)
+///   "log": {                        // [o] Set logging of setpoint, offset and output numeric data over time
+///     "to_file": false,               // [o] Save data logging to <log_dir>/[<user_name>-]<motor_name>-<time_stamp>.log, to log file 
+///                                     //     Default value will set terminal logging
+///     "precision": 3                  // [o] Decimal precision for logged numeric values
 ///   }
 /// }
 /// @endcode
