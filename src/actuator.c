@@ -55,8 +55,7 @@ const char* CONTROL_MODE_NAMES[ CONTROL_VARS_NUMBER ] = { [ POSITION ] = "POSITI
                                                           [ FORCE ] = "FORCE", [ ACCELERATION ] = "ACCELERATION" };
 Actuator Actuator_Init( const char* configName )
 {
-  char filePath[ DATA_IO_MAX_PATH_LENGTH ];
-  
+  char filePath[ DATA_IO_MAX_PATH_LENGTH ];  
   DEBUG_PRINT( "trying to create actuator %s", configName );
   sprintf( filePath, KEY_CONFIG "/" KEY_ACTUATOR "/%s", configName );
   DataHandle configuration = DataIO_LoadStorageData( filePath );
@@ -79,10 +78,7 @@ Actuator Actuator_Init( const char* configName )
       Sensor_Reset( newActuator->sensorsList[ sensorIndex ] );
       const char* sensorType = DataIO_GetStringValue( configuration, "", KEY_SENSOR "s.%lu." KEY_VARIABLE, sensorIndex );
       for( int controlModeIndex = 0; controlModeIndex < CONTROL_VARS_NUMBER; controlModeIndex++ )
-      {
-        if( strcmp( sensorType, CONTROL_MODE_NAMES[ controlModeIndex ] ) == 0 ) 
-          Kalman_AddInput( newActuator->motionFilter, controlModeIndex );
-      }
+        if( strcmp( sensorType, CONTROL_MODE_NAMES[ controlModeIndex ] ) == 0 ) Kalman_AddInput( newActuator->motionFilter, controlModeIndex );
       Kalman_SetInputMaxError( newActuator->motionFilter, sensorIndex, DataIO_GetNumericValue( configuration, 1.0, KEY_SENSOR "s.%lu." KEY_DEVIATION ) );
     }
   }
@@ -92,15 +88,11 @@ Actuator Actuator_Init( const char* configName )
   
   const char* controlModeName = DataIO_GetStringValue( configuration, (char*) CONTROL_MODE_NAMES[ 0 ], KEY_MOTOR "." KEY_VARIABLE );
   for( newActuator->controlMode = 0; newActuator->controlMode < CONTROL_VARS_NUMBER; newActuator->controlMode++ )
-  {
     if( strcmp( controlModeName, CONTROL_MODE_NAMES[ newActuator->controlMode ] ) == 0 ) break;
-  }
   
   if( DataIO_HasKey( configuration, KEY_LOG ) )
-  {
-    const char* logFileName = DataIO_GetStringValue( configuration, "", KEY_LOG "." KEY_FILE );
-    newActuator->log = Log_Init( logFileName, (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
-  }
+    newActuator->log = Log_Init( DataIO_GetBooleanValue( configuration, false, KEY_LOG "." KEY_FILE ) ? configName : "", 
+                       (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
   
   newActuator->controlState = ACTUATOR_OPERATION;
   

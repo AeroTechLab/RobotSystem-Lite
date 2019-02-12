@@ -25,7 +25,7 @@
 #define KEY_RECTIFIED             "rectified"
 #define KEY_NORMALIZED            "normalized"
 #define KEY_LOG                   "log"
-#define KEY_FILE                  "file"
+#define KEY_FILE                  "to_file"
 #define KEY_PRECISION             "precision"
 
 #endif // CONFIG_KEYS_H

@@ -53,7 +53,6 @@ struct _SensorData
 Sensor Sensor_Init( const char* configName )
 {
   char filePath[ DATA_IO_MAX_PATH_LENGTH ];
-  
   DEBUG_PRINT( "trying to create sensor %s", configName );
   sprintf( filePath, KEY_CONFIG "/" KEY_SENSOR "/%s", configName );
   DataHandle configuration = DataIO_LoadStorageData( filePath );
@@ -87,10 +86,8 @@ Sensor Sensor_Init( const char* configName )
   //DEBUG_PRINT( "tranform function: %s", transformExpression );
       
   if( DataIO_HasKey( configuration, KEY_LOG ) )
-  {
-    const char* logFileName = DataIO_GetStringValue( configuration, "", KEY_LOG "." KEY_FILE );
-    newSensor->log = Log_Init( logFileName, (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
-  }
+    newSensor->log = Log_Init( DataIO_GetBooleanValue( configuration, false, KEY_LOG "." KEY_FILE ) ? configName : "", 
+                               (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
   
   DataIO_UnloadData( configuration );
   
