@@ -43,7 +43,7 @@
 ///     "signal_processing": { ... }
 ///   },
 ///   "output": "set",                // [o] String with math expression for conversion from control setpoint ("set") and offset reference ("ref") to output
-///                                   //     Possible operations are the ones supported by [TinyExpr library](https://codeplea.com/tinyexpr)
+///                                   //     Possible operations are the ones supported by TinyExpr library: https://codeplea.com/tinyexpr
 ///   "log": {                        // [o] Set logging of setpoint, offset and output numeric data over time
 ///     "to_file": false,               // [o] Save data logging to <log_dir>/[<user_name>-]<motor_name>-<time_stamp>.log, to log file 
 ///                                     //     Default value will set terminal logging

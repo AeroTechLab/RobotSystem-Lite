@@ -49,7 +49,7 @@
 ///     }, ...
 ///   ],
 ///   "output": "in0",                          // [o] String with math expression for conversion from sensor inputs to output (like "tanh( in0 - in1 )")
-///                                             //     Possible operations are the ones supported by [TinyExpr library](https://codeplea.com/tinyexpr)
+///                                             //     Possible operations are the ones supported by TinyExpr library: https://codeplea.com/tinyexpr
 ///   "log": {                                  // [o] Set logging of inputs and measurement numeric data over time
 ///     "to_file": false,                         // [o] Save data logging to <log_dir>/[<user_name>-]<sensor_name>-<time_stamp>.log, to log file 
 ///                                               //     Default value will set terminal logging

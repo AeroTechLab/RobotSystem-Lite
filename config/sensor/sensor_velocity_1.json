@@ -1,7 +1,10 @@
 {
   "inputs": [
-    { "interface": { "type": "NICANEPOS", "config": "1", "channel": 1 }, "signal_processing": { "max_frequency": 0.1 } }
+    { 
+      "interface": { "type": "NICANEPOS", "config": "1", "channel": 1 }, 
+      "signal_processing": { "max_frequency": 0.1 } 
+    }
   ],
-  "output": "2 * pi * in0 / 60",
+  "output": "( 2 * pi / 60 ) * in0",
   "log": { "file": true, "precision": 5 }
 }

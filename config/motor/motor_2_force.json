@@ -4,5 +4,5 @@
     "config": "2",
     "channel": 2
   },
-  "output": "1000 * set / 60.3"
+  "output": "( 1000 / 60.3 ) * set"
 }

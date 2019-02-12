@@ -2,6 +2,6 @@
   "inputs": [
     { "interface": { "type": "NICANEPOS", "config": "1", "channel": 0 } }
   ],
-  "output": "2 * pi * in0 / 4096",
+  "output": "( 2 * pi / 4096 ) * in0",
   "log": { "file": true, "precision": 5 }
 }
