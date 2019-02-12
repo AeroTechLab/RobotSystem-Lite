@@ -1,18 +1,7 @@
 {
-  "input_interface": {
-    "type": "NICANEPOS",
-    "config": "1",
-    "channel": 2
-  },
-  "input_gain": {
-    "multiplier": -60.3,
-    "divisor": 1000
-  },
-  "signal_processing": {
-    "low_pass_frequency": 0.1
-  },
-  "log": {
-    "file": "torque_1",
-    "precision": 5
-  }
+  "inputs": [
+    { "interface": { "type": "NICANEPOS", "config": "1", "channel": 2 }, "signal_processing": { "max_frequency": 0.1 } }
+  ],
+  "output": "-60.3 * in0 / 1000",
+  "log": { "file": true, "precision": 5 }
 }

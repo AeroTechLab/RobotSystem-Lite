@@ -1,15 +1,7 @@
 {
-  "input_interface": {
-    "type": "NICANEPOS",
-    "config": "1",
-    "channel": 1
-  },
-  "input_gain": {
-    "multiplier": 6.28,
-    "divisor": 60
-  },
-  "log": {
-    "file": "velocity_1",
-    "precision": 5
-  }
+  "inputs": [
+    { "interface": { "type": "NICANEPOS", "config": "1", "channel": 1 }, "signal_processing": { "max_frequency": 0.1 } }
+  ],
+  "output": "2 * pi * in0 / 60",
+  "log": { "file": true, "precision": 5 }
 }

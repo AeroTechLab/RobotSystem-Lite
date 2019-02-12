@@ -1,11 +1,8 @@
 {
-  "output_interface": {
+  "interface": {
     "type": "NICANEPOS",
     "config": "2",
     "channel": 2
   },
-  "output_gain": {
-    "multiplier": 1000,
-    "divisor": 60.3
-  }
+  "output": "1000 * set / 60.3"
 }

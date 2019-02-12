@@ -1,16 +1,6 @@
 {
-  "output_interface": {
-    "type": "NICANEPOS",
-    "config": "1",
-    "channel": 0
-  },
-  "output_gain": {
-    "multiplier": 4096,
-    "divisor": 6.28
-  },
-  "reference": "sensor_position_1",
-  "log": {
-    "file": "setpoint_1",
-    "precision": 5
-  }
+  "interface": { "type": "NICANEPOS", "config": "1", "channel": 0 },
+  "reference": { "interface": { "type": "NICANEPOS", "config": "1", "channel": 0 },
+  "output": "4096 * ( set - 2 * pi * ref / 4096 ) / ( 2 * pi )",
+  "log": { "file": true, "precision": 5 }
 }
