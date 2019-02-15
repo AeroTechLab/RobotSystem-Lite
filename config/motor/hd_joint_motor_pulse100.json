@@ -1,11 +1,11 @@
 {
   "output_interface": {
-    "type": "PD2AO",
+    "type": "NICANEPOS",
     "config": "1",
     "channel": 0
   },
   "output_gain": {
-    "multiplier": 0.025,
-    "divisor": 6.28
+    "multiplier": 100,
+    "divisor": 1
   }
 }

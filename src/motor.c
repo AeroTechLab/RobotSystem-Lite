@@ -57,7 +57,7 @@ struct _MotorData
 Motor Motor_Init( const char* configName )
 {
   char filePath[ DATA_IO_MAX_PATH_LENGTH ];
-  DEBUG_PRINT( "trying to create motor %s", configName );
+  //DEBUG_PRINT( "trying to create motor %s", configName );
   sprintf( filePath, KEY_CONFIG "/" KEY_MOTOR "/%s", configName );
   DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration == NULL ) return NULL;
@@ -91,7 +91,7 @@ Motor Motor_Init( const char* configName )
   const char* transformExpression = DataIO_GetStringValue( configuration, SETPOINT_VARIABLE_NAME, KEY_OUTPUT );
   newMotor->transformFunction = te_compile( transformExpression, newMotor->inputVariables, 2, &expressionError ); 
   if( expressionError > 0 ) loadSuccess = false;
-  
+  //DEBUG_PRINT( "transform function: out= %s (error: %d)", transformExpression, expressionError );
   if( DataIO_HasKey( configuration, KEY_LOG ) )
     newMotor->log = Log_Init( DataIO_GetBooleanValue( configuration, false, KEY_LOG "." KEY_FILE ) ? configName : "", 
                               (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
@@ -115,7 +115,7 @@ void Motor_End( Motor motor )
   
   Input_End( motor->reference );
   
-  te_free( motor->transformFunction );
+  if( motor->transformFunction != NULL ) te_free( motor->transformFunction );
   
   Log_End( motor->log );
   
@@ -125,8 +125,9 @@ void Motor_End( Motor motor )
 bool Motor_Enable( Motor motor )
 {
   if( motor == NULL ) return false;
-  
+  DEBUG_PRINT( "resetting interface %d", motor->interfaceID );
   motor->Reset( motor->interfaceID );
+  DEBUG_PRINT( "acquiring output %u from interface %d", motor->outputChannel, motor->interfaceID );  
   return motor->AcquireOutputChannel( motor->interfaceID, motor->outputChannel );
 }
 
@@ -154,25 +155,25 @@ bool Motor_HasError( Motor motor )
 void Motor_SetOffset( Motor motor, bool enabled )
 {
   if( motor == NULL ) return;
-  
+  if( motor->isOffsetting ) DEBUG_PRINT( "getting offset from motor reference %p", motor->reference );
   motor->offset = 0.0;
   if( motor->isOffsetting ) motor->offset = Input_Update( motor->reference );
   motor->isOffsetting = enabled;
-  
+  DEBUG_PRINT( "setting reference state to %s", enabled ? "offset" : "operation" );
   Input_SetState( motor->reference, enabled ? SIG_PROC_STATE_OFFSET : SIG_PROC_STATE_MEASUREMENT );
-  
+  DEBUG_PRINT( "setting motor %p to initial position", motor );
   Motor_WriteControl( motor, 0.0 );
 }
 
 void Motor_WriteControl( Motor motor, double setpoint )
 {
   if( motor == NULL ) return;
-  
+  //DEBUG_PRINT( "evaluating transform function %p", motor->transformFunction );
   motor->setpoint = setpoint;
   double output = te_eval( motor->transformFunction );
-  
-  Log_EnterNewLine( motor->log, Time_GetExecSeconds() );
-  Log_RegisterValues( motor->log, 3, motor->setpoint, motor->offset, output );
-
+  //DEBUG_PRINT( "logging motor data to %p", motor->log );
+  //Log_EnterNewLine( motor->log, Time_GetExecSeconds() );
+  //Log_RegisterValues( motor->log, 3, motor->setpoint, motor->offset, output );
+  //DEBUG_PRINT( "writing %g to motor interface %d channel %u", output, motor->interfaceID, motor->outputChannel );
   if( ! motor->isOffsetting ) motor->Write( motor->interfaceID, motor->outputChannel, output );
 }

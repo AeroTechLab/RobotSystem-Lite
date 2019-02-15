@@ -1,0 +1,7 @@
+{
+  "inputs": [
+    { "interface": { "type": "NIDAQmx", "config": "AccelReadTask", "channel": 0 } },
+    { "interface": { "type": "NIDAQmx", "config": "AccelReadTask", "channel": 2 } }
+  ],
+  "output": "1.0 * ( acos( tanh( in0 / 2.421 ) ) - acos( tanh( in1 / 2.421 ) ) )"
+}

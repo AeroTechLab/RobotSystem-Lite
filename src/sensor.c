@@ -53,28 +53,25 @@ struct _SensorData
 Sensor Sensor_Init( const char* configName )
 {
   char filePath[ DATA_IO_MAX_PATH_LENGTH ];
-  DEBUG_PRINT( "trying to create sensor %s", configName );
+  //DEBUG_PRINT( "trying to create sensor %s", configName );
   sprintf( filePath, KEY_CONFIG "/" KEY_SENSOR "/%s", configName );
   DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration == NULL ) return NULL;
-  
-  DEBUG_PRINT( "sensor configuration found on data handle %p", configuration );
-  
+  //DEBUG_PRINT( "sensor configuration found on data handle %p", configuration );
   Sensor newSensor = (Sensor) malloc( sizeof(SensorData) );
   memset( newSensor, 0, sizeof(SensorData) );  
   
   bool loadSuccess = true;
-  
+  //DEBUG_PRINT( "inputs number: %lu", DataIO_GetListSize( configuration, KEY_INPUT "s" ) );
   newSensor->inputsNumber = DataIO_GetListSize( configuration, KEY_INPUT "s" );
   newSensor->inputsList = (Input*) calloc( newSensor->inputsNumber, sizeof(Input) );
   newSensor->inputValuesList = (double*) calloc( newSensor->inputsNumber, sizeof(double) );
   newSensor->inputVariables = (te_variable*) calloc( newSensor->inputsNumber, sizeof(te_variable) );
   for( size_t inputIndex = 0; inputIndex < newSensor->inputsNumber; inputIndex++ )
   {
-    DEBUG_PRINT( "%s", DataIO_GetDataString( DataIO_GetSubData( configuration, KEY_INPUT "s.%lu", inputIndex ) ) );
     newSensor->inputsList[ inputIndex ] = Input_Init( DataIO_GetSubData( configuration, KEY_INPUT "s.%lu", inputIndex ) );
     if( newSensor->inputsList[ inputIndex ] == NULL ) loadSuccess = false;
-   
+    //DEBUG_PRINT( "loading input %lu success: %s", inputIndex, loadSuccess ? "true" : "false" );
     newSensor->inputVariables[ inputIndex ].name = INPUT_VARIABLE_NAMES[ inputIndex ];
     newSensor->inputVariables[ inputIndex ].address = &(newSensor->inputValuesList[ inputIndex ]);
   }
@@ -83,13 +80,13 @@ Sensor Sensor_Init( const char* configName )
   const char* transformExpression = DataIO_GetStringValue( configuration, INPUT_VARIABLE_NAMES[ 0 ], KEY_OUTPUT );
   newSensor->transformFunction = te_compile( transformExpression, newSensor->inputVariables, newSensor->inputsNumber, &expressionError );
   if( expressionError > 0 ) loadSuccess = false;
-      
+  //DEBUG_PRINT( "transform function: out= %s (error: %d)", transformExpression, expressionError );    
   if( DataIO_HasKey( configuration, KEY_LOG ) )
     newSensor->log = Log_Init( DataIO_GetBooleanValue( configuration, false, KEY_LOG "." KEY_FILE ) ? configName : "", 
                                (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
   
   DataIO_UnloadData( configuration );
-  
+  //DEBUG_PRINT( "loading success: %s", loadSuccess ? "true" : "false" );
   if( !loadSuccess )
   {
     Sensor_End( newSensor );
@@ -109,7 +106,7 @@ void Sensor_End( Sensor sensor )
   free( sensor->inputValuesList );
   free( sensor->inputVariables );
   
-  te_free( sensor->transformFunction );
+  if( sensor->transformFunction != NULL ) te_free( sensor->transformFunction );
   
   Log_End( sensor->log );
   
@@ -125,9 +122,9 @@ double Sensor_Update( Sensor sensor )
     
   double sensorOutput = te_eval( sensor->transformFunction );
   
-  Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
-  Log_RegisterList( sensor->log, sensor->inputsNumber, sensor->inputValuesList );
-  Log_RegisterValues( sensor->log, 1, sensorOutput ); 
+  //Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
+  //Log_RegisterList( sensor->log, sensor->inputsNumber, sensor->inputValuesList );
+  //Log_RegisterValues( sensor->log, 1, sensorOutput ); 
   
   return sensorOutput;
 }

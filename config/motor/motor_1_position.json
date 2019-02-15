@@ -1,6 +1,6 @@
 {
   "interface": { "type": "NICANEPOS", "config": "1", "channel": 0 },
   "reference": { "interface": { "type": "NICANEPOS", "config": "1", "channel": 0 } },
-  "output": "( 4096 * / ( 2 * pi ) * ( set - ( 2 * pi / 4096 ) * ref )",
+  "output": "( 4096 / ( 2 * pi ) ) * ( set - ( ( 2 * pi / 4096 ) * ref ) )",
   "log": { "file": true, "precision": 5 }
 }

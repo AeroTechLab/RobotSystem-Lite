@@ -48,7 +48,7 @@ Input Input_Init( DataHandle configuration )
 {
   if( configuration == NULL ) return NULL;
   
-  DEBUG_PRINT( "input configuration found on data handle %p", configuration );
+  //DEBUG_PRINT( "input configuration found on data handle %p", configuration );
   
   Input newInput = (Input) malloc( sizeof(InputData) );
   memset( newInput, 0, sizeof(InputData) ); 
@@ -56,7 +56,7 @@ Input Input_Init( DataHandle configuration )
   bool loadSuccess;
   char filePath[ DATA_IO_MAX_PATH_LENGTH ];
   sprintf( filePath, KEY_MODULES "/" KEY_SIGNAL_IO "/%s", DataIO_GetStringValue( configuration, "", KEY_INTERFACE "." KEY_TYPE ) );
-  DEBUG_PRINT( "trying to read signal IO module %s", filePath );
+  //DEBUG_PRINT( "trying to read signal IO module %s", filePath );
   LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newInput, &loadSuccess );
   if( loadSuccess )
   {

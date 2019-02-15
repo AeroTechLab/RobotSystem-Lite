@@ -1,0 +1,7 @@
+{
+  "inputs": [
+    { "interface": { "type": "NIDAQmx", "config": "AccelReadTask", "channel": 1 }, "signal_processing": { "min_frequency": 0.001, "max_frequency": 0.01 } },
+    { "interface": { "type": "NIDAQmx", "config": "AccelReadTask", "channel": 3 }, "signal_processing": { "min_frequency": 0.001, "max_frequency": 0.01 } }
+  ],
+  "output": "( 9.81 / 2.421 ) * ( in0 - in1 )"
+}
