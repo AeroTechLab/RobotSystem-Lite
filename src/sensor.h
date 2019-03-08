@@ -43,8 +43,8 @@
 ///       "signal_processing": {                  // [o] Internal signal processing options
 ///         "rectified": false,                     // [o] Rectify signal if true
 ///         "normalized": false,                    // [o] Normalize signal (after calibration) if true
-///         "min_frequency": -1.0                   // [o] Low-pass filter cut frequency, relative to (factor of) the sampling frequency (negative for no filtering)
-///         "max_frequency": -1.0                   // [o] High-pass filter cut frequency, relative to (factor of) the sampling frequency (negative for no filtering)
+///         "min_frequency": -1.0                   // [o] Low-pass filter cutoff frequency, relative to (factor of) the sampling frequency (negative for no filtering)
+///         "max_frequency": -1.0                   // [o] High-pass filter cutoff frequency, relative to (factor of) the sampling frequency (negative for no filtering)
 ///       }
 ///     }, ...
 ///   ],
