@@ -1,5 +1,5 @@
 {
-  "interface":{ "type": "DummyIO", "config": "NULL", "channel": 0 },
+  "interface": { "type": "DummyIO", "config": "NULL", "channel": 0 },
   "reference": { "interface": { "type": "DummyIO", "config": "NULL", "channel": 0 } },
   "output": "( set - ref * 2.0 / 3.0 ) * 3.0 / 2.0"
 }

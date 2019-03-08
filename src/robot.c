@@ -94,6 +94,7 @@ bool Robot_Init( const char* configPathName )
     LOAD_MODULE_IMPLEMENTATION( ROBOT_CONTROL_INTERFACE, filePath, &robot, &loadSuccess );
     if( loadSuccess )
     {
+      //PRINT_PLUGIN_FUNCTIONS( ROBOT_CONTROL_INTERFACE, (&robot) );
       const char* controllerConfigString = DataIO_GetStringValue( configuration, "", KEY_CONTROLLER "." KEY_CONFIG );
       DEBUG_PRINT( "loading controller config %s", controllerConfigString ); 
       if( (loadSuccess = robot.InitController( controllerConfigString )) )
@@ -103,6 +104,7 @@ bool Robot_Init( const char* configPathName )
         robot.jointsList = (JointData*) calloc( robot.jointsNumber, sizeof(JointData) );
         robot.jointMeasuresList = (RobotVariables**) calloc( robot.jointsNumber, sizeof(RobotVariables*) );
         robot.jointSetpointsList = (RobotVariables**) calloc( robot.jointsNumber, sizeof(RobotVariables*) );
+        DEBUG_PRINT( "found %lu joints", robot.jointsNumber );
         for( size_t jointIndex = 0; jointIndex < robot.jointsNumber; jointIndex++ )
         {
           const char* actuatorName = DataIO_GetStringValue( configuration, "", KEY_ACTUATOR "s.%lu", jointIndex );
@@ -115,6 +117,7 @@ bool Robot_Init( const char* configPathName )
         robot.axesList = (AxisData*) calloc( robot.axesNumber, sizeof(AxisData) );
         robot.axisMeasuresList = (RobotVariables**) calloc( robot.axesNumber, sizeof(RobotVariables*) );
         robot.axisSetpointsList = (RobotVariables**) calloc( robot.axesNumber, sizeof(RobotVariables*) );
+        DEBUG_PRINT( "found %lu axes", robot.axesNumber );
         for( size_t axisIndex = 0; axisIndex < robot.axesNumber; axisIndex++ )
         {
           robot.axisMeasuresList[ axisIndex ] = robot.axesList[ axisIndex ].measures = (RobotVariables*) malloc( sizeof(RobotVariables) );

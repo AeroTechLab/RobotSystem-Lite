@@ -1,0 +1,7 @@
+{
+  "controller": {
+    "type": "HDJointControl",
+    "config": ""
+  },
+  "actuators": [ "accel_actuator" ]
+}
