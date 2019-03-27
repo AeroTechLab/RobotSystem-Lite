@@ -109,19 +109,29 @@ $(document).ready(function(){initNavTree('index.html','');});
 <img src="https://raw.githubusercontent.com/EESC-MKGroup/RobotSystem-Lite/master/docs/img/control_abstraction_full.png" width="800" alt="" class="inline"/>
  <p>From top to bottom levels, the control application is expected to have/define:</p>
 <ul>
-<li>A <a href="https://en.wikipedia.org/wiki/Hash_table">hash table</a> containing one or more generic robot instances, complemented by:<ul>
-<li>A <a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/robot_config.html">robot configuration</a> JSON file (inside **&lt;root_dir&gt;/config/robots/**), defining its used high-level control implementation and actuators</li>
-<li>The robot/actuators control itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/robot_control/**), according to <a href="https://github.com/EESC-MKGroup/Robot-Control-Interface">Robot Control Interface</a> description</li>
-<li>A list of generic actuators list, each one, in turn, complemented by:<ul>
-<li>An <a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/actuator_config.html">actuator configuration</a> JSON file (inside **&lt;root_dir&gt;/config/actuators/**), defining the lower-level control implementation, sensors and motor configuration and their related control variables (position, force, etc.)</li>
-<li>A list of generic sensors, each one, in turn, complemented by:<ul>
-<li><a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/sensor_config.html">Sensor configuration</a> JSON file (inside **&lt;root_dir&gt;/config/sensors/**), defining the hardware/virtual input device/channel, reference sensor (if needed) and signal processing/conversion options</li>
+<li>The base robot instance (only 1 per control process), constituted by:<ul>
+<li>A <a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/robot_config.html">robot configuration</a> JSON file (inside **&lt;root_dir&gt;/config/robots/**), defining its used high-level control implementation and actuator IDs</li>
+<li>The robot+actuators controller itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/robot_control/**), according to <a href="https://github.com/EESC-MKGroup/Robot-Control-Interface">Robot Control Interface</a> description</li>
+<li>A list of generic actuators, with each one, in turn, composed of:<ul>
+<li>An <a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/actuator_config.html">actuator configuration</a> JSON file (inside **&lt;root_dir&gt;/config/actuators/**), defining sensors and motor configuration IDs, their related control variables (position, force, etc.) and measurement deviations, as well as logging options</li>
+<li>A <a href="https://en.wikipedia.org/wiki/Kalman_filter">Kalman filter</a> for sensor fusion and complete joint state estimation</li>
+<li>A list of sensor IDs, each one, in turn, composed of:<ul>
+<li><a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/sensor_config.html">Sensor configuration</a> JSON file (inside **&lt;root_dir&gt;/config/sensors/**), defining input sources inline configuration, inputs-output conversion expression and logging options</li>
+<li>A list of input sources, for which the configuration file defines:<ul>
 <li>The signal input code itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/signal_io/**), according to <a href="https://github.com/EESC-MKGroup/Signal-IO-Interface">Signal I/O Interface</a> description</li>
+<li>Signal processing/conversion options</li>
 </ul>
 </li>
-<li>Generic actuation motor, complemented by:<ul>
-<li><a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/motor_config.html">Motor configuration</a> JSON file (inside **&lt;root_dir&gt;/config/motors/**), defining the hardware/virtual output device/channel and signal generation options</li>
+</ul>
+</li>
+<li>Generic actuation motor, composed of:<ul>
+<li><a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/motor_config.html">Motor configuration</a> JSON file (inside **&lt;root_dir&gt;/config/motors/**), defining the hardware/virtual output device/channel, reference input inline configuration (if needed), output conversion expression and logging options</li>
 <li>The signal output code itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/signal_io/**), according to <a href="https://github.com/EESC-MKGroup/Signal-IO-Interface">Signal I/O Interface</a> description</li>
+<li>A optional reference input, for which the configuration file defines:<ul>
+<li>The signal input code itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/signal_io/**), according to <a href="https://github.com/EESC-MKGroup/Signal-IO-Interface">Signal I/O Interface</a> description</li>
+<li>Signal processing/conversion options</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
