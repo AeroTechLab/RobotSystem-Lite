@@ -1,0 +1,4 @@
+{
+  "interface": { "type": "OpenSimIO", "config": "actuator_1", "channel": 0 },
+  "output": "set"
+}

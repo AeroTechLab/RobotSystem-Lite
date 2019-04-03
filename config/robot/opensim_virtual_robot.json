@@ -1,0 +1,7 @@
+{
+  "controller": {
+    "type": "SimpleJoint",
+    "config": ""
+  },
+  "actuators": [ "opensim_virtual_actuator_1" ]
+}
