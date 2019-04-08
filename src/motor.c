@@ -57,7 +57,7 @@ struct _MotorData
 Motor Motor_Init( const char* configName )
 {
   char filePath[ DATA_IO_MAX_PATH_LENGTH ];
-  //DEBUG_PRINT( "trying to create motor %s", configName );
+  DEBUG_PRINT( "trying to create motor %s", configName );
   sprintf( filePath, KEY_CONFIG "/" KEY_MOTOR "/%s", configName );
   DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration == NULL ) return NULL;
@@ -91,7 +91,7 @@ Motor Motor_Init( const char* configName )
   const char* transformExpression = DataIO_GetStringValue( configuration, SETPOINT_VARIABLE_NAME, KEY_OUTPUT );
   newMotor->transformFunction = te_compile( transformExpression, newMotor->inputVariables, 2, &expressionError ); 
   if( expressionError > 0 ) loadSuccess = false;
-  //DEBUG_PRINT( "transform function: out= %s (error: %d)", transformExpression, expressionError );
+  DEBUG_PRINT( "transform function: out= %s (error: %d)", transformExpression, expressionError );
   if( DataIO_HasKey( configuration, KEY_LOG ) )
     newMotor->log = Log_Init( DataIO_GetBooleanValue( configuration, false, KEY_LOG "." KEY_FILE ) ? configName : "", 
                               (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );

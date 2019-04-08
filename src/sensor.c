@@ -53,7 +53,7 @@ struct _SensorData
 Sensor Sensor_Init( const char* configName )
 {
   char filePath[ DATA_IO_MAX_PATH_LENGTH ];
-  //DEBUG_PRINT( "trying to create sensor %s", configName );
+  DEBUG_PRINT( "trying to create sensor %s", configName );
   sprintf( filePath, KEY_CONFIG "/" KEY_SENSOR "/%s", configName );
   DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration == NULL ) return NULL;
@@ -62,7 +62,7 @@ Sensor Sensor_Init( const char* configName )
   memset( newSensor, 0, sizeof(SensorData) );  
   
   bool loadSuccess = true;
-  //DEBUG_PRINT( "inputs number: %lu", DataIO_GetListSize( configuration, KEY_INPUT "s" ) );
+  DEBUG_PRINT( "inputs number: %lu", DataIO_GetListSize( configuration, KEY_INPUT "s" ) );
   newSensor->inputsNumber = DataIO_GetListSize( configuration, KEY_INPUT "s" );
   newSensor->inputsList = (Input*) calloc( newSensor->inputsNumber, sizeof(Input) );
   newSensor->inputValuesList = (double*) calloc( newSensor->inputsNumber, sizeof(double) );
@@ -80,7 +80,7 @@ Sensor Sensor_Init( const char* configName )
   const char* transformExpression = DataIO_GetStringValue( configuration, INPUT_VARIABLE_NAMES[ 0 ], KEY_OUTPUT );
   newSensor->transformFunction = te_compile( transformExpression, newSensor->inputVariables, newSensor->inputsNumber, &expressionError );
   if( expressionError > 0 ) loadSuccess = false;
-  //DEBUG_PRINT( "transform function: out= %s (error: %d)", transformExpression, expressionError );    
+  DEBUG_PRINT( "transform function: out= %s (error: %d)", transformExpression, expressionError );    
   if( DataIO_HasKey( configuration, KEY_LOG ) )
     newSensor->log = Log_Init( DataIO_GetBooleanValue( configuration, false, KEY_LOG "." KEY_FILE ) ? configName : "", 
                                (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
