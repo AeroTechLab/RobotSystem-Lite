@@ -1,7 +1,0 @@
-{
-  "inputs": [
-    { "interface": { "type": "OpenSimIO", "config": "actuator_1", "channel": 0 } }
-  ],
-  "output": "in0",
-  "log": { "file": true, "precision": 5 }
-}
