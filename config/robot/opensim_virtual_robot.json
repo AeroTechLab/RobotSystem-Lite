@@ -3,5 +3,5 @@
     "type": "SimpleJoint",
     "config": ""
   },
-  "actuators": [ "opensim_virtual_actuator_1" ]
+  "actuators": [ "opensim/actuator_1" ]
 }
