@@ -1,0 +1,8 @@
+{
+  "sensors": [
+    { "variable_type": "POSITION", "config": "opensim/position_1", "deviation": 1.0 },
+    { "variable_type": "VELOCITY", "config": "opensim/velocity_1", "deviation": 1.0 },
+    { "variable_type": "FORCE", "config": "opensim/force_1", "deviation": 1.0 }
+  ],
+  "motor": { "variable_type": "FORCE", "config": "opensim/motor_1" }
+}

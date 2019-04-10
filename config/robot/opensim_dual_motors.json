@@ -1,0 +1,7 @@
+{
+  "controller": {
+    "type": "DualMotor",
+    "config": ""
+  },
+  "actuators": [ "opensim/actuator_1", "opensim/actuator_2" ]
+}
