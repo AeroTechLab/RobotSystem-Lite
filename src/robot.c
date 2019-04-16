@@ -313,15 +313,14 @@ static void* AsyncControl( void* ref_robot )
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
     {
       if( Actuator_HasError( robot->jointsList[ jointIndex ].actuator ) ) Actuator_Reset( robot->jointsList[ jointIndex ].actuator );
-      DEBUG_PRINT( "competed resetting errors at time %g", execTime );
+
       (void) Actuator_SetSetpoints( robot->jointsList[ jointIndex ].actuator, (ActuatorVariables*) robot->jointSetpointsList[ jointIndex ] );
     }
-    DEBUG_PRINT( "competed setting setpoints at time %g", execTime );
+
     elapsedTime = Time_GetExecSeconds() - execTime;
-    DEBUG_PRINT( "step time for robot %p (before delay): %.5f s", robot, elapsedTime );
-    DEBUG_PRINT( "remaining time: %.5f s", robot->controlTimeStep - elapsedTime );
+    //DEBUG_PRINT( "step time for robot %p (before delay): %.5f s", robot, elapsedTime );
     if( elapsedTime < robot->controlTimeStep ) Time_Delay( (unsigned long) ( 1000 * ( robot->controlTimeStep - elapsedTime ) ) );
-    DEBUG_PRINT( "step time for robot %p (before delay): %.5f s", robot, Time_GetExecSeconds() - execTime );
+    //DEBUG_PRINT( "step time for robot %p (before delay): %.5f s", robot, Time_GetExecSeconds() - execTime );
   }
   
   return NULL;
