@@ -190,7 +190,7 @@ void ControlJoint( RobotVariables* ref_jointMeasures, RobotVariables* ref_axisMe
 
 void RunControlStep( RobotVariables** jointMeasuresList, RobotVariables** axisMeasuresList, RobotVariables** jointSetpointsList, RobotVariables** axisSetpointsList, double timeDelta )
 {
-  axisSetpointsList[ 0 ]->position = 0.0;//jointMeasuresList[ 1 ]->position;
+  axisSetpointsList[ 0 ]->position = jointMeasuresList[ 1 ]->position;
   axisSetpointsList[ 1 ]->position = jointMeasuresList[ 0 ]->position;
   axisSetpointsList[ 0 ]->velocity = 0.0;//jointMeasuresList[ 1 ]->velocity;
   axisSetpointsList[ 1 ]->velocity = 0.0;//jointMeasuresList[ 0 ]->velocity;

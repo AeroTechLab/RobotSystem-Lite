@@ -52,6 +52,11 @@ add_library( SimpleJoint MODULE ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/simp
 set_target_properties( SimpleJoint PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MODULES_DIR}/${ROBOT_CONTROL_PATH} )
 set_target_properties( SimpleJoint PROPERTIES PREFIX "" )
 target_include_directories( SimpleJoint PUBLIC ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/ )
+
+add_library( DualMotor MODULE ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/dual_motor.c )
+set_target_properties( DualMotor PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MODULES_DIR}/${ROBOT_CONTROL_PATH} )
+set_target_properties( DualMotor PROPERTIES PREFIX "" )
+target_include_directories( DualMotor PUBLIC ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/ )
  
 # add_library( AnkleBot MODULE ${SOURCES_DIR}/robot_control/anklebot.c )
 # set_target_properties( AnkleBot PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ROBOT_CONTROL_MODULES_DIR} )
