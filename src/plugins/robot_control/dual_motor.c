@@ -192,8 +192,8 @@ void RunControlStep( RobotVariables** jointMeasuresList, RobotVariables** axisMe
 {
   axisSetpointsList[ 0 ]->position = jointMeasuresList[ 1 ]->position;
   axisSetpointsList[ 1 ]->position = jointMeasuresList[ 0 ]->position;
-  axisSetpointsList[ 0 ]->velocity = 0.0;//jointMeasuresList[ 1 ]->velocity;
-  axisSetpointsList[ 1 ]->velocity = 0.0;//jointMeasuresList[ 0 ]->velocity;
+  axisSetpointsList[ 0 ]->velocity = jointMeasuresList[ 1 ]->velocity;
+  axisSetpointsList[ 1 ]->velocity = jointMeasuresList[ 0 ]->velocity;
   
   ControlJoint( jointMeasuresList[ 0 ], axisMeasuresList[ 0 ], jointSetpointsList[ 0 ], axisSetpointsList[ 0 ] );
   ControlJoint( jointMeasuresList[ 1 ], axisMeasuresList[ 1 ], jointSetpointsList[ 1 ], axisSetpointsList[ 1 ] );

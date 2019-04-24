@@ -132,7 +132,7 @@ bool Robot_Init( const char* configPathName )
 
     if( !loadSuccess ) Robot_End();
     
-    //Robot_Enable(); // testing hack
+    Robot_Enable(); // testing hack
   }
   
   return loadSuccess;
