@@ -149,7 +149,7 @@ void ControlJoint( RobotVariables* ref_jointMeasures, RobotVariables* ref_axisMe
   //double controlForce = ref_jointSetpoints->stiffness * positionError - ref_jointSetpoints->damping * velocityError;
   //double dampingForce = ref_jointSetpoints->damping * ref_jointMeasures->velocity;
   //ref_jointSetpoints->force += controlForce - dampingForce;
-  //ref_jointSetpoints->force = 0.0015 * positionError + 0.0001 * velocityError; 
+  ref_jointSetpoints->force = 1.0 * positionError + 0.2 * velocityError; 
   
   //fprintf( stderr, "position=%.5f, setpoint=%.5f, control force=%.5f\n", ref_jointMeasures->position, ref_jointSetpoints->position, ref_jointSetpoints->force );
 }
@@ -190,10 +190,10 @@ void ControlJoint( RobotVariables* ref_jointMeasures, RobotVariables* ref_axisMe
 
 void RunControlStep( RobotVariables** jointMeasuresList, RobotVariables** axisMeasuresList, RobotVariables** jointSetpointsList, RobotVariables** axisSetpointsList, double timeDelta )
 {
-  axisSetpointsList[ 0 ]->position = jointMeasuresList[ 1 ]->position;
-  axisSetpointsList[ 1 ]->position = jointMeasuresList[ 0 ]->position;
-  axisSetpointsList[ 0 ]->velocity = jointMeasuresList[ 1 ]->velocity;
-  axisSetpointsList[ 1 ]->velocity = jointMeasuresList[ 0 ]->velocity;
+  axisSetpointsList[ 0 ]->position = 0.0;//jointMeasuresList[ 1 ]->position;
+  axisSetpointsList[ 1 ]->position = 0.0;//jointMeasuresList[ 0 ]->position;
+  axisSetpointsList[ 0 ]->velocity = 0.0;//jointMeasuresList[ 1 ]->velocity;
+  axisSetpointsList[ 1 ]->velocity = 0.0;//jointMeasuresList[ 0 ]->velocity;
   
   ControlJoint( jointMeasuresList[ 0 ], axisMeasuresList[ 0 ], jointSetpointsList[ 0 ], axisSetpointsList[ 0 ] );
   ControlJoint( jointMeasuresList[ 1 ], axisMeasuresList[ 1 ], jointSetpointsList[ 1 ], axisSetpointsList[ 1 ] );
