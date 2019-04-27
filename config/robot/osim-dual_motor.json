@@ -1,6 +1,6 @@
 {
   "controller": {
-    "type": "DualMotor",
+    "type": "DualMotorWave",
     "config": ""
   },
   "actuators": [ "opensim/actuator_1", "opensim/actuator_2" ]

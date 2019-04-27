@@ -1,7 +1,0 @@
-{
-  "controller": {
-    "type": "OpenSimModel",
-    "config": "right_knee_joint"
-  },
-  "actuators": [ "virtual_actuator", "virtual_actuator" ]
-}

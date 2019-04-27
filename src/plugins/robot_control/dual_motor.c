@@ -135,6 +135,8 @@ void RunControlStep( RobotVariables** jointMeasuresList, RobotVariables** axisMe
   ControlJoint( jointMeasuresList[ 0 ], axisMeasuresList[ 0 ], jointSetpointsList[ 0 ], axisSetpointsList[ 0 ] );
   ControlJoint( jointMeasuresList[ 1 ], axisMeasuresList[ 1 ], jointSetpointsList[ 1 ], axisSetpointsList[ 1 ] );
   
+  fprintf( stderr, "position 1=%.5f, position 2=%.5f\n", axisMeasuresList[ 0 ]->position, axisMeasuresList[ 1 ]->position );
+  
   controlData.elapsedTime += timeDelta;
   
   //if( controlData.state != ROBOT_OPERATION && controlData.state != ROBOT_PREPROCESSING ) jointSetpointsList[ 0 ]->force = jointSetpointsList[ 1 ]->force = 0.0;

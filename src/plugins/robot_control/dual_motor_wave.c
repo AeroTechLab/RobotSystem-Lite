@@ -27,12 +27,14 @@
 #include "debug/data_logging.h"
 
 #define DOFS_NUMBER 2
-#define DELAY_SETPOINTS_NUMBER 1//5
+#define DELAY_SETPOINTS_NUMBER 5
 
 const double MAX_WAVE_IMPEDANCE = 10.0;
 const double MIN_WAVE_IMPEDANCE_FACTOR = 0.1;
 
-const double MIN_WAVE_BANDWIDTH = 0.5;
+const double MAX_WAVE_BANDWIDTH = 0.2;
+const double MIN_WAVE_BANDWIDTH_FACTOR = 0.1;
+const double MAX_WAVE_BANDWIDTH_FACTOR = 1.0;
 
 const char* DOF_NAMES[ DOFS_NUMBER ] = { "angle1", "angle2" };
 
@@ -116,7 +118,7 @@ double CorrectWave( double inputWave, double waveImpedance, double inputPosition
   double positionError = inputPosition - currentPosition;
   double waveCorrection = sqrt( 2.0 * waveImpedance ) * bandwidth * positionError;
   if( positionError * inputWave < 0 ) waveCorrection = 0.0;
-  else if( abs( waveCorrection ) > abs( inputWave ) ) waveCorrection = -inputWave;
+  else if( fabs( waveCorrection ) > fabs( inputWave ) ) waveCorrection = -inputWave;
   inputWave += waveCorrection;
   
   return inputWave;
@@ -156,47 +158,39 @@ void ControlJoint( RobotVariables* ref_jointMeasures, RobotVariables* ref_axisMe
   ref_jointSetpoints->position = ref_axisSetpoints->position;                           // x_d
   ref_jointSetpoints->acceleration = ref_axisSetpoints->acceleration;
   ref_jointSetpoints->force = ref_axisSetpoints->force;
-  ref_jointSetpoints->stiffness = ref_axisSetpoints->stiffness;                         // K = lamda^2 * m
-  ref_jointSetpoints->damping = ref_axisSetpoints->damping;                             // B = D = lamda * m
-  
-  double positionError = ref_jointSetpoints->position - ref_jointMeasures->position;    // e_p = x_d - x
-  //double velocityError = ref_jointSetpoints->velocity - ref_jointMeasures->velocity;    // e_v = xdot_d - xdot
-  double velocityError = - ref_jointMeasures->velocity; 
-  
-  // F_actuator = K * e_p + B * e_v - D * x_dot
-  //double controlForce = ref_jointSetpoints->stiffness * positionError - ref_jointSetpoints->damping * velocityError;
-  //double dampingForce = ref_jointSetpoints->damping * ref_jointMeasures->velocity;
-  //ref_jointSetpoints->force += controlForce - dampingForce;
-  ref_jointSetpoints->force = 1.0 * positionError + 0.2 * velocityError; 
+  ref_jointSetpoints->stiffness = ref_axisSetpoints->stiffness;                         
+  ref_jointSetpoints->damping = ref_axisSetpoints->damping;                             
   
   //fprintf( stderr, "position=%.5f, setpoint=%.5f, control force=%.5f\n", ref_jointMeasures->position, ref_jointSetpoints->position, ref_jointSetpoints->force );
 }
 
 void RunControlStep( RobotVariables** jointMeasuresList, RobotVariables** axisMeasuresList, RobotVariables** jointSetpointsList, RobotVariables** axisSetpointsList, double timeDelta )
 {
-  size_t currentSetpointIndex = controlData.setpointCount % DELAY_SETPOINTS_NUMBER;
+  size_t setpointIndex = controlData.setpointCount % DELAY_SETPOINTS_NUMBER;
   
-  if( axisSetpointsList[ 0 ]->stiffness < MIN_WAVE_BANDWIDTH ) axisSetpointsList[ 0 ]->stiffness = MIN_WAVE_BANDWIDTH;
+  if( axisSetpointsList[ 0 ]->stiffness < MIN_WAVE_BANDWIDTH_FACTOR ) axisSetpointsList[ 0 ]->stiffness = MIN_WAVE_BANDWIDTH_FACTOR;
+  if( axisSetpointsList[ 0 ]->stiffness > MAX_WAVE_BANDWIDTH_FACTOR ) axisSetpointsList[ 0 ]->stiffness = MAX_WAVE_BANDWIDTH_FACTOR;
   if( axisSetpointsList[ 0 ]->damping < MIN_WAVE_IMPEDANCE_FACTOR ) axisSetpointsList[ 0 ]->damping = MIN_WAVE_IMPEDANCE_FACTOR;
-  axisSetpointsList[ 1 ]->stiffness = axisSetpointsList[ 0 ]->stiffness;
-  axisSetpointsList[ 1 ]->damping = axisSetpointsList[ 0 ]->damping;
+  axisSetpointsList[ 1 ]->stiffness = axisSetpointsList[ 0 ]->stiffness = MIN_WAVE_BANDWIDTH_FACTOR;
+  axisSetpointsList[ 1 ]->damping = axisSetpointsList[ 0 ]->damping = MIN_WAVE_IMPEDANCE_FACTOR;
+  jointMeasuresList[ 1 ]->stiffness = jointMeasuresList[ 0 ]->stiffness = MIN_WAVE_BANDWIDTH_FACTOR;
+  jointMeasuresList[ 1 ]->damping = jointMeasuresList[ 0 ]->damping = MIN_WAVE_IMPEDANCE_FACTOR;
   
-  double transmissionBandwidth = axisSetpointsList[ 0 ]->stiffness;
+  double waveBandwidth = MAX_WAVE_BANDWIDTH * axisSetpointsList[ 0 ]->stiffness;
   double waveImpedance = MAX_WAVE_IMPEDANCE * axisSetpointsList[ 0 ]->damping;
   
-  double wave_0 = FilterWave( controlData.wavesTable[ 0 ][ currentSetpointIndex ], 
-                              &(controlData.lastInputWavesList[ 0 ]), &(controlData.lastFilteredWavesList[ 0 ]), transmissionBandwidth );
+  double wave_0 = FilterWave( controlData.wavesTable[ 0 ][ setpointIndex ], 
+                              &(controlData.lastInputWavesList[ 0 ]), &(controlData.lastFilteredWavesList[ 0 ]), waveBandwidth );
 
-  double wave_1 = FilterWave( controlData.wavesTable[ 1 ][ currentSetpointIndex ], 
-                              &(controlData.lastInputWavesList[ 1 ]), &(controlData.lastFilteredWavesList[ 1 ]), transmissionBandwidth );
+  double wave_1 = FilterWave( controlData.wavesTable[ 1 ][ setpointIndex ], 
+                              &(controlData.lastInputWavesList[ 1 ]), &(controlData.lastFilteredWavesList[ 1 ]), waveBandwidth );
   
-  wave_0 = CorrectWave( wave_0, waveImpedance, controlData.inputPositionsTable[ 0 ][ currentSetpointIndex ], 
-                        jointMeasuresList[ 0 ]->position, axisSetpointsList[ 0 ]->stiffness );
+  wave_0 = CorrectWave( wave_0, waveImpedance, controlData.inputPositionsTable[ 0 ][ setpointIndex ], jointMeasuresList[ 0 ]->position, waveBandwidth );
   axisSetpointsList[ 0 ]->force = ExtractForce( wave_0, waveImpedance, jointMeasuresList[ 0 ]->velocity );
   ControlJoint( jointMeasuresList[ 0 ], axisMeasuresList[ 0 ], jointSetpointsList[ 0 ], axisSetpointsList[ 0 ] );
   
-  controlData.wavesTable[ 1 ][ currentSetpointIndex ] = BuildWave( waveImpedance, jointMeasuresList[ 0 ]->velocity, axisSetpointsList[ 0 ]->force );
-  controlData.inputPositionsTable[ 1 ][ currentSetpointIndex ] = axisMeasuresList[ 0 ]->position;
+  controlData.wavesTable[ 1 ][ setpointIndex ] = BuildWave( waveImpedance, jointMeasuresList[ 0 ]->velocity, axisSetpointsList[ 0 ]->force );
+  controlData.inputPositionsTable[ 1 ][ setpointIndex ] = axisMeasuresList[ 0 ]->position;
   
   //if( controlData.state == ROBOT_PREPROCESSING )
   //{
@@ -204,13 +198,12 @@ void RunControlStep( RobotVariables** jointMeasuresList, RobotVariables** axisMe
   //  Log_RegisterValues( controlData.samplingLog, 4, jointMeasuresList[ 0 ]->force, jointMeasuresList[ 0 ]->position, jointMeasuresList[ 0 ]->velocity, jointMeasuresList[ 0 ]->acceleration );
   //}
   
-  wave_1 = CorrectWave( wave_1, waveImpedance, controlData.inputPositionsTable[ 1 ][ currentSetpointIndex ], 
-                        jointMeasuresList[ 1 ]->position, axisSetpointsList[ 1 ]->stiffness );
-  axisSetpointsList[ 0 ]->force = ExtractForce( wave_1, waveImpedance, jointMeasuresList[ 1 ]->velocity );
+  wave_1 = CorrectWave( wave_1, waveImpedance, controlData.inputPositionsTable[ 1 ][ setpointIndex ], jointMeasuresList[ 1 ]->position, waveBandwidth );
+  axisSetpointsList[ 1 ]->force = ExtractForce( wave_1, waveImpedance, jointMeasuresList[ 1 ]->velocity );
   ControlJoint( jointMeasuresList[ 1 ], axisMeasuresList[ 1 ], jointSetpointsList[ 1 ], axisSetpointsList[ 1 ] );
   
-  controlData.wavesTable[ 0 ][ currentSetpointIndex ] = BuildWave( waveImpedance, jointMeasuresList[ 1 ]->velocity, axisSetpointsList[ 1 ]->force );
-  controlData.inputPositionsTable[ 0 ][ currentSetpointIndex ] = axisMeasuresList[ 1 ]->position;
+  controlData.wavesTable[ 0 ][ setpointIndex ] = BuildWave( waveImpedance, jointMeasuresList[ 1 ]->velocity, axisSetpointsList[ 1 ]->force );
+  controlData.inputPositionsTable[ 0 ][ setpointIndex ] = axisMeasuresList[ 1 ]->position;
   
   controlData.setpointCount++;
   controlData.elapsedTime += timeDelta;

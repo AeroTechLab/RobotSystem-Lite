@@ -57,6 +57,11 @@ add_library( DualMotor MODULE ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/dual_m
 set_target_properties( DualMotor PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MODULES_DIR}/${ROBOT_CONTROL_PATH} )
 set_target_properties( DualMotor PROPERTIES PREFIX "" )
 target_include_directories( DualMotor PUBLIC ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/ )
+
+add_library( DualMotorWave MODULE ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/dual_motor_wave.c )
+set_target_properties( DualMotorWave PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MODULES_DIR}/${ROBOT_CONTROL_PATH} )
+set_target_properties( DualMotorWave PROPERTIES PREFIX "" )
+target_include_directories( DualMotorWave PUBLIC ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/ )
  
 # add_library( AnkleBot MODULE ${SOURCES_DIR}/robot_control/anklebot.c )
 # set_target_properties( AnkleBot PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ROBOT_CONTROL_MODULES_DIR} )
