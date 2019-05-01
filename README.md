@@ -130,7 +130,7 @@ Executing **RobotSystem-Lite** from command-line allows taking some optional arg
 - **<root_dir>** is the absolute or relative path to the directory where **config** and **plugins** folders are located (default is working directory **"./"**)
 - **<connection_address>** is the **IP** address the server sockets will be binded to (default is any address/all interfaces)
 - **<log_dir>** is the absolute or relative path to the directory where log folders/files will be saved (default is **"./log/"**)
-- **<robot_name> is the name (without extensions) of the [robot configuration](https://eesc-mkgroup.github.io/RobotSystem-Lite/robot_config.html) file to be loaded on startup (configuration could be set or changed later via client applications)
+- **<robot_name>** is the name (without extensions) of the [robot configuration](https://eesc-mkgroup.github.io/RobotSystem-Lite/robot_config.html) file to be loaded on startup (configuration could be set or changed later via client applications)
 
 ## Documentation
 
