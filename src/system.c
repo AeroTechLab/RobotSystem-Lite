@@ -44,9 +44,11 @@
 #define chdir( dirName )
 #elif WIN32
 #include <dirent.h>
+#include "getopt.h"
 #define chdir _chdir
 #else
 #include <unistd.h>
+#include <dirent.h>
 #include <getopt.h>
 #endif
 
@@ -58,14 +60,16 @@ static unsigned long lastNetworkUpdateElapsedTimeMS = NETWORK_UPDATE_MIN_INTERVA
 bool robotInitialized = false;
 size_t axesNumber = 0, jointsNumber = 0;
 
-DataHandle robotInfo = NULL;
+DataHandle robotConfig = NULL;
 
 IPCConnection robotEventsConnection = NULL;
 IPCConnection robotAxesConnection = NULL;
 IPCConnection robotJointsConnection = NULL;
 
 
-void RefreshRobotsInfo( const char*, char* );
+void ListRobotConfigs( char* );
+DataHandle ReloadRobotConfig( const char* );
+void GetRobotConfigString( DataHandle, char* );
 
 
 bool System_Init( const int argc, const char** argv )
@@ -111,9 +115,8 @@ bool System_Init( const int argc, const char** argv )
   Log_SetTimeStamp();
 
   chdir( rootDirectory );
-  robotInfo = DataIO_CreateEmptyData();
   DEBUG_PRINT( "loading robot configuration from %s", robotConfigName );
-  RefreshRobotsInfo( robotConfigName, NULL );
+  robotConfig = ReloadRobotConfig( robotConfigName );
 
   lastUpdateTimeMS = Time_GetExecMilliseconds();
   
@@ -128,7 +131,7 @@ void System_End()
   IPC_CloseConnection( robotAxesConnection );
   IPC_CloseConnection( robotJointsConnection );
 
-  DataIO_UnloadData( robotInfo );
+  DataIO_UnloadData( robotConfig );
 
   Robot_End();
   
@@ -149,10 +152,29 @@ void UpdateEvents()
     Byte* messageOut = (Byte*) messageBuffer;
     memset( messageOut, 0, IPC_MAX_MESSAGE_LENGTH );
       
-    if( robotCommand == ROBOT_REQ_GET_CONFIG ) 
+    if( robotCommand == ROBOT_REQ_LIST_CONFIGS ) 
     {
-      messageOut[ 0 ] = ROBOT_REP_GOT_CONFIG;
-      RefreshRobotsInfo( NULL, (char*) ( messageOut + 1 ) );
+      messageOut[ 0 ] = ROBOT_REP_CONFIGS_LISTED;
+      ListRobotConfigs( (char*) ( messageOut + 1 ) );
+    }
+    else if( robotCommand == ROBOT_REQ_GET_CONFIG ) 
+    {
+      messageOut[ 0 ] = ROBOT_REP_CONFIG_GOT;
+      GetRobotConfigString( robotConfig, (char*) ( messageOut + 1 ) );
+    }
+    else if( robotCommand == ROBOT_REQ_SET_CONFIG )
+    {
+      char* robotName = (char*) messageIn;
+      robotConfig = ReloadRobotConfig( robotName );
+      messageOut[ 0 ] = ROBOT_REP_CONFIG_SET;
+      GetRobotConfigString( robotConfig, (char*) ( messageOut + 1 ) );
+    }
+    else if( robotCommand == ROBOT_REQ_SET_USER )
+    {
+      char* userName = (char*) messageIn;
+      Log_SetBaseName( userName );
+      messageOut[ 0 ] = ROBOT_REP_USER_SET;
+      //DEBUG_PRINT( "New user name: %s", userName );
     }
     else if( robotCommand == ROBOT_REQ_DISABLE ) messageOut[ 0 ] = Robot_Disable() ? ROBOT_REP_DISABLED : 0x00;
     else if( robotCommand == ROBOT_REQ_ENABLE ) messageOut[ 0 ] = Robot_Enable() ? ROBOT_REP_ENABLED : 0x00;
@@ -161,19 +183,6 @@ void UpdateEvents()
     else if( robotCommand == ROBOT_REQ_CALIBRATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_CALIBRATION ) ? ROBOT_REP_CALIBRATING : 0x00;
     else if( robotCommand == ROBOT_REQ_PREPROCESS ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_PREPROCESSING ) ? ROBOT_REP_PREPROCESSING : 0x00;
     else if( robotCommand == ROBOT_REQ_OPERATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_OPERATION ) ? ROBOT_REP_OPERATING : 0x00;
-    else if( robotCommand == ROBOT_REQ_SET_USER )
-    {
-      char* userName = (char*) messageIn;
-      Log_SetBaseName( userName );
-      messageOut[ 0 ] = ROBOT_REP_USER_SET;
-      //DEBUG_PRINT( "New user name: %s", userName );
-    }
-    else if( robotCommand == ROBOT_REQ_SET_CONFIG )
-    {
-      char* robotName = (char*) messageIn;
-      RefreshRobotsInfo( robotName, (char*) ( messageOut + 1 ) );
-      messageOut[ 0 ] = ROBOT_REP_CONFIG_SET;
-    }
     
     IPC_WriteMessage( robotEventsConnection, messageOut );
   }   
@@ -293,20 +302,62 @@ void System_Update()
 }
 
 
-void RefreshRobotsInfo( const char* robotName, char* sharedControlsString )
+void ListRobotConfigs( char* sharedRobotsString )
+{
+  DataHandle robotsList = DataIO_CreateEmptyData();
+  
+  DataHandle sharedRobotsList = DataIO_AddList( robotsList, "robots" );
+  
+  DIR* directory;
+  struct dirent* directoryEntry;
+  directory = opendir( "." );
+  if( directory )
+  {
+    while( (directoryEntry = readdir( directory )) != NULL )
+    {
+      if( directoryEntry->d_type == DT_REG ) DataIO_SetStringValue( sharedRobotsList, NULL, directoryEntry->d_name );
+    }
+
+    closedir( directory );
+  }
+  
+//   WIN32_FIND_DATA info;
+//   HANDLE h = FindFirstFile("*.*", &info);
+//   if (h != INVALID_HANDLE_VALUE)
+//   {
+//     do
+//     {
+//       if (!(strcmp(info.cFileName, ".") == 0 || strcmp(info.cFileName, "..") == 0))
+//       {
+//         addfile(&list, info);
+//       }
+//     } while (FindNextFile(h, &info));
+//     if (GetLastError() != ERROR_NO_MORE_FILES) errormessage();
+//     FindClose(h);
+//   }
+  
+  char* robotsListString = DataIO_GetDataString( robotsList );
+  DEBUG_PRINT( "robots info string: %s", robotsListString );
+  strncpy( sharedRobotsString, robotsListString, strlen( robotsListString ) );
+  free( robotsListString );
+  
+  DataIO_UnloadData( robotsList );
+}
+
+DataHandle ReloadRobotConfig( const char* robotName )
 { 
+  DataHandle robotConfig = DataIO_CreateEmptyData();
+  
   if( robotName != NULL )
   {     
     if( robotInitialized ) Robot_End();
     
-    robotInfo = DataIO_CreateEmptyData();
-    
     if( (robotInitialized = Robot_Init( robotName )) )
     {
-      DataIO_SetStringValue( robotInfo, "id", robotName );   
+      DataIO_SetStringValue( robotConfig, "id", robotName );   
       
-      DataHandle sharedJointsList = DataIO_AddList( robotInfo, "joints" );
-      DataHandle sharedAxesList = DataIO_AddList( robotInfo, "axes" );
+      DataHandle sharedJointsList = DataIO_AddList( robotConfig, "joints" );
+      DataHandle sharedAxesList = DataIO_AddList( robotConfig, "axes" );
       
       axesNumber = Robot_GetAxesNumber(); 
 
@@ -326,11 +377,16 @@ void RefreshRobotsInfo( const char* robotName, char* sharedControlsString )
     }
   }
   
+  return robotConfig;
+}
+
+void GetRobotConfigString( DataHandle robotConfig, char* sharedControlsString )
+{
   if( sharedControlsString != NULL )
   {
-    char* robotControlsString = DataIO_GetDataString( robotInfo );
-    DEBUG_PRINT( "robots info string: %s", robotControlsString );
-    strncpy( sharedControlsString, robotControlsString, strlen( robotControlsString ) );
-    free( robotControlsString );
+    char* robotConfigString = DataIO_GetDataString( robotConfig );
+    DEBUG_PRINT( "robots info string: %s", robotConfigString );
+    strncpy( sharedControlsString, robotConfigString, strlen( robotConfigString ) );
+    free( robotConfigString );
   }
 }
