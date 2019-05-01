@@ -32,12 +32,12 @@
 /// Single byte codes used in request/receive messages for robot state/configuration control
 enum RobotControlCode { 
        /// Request information about current robot, its available [axes and joints](https://github.com/EESC-MKGroup/Robot-Control-Interface#the-jointaxis-rationale))
-       ROBOT_REQ_GET_INFO = 1,
-       /// Reply code for ROBOT_REQ_GET_INFO. Followed, in the same message, by a JSON info string like:
+       ROBOT_REQ_GET_CONFIG = 1,
+       /// Reply code for ROBOT_REQ_GET_CONFIG. Followed, in the same message, by a JSON info string like:
        /// @code
        /// { "id":"<robot_name>", "axes":[ "<axis1_name>", "<axis2_name>" ], "joints":[ "<joint1_name>", "<joint2_name>" ] }
        /// @endcode
-       ROBOT_REP_GOT_INFO = ROBOT_REQ_GET_INFO,
+       ROBOT_REP_GOT_CONFIG = ROBOT_REQ_GET_CONFIG,
        ROBOT_REQ_DISABLE,                               ///< Request turning off the robot and stopping its control thread
        ROBOT_REP_DISABLED = ROBOT_REQ_DISABLE,          ///< Confirmation reply to ROBOT_REQ_DISABLE
        ROBOT_REQ_ENABLE,                                ///< Request turning on the robot and starting its control thread
@@ -57,7 +57,7 @@ enum RobotControlCode {
        ROBOT_REQ_SET_USER,                              ///< Request setting new user/folder name for [data logging](https://github.com/EESC-MKGroup/Simple-Data-Logging). Must be followed, in the same message, by a string with the name
        ROBOT_REP_USER_SET = ROBOT_REQ_SET_USER,         ///< Confirmation reply to ROBOT_REQ_SET_USER
        ROBOT_REQ_SET_CONFIG,                            ///< Request setting new @ref robot_config, reloading all parameters. Must be followed, in the same message, by a string with the new @ref robot_config name
-       ROBOT_REP_CONFIG_SET = ROBOT_REQ_SET_CONFIG,     ///< Confirmation reply to ROBOT_REQ_SET_CONFIG. Followed by the same JSON string type as in ROBOT_REP_GOT_INFO
+       ROBOT_REP_CONFIG_SET = ROBOT_REQ_SET_CONFIG,     ///< Confirmation reply to ROBOT_REQ_SET_CONFIG. Followed by the same JSON string type as in ROBOT_REP_GOT_CONFIG
 };
 
 #endif // SHARED_ROBOT_CONTROL_H

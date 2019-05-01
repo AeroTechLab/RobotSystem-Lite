@@ -47,6 +47,7 @@
 #define chdir _chdir
 #else
 #include <unistd.h>
+#include <getopt.h>
 #endif
 
 const unsigned long NETWORK_UPDATE_MIN_INTERVAL_MS = 20;
@@ -71,39 +72,35 @@ bool System_Init( const int argc, const char** argv )
 {
   DEBUG_PRINT( "Starting Robot Control at time %g", Time_GetExecSeconds() );
   
-  if( argc < 2 ) 
-  {
-    DEBUG_PRINT( "wrong usage: type \"%s --help\" for instructions", argv[ 0 ] );
-    return false;
-  }
-  
-  if( strcmp( argv[ 1 ], "--help" ) == 0 )
-  {
-    DEBUG_PRINT( "usage: %s [--root <root_dir>] [--addr <connection_address>] [--log <log_dir>] <robot_name>", argv[ 0 ] );
-    return false;
-  }
-  
   const char* rootDirectory = ".";
   const char* connectionAddress = NULL;
   const char* logDirectory = "./" KEY_LOG "s/";
-  const char* robotConfigName = argv[ argc - 1 ];
+  const char* robotConfigName = NULL;
   
-  for( int optionIndex = 1; optionIndex < argc - 1; optionIndex+=2 )
+  static struct option longOptions[] =
   {
-    if( optionIndex + 1 >= argc - 1 )
+    { "help", no_argument, NULL, 'h' },
+    { "root", required_argument, NULL, 'r' },
+    { "log", required_argument, NULL, 'l' },
+    { "addr", required_argument, NULL, 'a' },
+    { "config", required_argument, NULL, 'c' },
+    { NULL, 0, NULL, 0 }
+  };
+  
+  int optionChar;
+  int optionIndex;
+  while( (optionChar = getopt_long( argc, (char* const*) argv, "hr:l:a:c:", longOptions, &optionIndex )) != -1 )
+  {
+    DEBUG_PRINT( "option %s(%c) set with argument %s", longOptions[ optionIndex ].name, optionChar, optarg );
+    if( optionChar == 'h' )
     {
-      DEBUG_PRINT( "missing value for option %s. type \"%s --help\" for instructions", argv[ optionIndex ], argv[ 0 ] );
+      printf( "usage: %s [--root <root_dir>] [--addr <connection_address>] [--log <log_dir>] [--config <robot_name>]\n", argv[ 0 ] );
       return false;
     }
-    
-    if( strcmp( argv[ optionIndex ], "--root" ) == 0 ) rootDirectory = argv[ optionIndex + 1 ];
-    else if( strcmp( argv[ optionIndex ], "--log" ) == 0 ) logDirectory = argv[ optionIndex + 1 ];
-    else if( strcmp( argv[ optionIndex ], "--addr" ) == 0 ) connectionAddress = argv[ optionIndex + 1 ];
-    else
-    {
-      DEBUG_PRINT( "unknown option %s. type \"%s --help\" for instructions", argv[ optionIndex ], argv[ 0 ] );
-      return false;
-    }
+    else if( optionChar == 'r' ) rootDirectory = optarg;
+    else if( optionChar == 'l' ) logDirectory = optarg;
+    else if( optionChar == 'a' ) connectionAddress = optarg;
+    else if( optionChar == 'c' ) robotConfigName = optarg;
   }
   
   robotEventsConnection = IPC_OpenConnection( IPC_TCP | IPC_SERVER, connectionAddress, 50000 );
@@ -152,9 +149,9 @@ void UpdateEvents()
     Byte* messageOut = (Byte*) messageBuffer;
     memset( messageOut, 0, IPC_MAX_MESSAGE_LENGTH );
       
-    if( robotCommand == ROBOT_REQ_GET_INFO ) 
+    if( robotCommand == ROBOT_REQ_GET_CONFIG ) 
     {
-      messageOut[ 0 ] = ROBOT_REP_GOT_INFO;
+      messageOut[ 0 ] = ROBOT_REP_GOT_CONFIG;
       RefreshRobotsInfo( NULL, (char*) ( messageOut + 1 ) );
     }
     else if( robotCommand == ROBOT_REQ_DISABLE ) messageOut[ 0 ] = Robot_Disable() ? ROBOT_REP_DISABLED : 0x00;

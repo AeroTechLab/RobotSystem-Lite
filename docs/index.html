@@ -175,11 +175,12 @@ $ git submodule update --init
 $ cmake .. # or ccmake for more options
 $ make
 </pre><h2>Running</h2>
-<p>Executing <b>RobotSystem-Lite</b> from command-line takes at least the name (without extensions) of the <a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/robot_config.html">robot configuration</a> file, allowing for more optional arguments: </p><pre class="fragment">$ ./RobRehabControl [--root &lt;root_dir&gt;] [--addr &lt;connection_address&gt;] [--log &lt;log_dir&gt;] &lt;robot_name&gt;
+<p>Executing <b>RobotSystem-Lite</b> from command-line allows taking some optional arguments: </p><pre class="fragment">$ ./RobRehabControl [--root &lt;root_dir&gt;] [--addr &lt;connection_address&gt;] [--log &lt;log_dir&gt;] [--config &lt;robot_name&gt;]
 </pre><ul>
 <li>**&lt;root_dir&gt;** is the absolute or relative path to the directory where <b>config</b> and <b>plugins</b> folders are located (default is working directory **"./"**)</li>
 <li>**&lt;connection_address&gt;** is the <b>IP</b> address the server sockets will be binded to (default is any address/all interfaces)</li>
 <li>**&lt;log_dir&gt;** is the absolute or relative path to the directory where log folders/files will be saved (default is **"./log/"**)</li>
+<li>**&lt;robot_name&gt; is the name (without extensions) of the <a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/robot_config.html">robot configuration</a> file to be loaded on startup (configuration could be set or changed later via client applications)</li>
 </ul>
 <h2>Documentation</h2>
 <p>Doxygen-generated detailed reference is available on project's <a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/files.html">GitHub Pages</a> </p>

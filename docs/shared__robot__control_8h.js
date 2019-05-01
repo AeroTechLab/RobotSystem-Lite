@@ -1,8 +1,8 @@
 var shared__robot__control_8h =
 [
     [ "RobotControlCode", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62", [
-      [ "ROBOT_REQ_GET_INFO", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a7d6aebdcdbc7c6521a934a4c49935e7c", null ],
-      [ "ROBOT_REP_GOT_INFO", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a10dce8048db58dcdf9edb71f2adf3104", null ],
+      [ "ROBOT_REQ_GET_CONFIG", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a831f268fbf0c105afae1c73666d17a49", null ],
+      [ "ROBOT_REP_GOT_CONFIG", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a0aff6a3ea64f03d6cbce6e17b126c325", null ],
       [ "ROBOT_REQ_DISABLE", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62af60b2bb9f883f450a964e78e9b47ac70", null ],
       [ "ROBOT_REP_DISABLED", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a873557480cef4523abbd89642cd49d1c", null ],
       [ "ROBOT_REQ_ENABLE", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a72a267f6f9c2b4d6bec99b9398f770a6", null ],

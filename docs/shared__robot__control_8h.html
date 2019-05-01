@@ -100,8 +100,8 @@ $(document).ready(function(){initNavTree('shared__robot__control_8h.html','');})
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
 <tr class="memitem:ad7598a9e5ce9e8282b162f551741ab62"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62">RobotControlCode</a> { <br />
-&#160;&#160;<a class="el" href="shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a7d6aebdcdbc7c6521a934a4c49935e7c">ROBOT_REQ_GET_INFO</a> = 1, 
-<a class="el" href="shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a10dce8048db58dcdf9edb71f2adf3104">ROBOT_REP_GOT_INFO</a> = ROBOT_REQ_GET_INFO, 
+&#160;&#160;<a class="el" href="shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a831f268fbf0c105afae1c73666d17a49">ROBOT_REQ_GET_CONFIG</a> = 1, 
+<a class="el" href="shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a0aff6a3ea64f03d6cbce6e17b126c325">ROBOT_REP_GOT_CONFIG</a> = ROBOT_REQ_GET_CONFIG, 
 <a class="el" href="shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62af60b2bb9f883f450a964e78e9b47ac70">ROBOT_REQ_DISABLE</a>, 
 <a class="el" href="shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a873557480cef4523abbd89642cd49d1c">ROBOT_REP_DISABLED</a> = ROBOT_REQ_DISABLE, 
 <br />
@@ -150,9 +150,9 @@ Enumerations</h2></td></tr>
 
 <p>Single byte codes used in request/receive messages for robot state/configuration control. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62a7d6aebdcdbc7c6521a934a4c49935e7c"></a>ROBOT_REQ_GET_INFO&#160;</td><td class="fielddoc"><p>Request information about current robot, its available <a href="https://github.com/EESC-MKGroup/Robot-Control-Interface#the-jointaxis-rationale">axes and joints</a>) </p>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62a831f268fbf0c105afae1c73666d17a49"></a>ROBOT_REQ_GET_CONFIG&#160;</td><td class="fielddoc"><p>Request information about current robot, its available <a href="https://github.com/EESC-MKGroup/Robot-Control-Interface#the-jointaxis-rationale">axes and joints</a>) </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62a10dce8048db58dcdf9edb71f2adf3104"></a>ROBOT_REP_GOT_INFO&#160;</td><td class="fielddoc"><p>Reply code for ROBOT_REQ_GET_INFO. Followed, in the same message, by a JSON info string like: </p><div class="fragment"><div class="line">{ &quot;id&quot;:&quot;&lt;robot_name&gt;&quot;, &quot;axes&quot;:[ &quot;&lt;axis1_name&gt;&quot;, &quot;&lt;axis2_name&gt;&quot; ], &quot;joints&quot;:[ &quot;&lt;joint1_name&gt;&quot;, &quot;&lt;joint2_name&gt;&quot; ] }</div></div><!-- fragment --> </td></tr>
+<tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62a0aff6a3ea64f03d6cbce6e17b126c325"></a>ROBOT_REP_GOT_CONFIG&#160;</td><td class="fielddoc"><p>Reply code for ROBOT_REQ_GET_CONFIG. Followed, in the same message, by a JSON info string like: </p><div class="fragment"><div class="line">{ &quot;id&quot;:&quot;&lt;robot_name&gt;&quot;, &quot;axes&quot;:[ &quot;&lt;axis1_name&gt;&quot;, &quot;&lt;axis2_name&gt;&quot; ], &quot;joints&quot;:[ &quot;&lt;joint1_name&gt;&quot;, &quot;&lt;joint2_name&gt;&quot; ] }</div></div><!-- fragment --> </td></tr>
 <tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62af60b2bb9f883f450a964e78e9b47ac70"></a>ROBOT_REQ_DISABLE&#160;</td><td class="fielddoc"><p>Request turning off the robot and stopping its control thread. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62a873557480cef4523abbd89642cd49d1c"></a>ROBOT_REP_DISABLED&#160;</td><td class="fielddoc"><p>Confirmation reply to ROBOT_REQ_DISABLE. </p>
@@ -191,7 +191,7 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62ab0a6a9668124b21e1201654922a1dc64"></a>ROBOT_REQ_SET_CONFIG&#160;</td><td class="fielddoc"><p>Request setting new <a class="el" href="robot_config.html">Robot Configuration</a>, reloading all parameters. Must be followed, in the same message, by a string with the new <a class="el" href="robot_config.html">Robot Configuration</a> name. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62a7ba86a794f2718f4bc742c3c35e0a840"></a>ROBOT_REP_CONFIG_SET&#160;</td><td class="fielddoc"><p>Confirmation reply to ROBOT_REQ_SET_CONFIG. Followed by the same JSON string type as in ROBOT_REP_GOT_INFO. </p>
+<tr><td class="fieldname"><a id="ad7598a9e5ce9e8282b162f551741ab62a7ba86a794f2718f4bc742c3c35e0a840"></a>ROBOT_REP_CONFIG_SET&#160;</td><td class="fielddoc"><p>Confirmation reply to ROBOT_REQ_SET_CONFIG. Followed by the same JSON string type as in ROBOT_REP_GOT_CONFIG. </p>
 </td></tr>
 </table>
 
