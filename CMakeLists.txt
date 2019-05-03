@@ -17,6 +17,8 @@ set( MODULES_DIR ${CMAKE_SOURCE_DIR}/${MODULES_PATH} CACHE PATH "Dynamic modules
 set( SIGNAL_IO_PATH signal_io )
 set( ROBOT_CONTROL_PATH robot_control )
 
+set( USE_IP_LEGACY true CACHE BOOL "Enable to compile for older systems, with no modern socket options (e.g. IPv6)" )
+
 include( ${SOURCES_DIR}/debug/CMakeLists.txt )
 include( ${SOURCES_DIR}/data_io/CMakeLists.txt )
 include( ${SOURCES_DIR}/kalman/CMakeLists.txt )

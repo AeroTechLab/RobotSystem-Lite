@@ -150,7 +150,6 @@ void UpdateEvents()
     DEBUG_PRINT( "received robot command: %u", robotCommand );
     
     Byte* messageOut = (Byte*) messageBuffer;
-    memset( messageOut, 0, IPC_MAX_MESSAGE_LENGTH );
       
     if( robotCommand == ROBOT_REQ_LIST_CONFIGS ) 
     {
@@ -165,24 +164,29 @@ void UpdateEvents()
     else if( robotCommand == ROBOT_REQ_SET_CONFIG )
     {
       char* robotName = (char*) messageIn;
+      DEBUG_PRINT( "robot config %s set", robotName );
       robotConfig = ReloadRobotConfig( robotName );
       messageOut[ 0 ] = ROBOT_REP_CONFIG_SET;
       GetRobotConfigString( robotConfig, (char*) ( messageOut + 1 ) );
     }
-    else if( robotCommand == ROBOT_REQ_SET_USER )
+    else 
     {
-      char* userName = (char*) messageIn;
-      Log_SetBaseName( userName );
-      messageOut[ 0 ] = ROBOT_REP_USER_SET;
-      //DEBUG_PRINT( "New user name: %s", userName );
+      memset( messageOut, 0, IPC_MAX_MESSAGE_LENGTH );
+      if( robotCommand == ROBOT_REQ_SET_USER )
+      {
+        char* userName = (char*) messageIn;
+        DEBUG_PRINT( "new user name: %s", userName );
+        Log_SetBaseName( userName );
+        messageOut[ 0 ] = ROBOT_REP_USER_SET;
+      }
+      else if( robotCommand == ROBOT_REQ_DISABLE ) messageOut[ 0 ] = Robot_Disable() ? ROBOT_REP_DISABLED : 0x00;
+      else if( robotCommand == ROBOT_REQ_ENABLE ) messageOut[ 0 ] = Robot_Enable() ? ROBOT_REP_ENABLED : 0x00;
+      else if( robotCommand == ROBOT_REQ_PASSIVATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_PASSIVE ) ? ROBOT_REP_PASSIVE : 0x00;
+      else if( robotCommand == ROBOT_REQ_OFFSET ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_OFFSET ) ? ROBOT_REP_OFFSETTING : 0x00;
+      else if( robotCommand == ROBOT_REQ_CALIBRATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_CALIBRATION ) ? ROBOT_REP_CALIBRATING : 0x00;
+      else if( robotCommand == ROBOT_REQ_PREPROCESS ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_PREPROCESSING ) ? ROBOT_REP_PREPROCESSING : 0x00;
+      else if( robotCommand == ROBOT_REQ_OPERATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_OPERATION ) ? ROBOT_REP_OPERATING : 0x00;
     }
-    else if( robotCommand == ROBOT_REQ_DISABLE ) messageOut[ 0 ] = Robot_Disable() ? ROBOT_REP_DISABLED : 0x00;
-    else if( robotCommand == ROBOT_REQ_ENABLE ) messageOut[ 0 ] = Robot_Enable() ? ROBOT_REP_ENABLED : 0x00;
-    else if( robotCommand == ROBOT_REQ_PASSIVATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_PASSIVE ) ? ROBOT_REP_PASSIVE : 0x00;
-    else if( robotCommand == ROBOT_REQ_OFFSET ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_OFFSET ) ? ROBOT_REP_OFFSETTING : 0x00;
-    else if( robotCommand == ROBOT_REQ_CALIBRATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_CALIBRATION ) ? ROBOT_REP_CALIBRATING : 0x00;
-    else if( robotCommand == ROBOT_REQ_PREPROCESS ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_PREPROCESSING ) ? ROBOT_REP_PREPROCESSING : 0x00;
-    else if( robotCommand == ROBOT_REQ_OPERATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_OPERATION ) ? ROBOT_REP_OPERATING : 0x00;
     
     IPC_WriteMessage( robotEventsConnection, messageOut );
   }   
@@ -310,19 +314,24 @@ void ListRobotConfigs( char* sharedRobotsString )
   
   DIR* directory;
   struct dirent* directoryEntry;
-  directory = opendir( "." );
+  directory = opendir( "./" KEY_CONFIG "/" KEY_ROBOT "/" );
   if( directory )
   {
     while( (directoryEntry = readdir( directory )) != NULL )
     {
-      if( directoryEntry->d_type == DT_REG ) DataIO_SetStringValue( sharedRobotsList, NULL, directoryEntry->d_name );
+      if( directoryEntry->d_type == DT_REG )
+      {
+        char* extString = strrchr( directoryEntry->d_name, '.' );
+        if( extString != NULL ) *extString = '\0'; 
+        DataIO_SetStringValue( sharedRobotsList, NULL, directoryEntry->d_name );
+      }
     }
 
     closedir( directory );
   }
   
 //   WIN32_FIND_DATA info;
-//   HANDLE h = FindFirstFile("*.*", &info);
+//   HANDLE h = FindFirstFile( "./" KEY_CONFIG "/" KEY_ROBOT "/*.*", &info );
 //   if (h != INVALID_HANDLE_VALUE)
 //   {
 //     do
