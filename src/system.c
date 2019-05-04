@@ -312,38 +312,9 @@ void ListRobotConfigs( char* sharedRobotsString )
   
   DataHandle sharedRobotsList = DataIO_AddList( robotsList, "robots" );
   
-  DIR* directory;
-  struct dirent* directoryEntry;
-  directory = opendir( "./" KEY_CONFIG "/" KEY_ROBOT "/" );
-  if( directory )
-  {
-    while( (directoryEntry = readdir( directory )) != NULL )
-    {
-      if( directoryEntry->d_type == DT_REG )
-      {
-        char* extString = strrchr( directoryEntry->d_name, '.' );
-        if( extString != NULL ) *extString = '\0'; 
-        DataIO_SetStringValue( sharedRobotsList, NULL, directoryEntry->d_name );
-      }
-    }
-
-    closedir( directory );
-  }
-  
-//   WIN32_FIND_DATA info;
-//   HANDLE h = FindFirstFile( "./" KEY_CONFIG "/" KEY_ROBOT "/*.*", &info );
-//   if (h != INVALID_HANDLE_VALUE)
-//   {
-//     do
-//     {
-//       if (!(strcmp(info.cFileName, ".") == 0 || strcmp(info.cFileName, "..") == 0))
-//       {
-//         addfile(&list, info);
-//       }
-//     } while (FindNextFile(h, &info));
-//     if (GetLastError() != ERROR_NO_MORE_FILES) errormessage();
-//     FindClose(h);
-//   }
+  const char** dataList = DataIO_ListStorageDataEntries( "./" KEY_CONFIG "/" KEY_ROBOT "/" );
+  for( size_t dataIndex = 0; dataList[ dataIndex ] != NULL; dataIndex++ )
+    DataIO_SetStringValue( sharedRobotsList, NULL, dataList[ dataIndex ] );
   
   char* robotsListString = DataIO_GetDataString( robotsList );
   DEBUG_PRINT( "robots info string: %s", robotsListString );
