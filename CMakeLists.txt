@@ -17,8 +17,6 @@ set( MODULES_DIR ${CMAKE_SOURCE_DIR}/${MODULES_PATH} CACHE PATH "Dynamic modules
 set( SIGNAL_IO_PATH signal_io )
 set( ROBOT_CONTROL_PATH robot_control )
 
-set( USE_IP_LEGACY true CACHE BOOL "Enable to compile for older systems, with no modern socket options (e.g. IPv6)" )
-
 include( ${SOURCES_DIR}/debug/CMakeLists.txt )
 include( ${SOURCES_DIR}/data_io/CMakeLists.txt )
 include( ${SOURCES_DIR}/kalman/CMakeLists.txt )
@@ -40,7 +38,7 @@ target_link_libraries( TinyExpr -lm )
 
 add_executable( RobotControl ${SOURCES_DIR}/main.c ${SOURCES_DIR}/system.c ${SOURCES_DIR}/robot.c ${SOURCES_DIR}/actuator.c ${SOURCES_DIR}/sensor.c ${SOURCES_DIR}/motor.c ${SOURCES_DIR}/input.c )
 target_compile_definitions( RobotControl PUBLIC -DDEBUG -DZMQ_BUILD_DRAFT_API )
-target_link_libraries( RobotControl DataLogging DataIOJSON KalmanFilters SignalProcessing AsyncIPC MultiThreading Timing TinyExpr ${CMAKE_DL_LIBS} )
+target_link_libraries( RobotControl DataLogging DataIOJSON KalmanFilters SignalProcessing IPC MultiThreading Timing TinyExpr ${CMAKE_DL_LIBS} )
 
 
 # EXAMPLE PLUGINS/MODULES

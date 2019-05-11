@@ -22,7 +22,7 @@
 
 #include "system.h"
 
-#include "ipc/ipc.h"
+#include "ipc/interface/ipc.h"
 
 #include "shared_robot_control.h"
 #include "shared_dof_variables.h"
@@ -64,7 +64,7 @@ DataHandle robotConfig = NULL;
 
 IPCConnection robotEventsConnection = NULL;
 IPCConnection robotAxesConnection = NULL;
-IPCConnection robotJointsConnection = NULL;
+//IPCConnection robotJointsConnection = NULL;
 
 
 void ListRobotConfigs( char* );
@@ -107,12 +107,14 @@ bool System_Init( const int argc, const char** argv )
     else if( optionChar == 'c' ) robotConfigName = optarg;
   }
   
-  robotEventsConnection = IPC_OpenConnection( IPC_TCP | IPC_SERVER, connectionAddress, 50000 );
-  robotAxesConnection = IPC_OpenConnection( IPC_UDP | IPC_SERVER, connectionAddress, 50001 );
-  robotJointsConnection = IPC_OpenConnection( IPC_UDP | IPC_SERVER, connectionAddress, 50002 );
+  const char* connectionHost = connectionAddress;
+  char* connectionChannel = ( connectionAddress != NULL ) ? strrchr( connectionAddress, ':' ) : NULL;
+  if( connectionChannel != NULL ) *(connectionChannel++) = '\0';
+  robotEventsConnection = IPC_OpenConnection( IPC_REP, connectionHost, connectionChannel );
+  robotAxesConnection = IPC_OpenConnection( IPC_SERVER, connectionHost, connectionChannel );
+//   robotJointsConnection = IPC_OpenConnection( IPC_PUB, connectionAddress, 50002 );
   
   Log_SetDirectory( logDirectory );
-  Log_SetTimeStamp();
 
   chdir( rootDirectory );
   DEBUG_PRINT( "loading robot configuration from %s", robotConfigName );
@@ -129,7 +131,7 @@ void System_End()
 
   IPC_CloseConnection( robotEventsConnection );
   IPC_CloseConnection( robotAxesConnection );
-  IPC_CloseConnection( robotJointsConnection );
+//   IPC_CloseConnection( robotJointsConnection );
 
   DataIO_UnloadData( robotConfig );
 
@@ -255,43 +257,43 @@ bool UpdateAxes( unsigned long lastNetworkUpdateElapsedTimeMS )
   return false;
 }
 
-bool UpdateJoints( unsigned long lastNetworkUpdateElapsedTimeMS )
-{
-  static Byte messageOut[ IPC_MAX_MESSAGE_LENGTH ];
-  
-  memset( messageOut, 0, IPC_MAX_MESSAGE_LENGTH * sizeof(Byte) );
-  size_t jointDataOffset = 1;
-  for( size_t jointIndex = 0; jointIndex < jointsNumber; jointIndex++ )
-  {
-    messageOut[ 0 ]++;
-    messageOut[ jointDataOffset++ ] = (Byte) jointIndex;
-    
-    float* jointMeasuresList = (float*) ( messageOut + jointDataOffset );
-    
-    RobotVariables jointMeasures = { 0 };
-    if( Robot_GetJointMeasures( jointIndex, &jointMeasures ) )
-    {
-      jointMeasuresList[ DOF_POSITION ] = (float) jointMeasures.position;
-      jointMeasuresList[ DOF_VELOCITY ] = (float) jointMeasures.velocity;
-      jointMeasuresList[ DOF_ACCELERATION ] = (float) jointMeasures.acceleration;
-      jointMeasuresList[ DOF_FORCE ] = (float) jointMeasures.force;
-      jointMeasuresList[ DOF_INERTIA ] = (float) jointMeasures.inertia;
-      jointMeasuresList[ DOF_STIFFNESS ] = (float) jointMeasures.stiffness;
-      jointMeasuresList[ DOF_DAMPING ] = (float) jointMeasures.damping;
-    }
-    
-    jointDataOffset += DOF_DATA_BLOCK_SIZE;
-  }
-  
-  if( messageOut[ 0 ] > 0 && lastNetworkUpdateElapsedTimeMS >= NETWORK_UPDATE_MIN_INTERVAL_MS )
-  {
-    //DEBUG_UPDATE( "sending measures for %u joints", messageOut[ 0 ] );
-    IPC_WriteMessage( robotJointsConnection, (const Byte*) messageOut );
-    return true;
-  }
-  
-  return false;
-}
+// bool UpdateJoints( unsigned long lastNetworkUpdateElapsedTimeMS )
+// {
+//   static Byte messageOut[ IPC_MAX_MESSAGE_LENGTH ];
+//   
+//   memset( messageOut, 0, IPC_MAX_MESSAGE_LENGTH * sizeof(Byte) );
+//   size_t jointDataOffset = 1;
+//   for( size_t jointIndex = 0; jointIndex < jointsNumber; jointIndex++ )
+//   {
+//     messageOut[ 0 ]++;
+//     messageOut[ jointDataOffset++ ] = (Byte) jointIndex;
+//     
+//     float* jointMeasuresList = (float*) ( messageOut + jointDataOffset );
+//     
+//     RobotVariables jointMeasures = { 0 };
+//     if( Robot_GetJointMeasures( jointIndex, &jointMeasures ) )
+//     {
+//       jointMeasuresList[ DOF_POSITION ] = (float) jointMeasures.position;
+//       jointMeasuresList[ DOF_VELOCITY ] = (float) jointMeasures.velocity;
+//       jointMeasuresList[ DOF_ACCELERATION ] = (float) jointMeasures.acceleration;
+//       jointMeasuresList[ DOF_FORCE ] = (float) jointMeasures.force;
+//       jointMeasuresList[ DOF_INERTIA ] = (float) jointMeasures.inertia;
+//       jointMeasuresList[ DOF_STIFFNESS ] = (float) jointMeasures.stiffness;
+//       jointMeasuresList[ DOF_DAMPING ] = (float) jointMeasures.damping;
+//     }
+//     
+//     jointDataOffset += DOF_DATA_BLOCK_SIZE;
+//   }
+//   
+//   if( messageOut[ 0 ] > 0 && lastNetworkUpdateElapsedTimeMS >= NETWORK_UPDATE_MIN_INTERVAL_MS )
+//   {
+//     //DEBUG_UPDATE( "sending measures for %u joints", messageOut[ 0 ] );
+//     IPC_WriteMessage( robotJointsConnection, (const Byte*) messageOut );
+//     return true;
+//   }
+//   
+//   return false;
+// }
 
 void System_Update()
 {
@@ -301,7 +303,7 @@ void System_Update()
   UpdateEvents();
   
   lastNetworkUpdateElapsedTimeMS += lastUpdateElapsedTimeMS;
-  if( UpdateAxes( lastNetworkUpdateElapsedTimeMS ) || UpdateJoints( lastNetworkUpdateElapsedTimeMS ) )
+  if( UpdateAxes( lastNetworkUpdateElapsedTimeMS ) /*|| UpdateJoints( lastNetworkUpdateElapsedTimeMS )*/ )
     lastNetworkUpdateElapsedTimeMS = 0;
 }
 
@@ -330,6 +332,8 @@ DataHandle ReloadRobotConfig( const char* robotName )
   
   if( robotName != NULL )
   {     
+    Log_SetTimeStamp();
+    
     if( robotInitialized ) Robot_End();
     
     if( (robotInitialized = Robot_Init( robotName )) )

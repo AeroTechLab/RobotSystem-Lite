@@ -13,12 +13,6 @@
 [submodule "src/debug"]
 	path = src/debug
 	url = https://github.com/EESC-MKGroup/Simple-Data-Logging
-[submodule "src/ipc"]
-	path = src/ipc
-	url = https://github.com/EESC-MKGroup/Simple-Async-IPC
-[submodule "src/data_io"]
-	path = src/data_io
-	url = https://github.com/EESC-MKGroup/Data-IO-JSON.git
 [submodule "src/signal_io"]
 	path = src/signal_io
 	url = https://github.com/EESC-MKGroup/Signal-IO-Interface.git
