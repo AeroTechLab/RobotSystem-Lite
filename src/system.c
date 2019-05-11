@@ -110,8 +110,8 @@ bool System_Init( const int argc, const char** argv )
   const char* connectionHost = connectionAddress;
   char* connectionChannel = ( connectionAddress != NULL ) ? strrchr( connectionAddress, ':' ) : NULL;
   if( connectionChannel != NULL ) *(connectionChannel++) = '\0';
-  robotEventsConnection = IPC_OpenConnection( IPC_REP, connectionHost, connectionChannel );
-  robotAxesConnection = IPC_OpenConnection( IPC_SERVER, connectionHost, connectionChannel );
+  robotEventsConnection = IPC_OpenConnection( IPC_REP, connectionHost, /*connectionChannel*/"50000" );
+  robotAxesConnection = IPC_OpenConnection( IPC_SERVER, connectionHost, /*connectionChannel*/"50001" );
 //   robotJointsConnection = IPC_OpenConnection( IPC_PUB, connectionAddress, 50002 );
   
   Log_SetDirectory( logDirectory );

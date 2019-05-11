@@ -1,6 +1,6 @@
 {
   "inputs": [
-    { "interface": { "type": "OpenSimIO", "config": "device_2", "channel": 3 } }
+    { "interface": { "type": "OpenSimRobotIO", "config": "device_2", "channel": 3 } }
   ],
   "output": "in0",
   "log": { "file": true, "precision": 5 }
