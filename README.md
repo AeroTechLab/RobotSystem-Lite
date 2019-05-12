@@ -108,13 +108,22 @@ On a terminal, get the [GitHub code repository](https://github.com/EESC-MKGroup/
 
     $ git clone https://github.com/EESC-MKGroup/RobotSystem-Lite [<my_system_folder>]
 
-Besides operating system's libraries, this software is dependent on code from other projects ([Data I/O JSON](https://github.com/EESC-MKGroup/Data-IO-JSON), [Data Logging](https://github.com/EESC-MKGroup/Simple-Data-Logging), [Async IPC](https://github.com/EESC-MKGroup/Simple-Async-IPC), [Kalman Filter](https://github.com/EESC-MKGroup/Simple-Kalman-Filter), [Plugin Loader](https://github.com/EESC-MKGroup/Plugin-Loader), [Robot Control Interface](https://github.com/EESC-MKGroup/Robot-Control-Interface), [Signal I/O Interface](https://github.com/EESC-MKGroup/Signal-IO-Interface), [Signal Processing](https://github.com/EESC-MKGroup/Simple-Signal-Processing), [Multithreading](https://github.com/EESC-MKGroup/Simple-Multithreading), [Precise Timing](https://github.com/EESC-MKGroup/Precise-Timing)) and [Tiny Expr](https://github.com/codeplea/tinyexpr), that are automatically linked as [git submodules](https://chrisjean.com/git-submodules-adding-using-removing-and-updating/). Also, a library implementation of [BLAS/LAPACK API](https://en.wikipedia.org/wiki/LAPACK) is needed.
+Besides operating system's libraries, this software is dependent on code from other projects ([Data Logging](https://github.com/EESC-MKGroup/Simple-Data-Logging), [Kalman Filter](https://github.com/EESC-MKGroup/Simple-Kalman-Filter), [Plugin Loader](https://github.com/EESC-MKGroup/Plugin-Loader), [Robot Control Interface](https://github.com/EESC-MKGroup/Robot-Control-Interface), [Signal I/O Interface](https://github.com/EESC-MKGroup/Signal-IO-Interface), [Signal Processing](https://github.com/EESC-MKGroup/Simple-Signal-Processing), [Multithreading](https://github.com/EESC-MKGroup/Simple-Multithreading), [Precise Timing](https://github.com/EESC-MKGroup/Precise-Timing)) and [Tiny Expr](https://github.com/codeplea/tinyexpr), that are automatically linked as [git submodules](https://chrisjean.com/git-submodules-adding-using-removing-and-updating/).
 
 To add those repositories to your sources, navigate to the root project folder and clone them with:
 
     $ cd <my_system_folder>
     $ git submodule update --init
 
+Also, a [BLAS/LAPACK API](https://en.wikipedia.org/wiki/LAPACK) system library and implementations of [Data I/O Interface](https://github.com/EESC-MKGroup/Data-IO-Interface) and [IPC Interface](https://github.com/EESC-MKGroup/IPC-Interface) are needed.
+
+To add the latter, run the following from the root project folder:
+
+    $ git clone <my_data-io_implementation_repo> src/data_io
+    $ git clone <my_ipc_implementation_repo> src/ipc
+    
+Example implementations are [Data I/O JSON](https://github.com/EESC-MKGroup/Data-IO-JSON) and [Simple Async IPC](https://github.com/EESC-MKGroup/Simple-Async-IPC).
+    
 With dependencies set, you can now build the system executable to a separate build directory with [CMake](https://cmake.org/):
 
     $ mkdir build && cd build
