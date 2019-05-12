@@ -74,7 +74,7 @@ With that structure, a multi-level control process can interact with external cl
 
 ## Communication Interfaces
 
-**RobotSystem-Lite** client applications communicate with it through [**IP** connections](https://en.wikipedia.org/wiki/Network_socket), with fixed-size **512 bytes** messages. Depending on the type of message sent or received, a specific data format and underlying transport ([TCP](https://pt.wikipedia.org/wiki/Transmission_Control_Protocol) or [UDP](https://pt.wikipedia.org/wiki/User_Datagram_Protocol)) must be used.
+**RobotSystem-Lite** client applications communicate with it through a provided [IPC](https://en.wikipedia.org/wiki/Inter-process_communication) implementation (based on methods like [shared memory](https://en.wikipedia.org/wiki/Shared_memory), [**IP** sockets](https://en.wikipedia.org/wiki/Network_socket), [nanomsg](https://github.com/nanomsg/nng) or [ROS2](https://github.com/ros2/rcl)), with fixed-size **512 bytes** messages. Depending on the type of message sent or received, a specific data format and underlying transport/protocol is used.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/EESC-MKGroup/RobotSystem-Lite/master/docs/img/robot_communications.png" width="600"/>
@@ -82,11 +82,11 @@ With that structure, a multi-level control process can interact with external cl
 
 ### Request/Reply messages
 
-Messages requesting state changes or information about the robot are sent by clients occasionally and their arrival should be as guaranteed as possible. Therefore, these messages are transmitted to the server through **TCP** sockets, on port **50000**. Possible messages (and corresponding reply values) are listed in a [separate header](https://eesc-mkgroup.github.io/RobotSystem-Lite/shared__robot__control_8h.html)
+Messages requesting state changes or information about the robot are sent by clients occasionally and their arrival should be as guaranteed as possible. Therefore, these messages are transmitted using a [request-reply](https://en.wikipedia.org/wiki/Request%E2%80%93response) protocol. Possible messages (and corresponding reply values) are listed in a [separate header](https://eesc-mkgroup.github.io/RobotSystem-Lite/shared__robot__control_8h.html)
 
 ### Joint/Axis update messages
 
-Messages transporting online updates for robot degrees-of-freedom ([axes or joints](https://github.com/EESC-MKGroup/Robot-Control-Interface#the-jointaxis-rationale)) control variables (measurements or setpoints) should arrive as quickly as possible, and there is no advantage in resending lost packets, as their validity is short in time. Thereby, these messages are exchanged with **RobotSystem-Lite** through lower-latency **UDP** sockets, on port **50001** for **axes** and **50002** for **joints**, in a [defined format](https://eesc-mkgroup.github.io/RobotSystem-Lite/shared__dof__variables_8h.html).
+Messages transporting online updates for robot degrees-of-freedom ([axes (not joints)](https://github.com/EESC-MKGroup/Robot-Control-Interface#the-jointaxis-rationale)) control variables (measurements or setpoints) should arrive as quickly as possible, and there is no advantage in resending lost packets, as their validity is short in time. Thereby, these messages are exchanged with **RobotSystem-Lite** through lower-latency and scalable [publisher-subscriber](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) connections (possibly with [broadcast](https://en.wikipedia.org/wiki/Multicast)), in a [defined format](https://eesc-mkgroup.github.io/RobotSystem-Lite/shared__dof__variables_8h.html).
 
 ### Control variables conventions
 
