@@ -94,6 +94,14 @@ const char** GetAxisNamesList()
   return (const char**) DOF_NAMES;
 }
 
+size_t GetExtraInputsNumber( void ) { return 0; }
+      
+void SetExtraInputsList( double* inputsList ) { }
+
+size_t GetExtraOutputsNumber( void ) { return 0; }
+         
+void GetExtraOutputsList( double* outputsList ) { }
+
 void SetControlState( enum RobotState newControlState )
 {
   fprintf( stderr, "Setting robot control phase: %x\n", newControlState );

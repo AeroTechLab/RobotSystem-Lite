@@ -26,6 +26,8 @@
 
 #include "actuator.h"
 
+#include "input.h"
+
 #include "data_io/interface/data_io.h"
 #include "threads/threads.h"
 #include "timing/timing.h"
@@ -38,21 +40,6 @@
 /////                            CONTROL DEVICE                             /////
 /////////////////////////////////////////////////////////////////////////////////
 
-typedef struct _JointData       // Single robot joint internal data structure
-{
-  Actuator actuator;
-  RobotVariables* measures;
-  RobotVariables* setpoints;
-}
-JointData; 
-
-typedef struct _AxisData         // Single robot axis internal data structure
-{
-  RobotVariables* measures;
-  RobotVariables* setpoints;
-}
-AxisData;
-
 typedef struct _RobotData
 {
   DECLARE_MODULE_INTERFACE_REF( ROBOT_CONTROL_INTERFACE );
@@ -60,14 +47,17 @@ typedef struct _RobotData
   volatile bool isControlRunning;
   enum RobotState controlState;
   double controlTimeStep;
-  JointData* jointsList;
+  Actuator* actuatorsList;
   RobotVariables** jointMeasuresList;
   RobotVariables** jointSetpointsList;
   size_t jointsNumber;
-  AxisData* axesList;
   RobotVariables** axisMeasuresList;
   RobotVariables** axisSetpointsList;
   size_t axesNumber;
+  double* extraInputValues;
+  size_t extraInputsNumber;
+  double* extraOutputValues;
+  size_t extraOutputsNumber;
 } 
 RobotData;
 
@@ -101,28 +91,32 @@ bool Robot_Init( const char* configPathName )
       {
         robot.controlTimeStep = DataIO_GetNumericValue( configuration, CONTROL_PASS_DEFAULT_INTERVAL, KEY_CONTROLLER "." KEY_TIME_STEP );   
         robot.jointsNumber = robot.GetJointsNumber();
-        robot.jointsList = (JointData*) calloc( robot.jointsNumber, sizeof(JointData) );
+        robot.actuatorsList = (Actuator*) calloc( robot.jointsNumber, sizeof(Actuator) );
         robot.jointMeasuresList = (RobotVariables**) calloc( robot.jointsNumber, sizeof(RobotVariables*) );
         robot.jointSetpointsList = (RobotVariables**) calloc( robot.jointsNumber, sizeof(RobotVariables*) );
         DEBUG_PRINT( "found %lu joints", robot.jointsNumber );
         for( size_t jointIndex = 0; jointIndex < robot.jointsNumber; jointIndex++ )
         {
           const char* actuatorName = DataIO_GetStringValue( configuration, "", KEY_ACTUATOR "s.%lu", jointIndex );
-          robot.jointsList[ jointIndex ].actuator = Actuator_Init( actuatorName );
-          robot.jointMeasuresList[ jointIndex ] = robot.jointsList[ jointIndex ].measures = (RobotVariables*) malloc( sizeof(RobotVariables) );
-          robot.jointSetpointsList[ jointIndex ] = robot.jointsList[ jointIndex ].setpoints = (RobotVariables*) malloc( sizeof(RobotVariables) );
+          robot.actuatorsList[ jointIndex ] = Actuator_Init( actuatorName );
+          robot.jointMeasuresList[ jointIndex ] = (RobotVariables*) malloc( sizeof(RobotVariables) );
+          robot.jointSetpointsList[ jointIndex ] = (RobotVariables*) malloc( sizeof(RobotVariables) );
         }
 
         robot.axesNumber = robot.GetAxesNumber();
-        robot.axesList = (AxisData*) calloc( robot.axesNumber, sizeof(AxisData) );
         robot.axisMeasuresList = (RobotVariables**) calloc( robot.axesNumber, sizeof(RobotVariables*) );
         robot.axisSetpointsList = (RobotVariables**) calloc( robot.axesNumber, sizeof(RobotVariables*) );
         DEBUG_PRINT( "found %lu axes", robot.axesNumber );
         for( size_t axisIndex = 0; axisIndex < robot.axesNumber; axisIndex++ )
         {
-          robot.axisMeasuresList[ axisIndex ] = robot.axesList[ axisIndex ].measures = (RobotVariables*) malloc( sizeof(RobotVariables) );
-          robot.axisSetpointsList[ axisIndex ] = robot.axesList[ axisIndex ].setpoints = (RobotVariables*) malloc( sizeof(RobotVariables) );
+          robot.axisMeasuresList[ axisIndex ] = (RobotVariables*) malloc( sizeof(RobotVariables) );
+          robot.axisSetpointsList[ axisIndex ] = (RobotVariables*) malloc( sizeof(RobotVariables) );
         }
+        
+        robot.extraInputsNumber = robot.GetExtraInputsNumber();
+        robot.extraInputValues = (double*) calloc( robot.extraInputsNumber, sizeof(double) );
+        robot.extraOutputsNumber = robot.GetExtraOutputsNumber();
+        robot.extraOutputValues = (double*) calloc( robot.extraOutputsNumber, sizeof(double) );
         
         DEBUG_PRINT( "robot %s initialized", configPathName );
       }
@@ -148,24 +142,25 @@ void Robot_End()
   
   for( size_t jointIndex = 0; jointIndex < robot.jointsNumber; jointIndex++ )
   {
-    Actuator_End( robot.jointsList[ jointIndex ].actuator );
-    free( robot.jointsList[ jointIndex ].measures );
-    free( robot.jointsList[ jointIndex ].setpoints );
+    Actuator_End( robot.actuatorsList[ jointIndex ] );
+    free( robot.jointMeasuresList[ jointIndex ] );
+    free( robot.jointSetpointsList[ jointIndex ] );
   }
-  free( robot.jointsList );
+  free( robot.actuatorsList );
+  free( robot.jointMeasuresList );
+  free( robot.jointSetpointsList );
   
   for( size_t axisIndex = 0; axisIndex < robot.axesNumber; axisIndex++ )
   {
-    free( robot.axesList[ axisIndex ].measures );
-    free( robot.axesList[ axisIndex ].setpoints );
+    free( robot.axisMeasuresList[ axisIndex ] );
+    free( robot.axisSetpointsList[ axisIndex ] );
   }
-  free( robot.axesList );
-  
-  free( robot.jointMeasuresList );
-  free( robot.jointSetpointsList );
   free( robot.axisMeasuresList );
   free( robot.axisSetpointsList );
     
+  if( robot.extraInputValues != NULL ) free( robot.extraInputValues );
+  if( robot.extraOutputValues != NULL ) free( robot.extraOutputValues );
+  
   memset( &robot, 0, sizeof(RobotData) );
 }
 
@@ -175,7 +170,7 @@ bool Robot_Enable()
   
   for( size_t jointIndex = 0; jointIndex < robot.jointsNumber; jointIndex++ )
   {
-    if( !Actuator_Enable( robot.jointsList[ jointIndex ].actuator ) ) return false;
+    if( !Actuator_Enable( robot.actuatorsList[ jointIndex ] ) ) return false;
   }
   
   if( !(robot.isControlRunning) )
@@ -199,9 +194,9 @@ bool Robot_Disable()
   for( size_t jointIndex = 0; jointIndex < robot.jointsNumber; jointIndex++ )
   {
     ActuatorVariables stopSetpoints = { 0.0 };
-    (void) Actuator_SetSetpoints( robot.jointsList[ jointIndex ].actuator, &stopSetpoints );
+    (void) Actuator_SetSetpoints( robot.actuatorsList[ jointIndex ], &stopSetpoints );
     
-    Actuator_Disable( robot.jointsList[ jointIndex ].actuator );
+    Actuator_Disable( robot.actuatorsList[ jointIndex ] );
   }
   
   return true;
@@ -220,7 +215,7 @@ bool Robot_SetControlState( enum RobotState newState )
   else if( newState == ROBOT_CALIBRATION ) actuatorState = ACTUATOR_CALIBRATION;
   
   for( size_t jointIndex = 0; jointIndex < robot.jointsNumber; jointIndex++ )
-    Actuator_SetControlState( robot.jointsList[ jointIndex ].actuator, actuatorState );
+    Actuator_SetControlState( robot.actuatorsList[ jointIndex ], actuatorState );
   
   robot.controlState = newState;
   
@@ -253,7 +248,7 @@ bool Robot_GetJointMeasures( size_t jointIndex, RobotVariables* ref_measures )
 {
   if( jointIndex >= robot.jointsNumber ) return false;
   
-  *ref_measures = *(robot.jointsList[ jointIndex ].measures);
+  *ref_measures = *(robot.jointMeasuresList[ jointIndex ]);
   
   return true;
 }
@@ -262,7 +257,7 @@ bool Robot_GetAxisMeasures( size_t axisIndex, RobotVariables* ref_measures )
 {
   if( axisIndex >= robot.axesNumber ) return false;
   
-  *ref_measures = *(robot.axesList[ axisIndex ].measures);
+  *ref_measures = *(robot.axisMeasuresList[ axisIndex ]);
   
   return true;
 }
@@ -271,7 +266,7 @@ void Robot_SetAxisSetpoints( size_t axisIndex, RobotVariables* ref_setpoints )
 {
   if( axisIndex >= robot.axesNumber ) return;
   
-  *(robot.axesList[ axisIndex ].setpoints) = *ref_setpoints;
+  *(robot.axisSetpointsList[ axisIndex ]) = *ref_setpoints;
 }
 
 size_t Robot_GetJointsNumber()
@@ -305,8 +300,12 @@ static void* AsyncControl( void* ref_robot )
     
     execTime = Time_GetExecSeconds();
     
+    for( size_t inputIndex = 0; inputIndex < robot->extraInputsNumber; inputIndex++ )
+      Input_Update(  );
+    robot->SetExtraInputsList( robot->extraInputValues );
+    
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
-      (void) Actuator_GetMeasures( robot->jointsList[ jointIndex ].actuator, (ActuatorVariables*) robot->jointMeasuresList[ jointIndex ], elapsedTime );
+      (void) Actuator_GetMeasures( robot->actuatorsList[ jointIndex ], (ActuatorVariables*) robot->jointMeasuresList[ jointIndex ], elapsedTime );
     
     robot->RunControlStep( robot->jointMeasuresList, robot->axisMeasuresList, robot->jointSetpointsList, robot->axisSetpointsList, elapsedTime );
     
@@ -314,9 +313,9 @@ static void* AsyncControl( void* ref_robot )
 
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
     {
-      if( Actuator_HasError( robot->jointsList[ jointIndex ].actuator ) ) Actuator_Reset( robot->jointsList[ jointIndex ].actuator );
+      if( Actuator_HasError( robot->actuatorsList[ jointIndex ] ) ) Actuator_Reset( robot->actuatorsList[ jointIndex ] );
 
-      (void) Actuator_SetSetpoints( robot->jointsList[ jointIndex ].actuator, (ActuatorVariables*) robot->jointSetpointsList[ jointIndex ] );
+      (void) Actuator_SetSetpoints( robot->actuatorsList[ jointIndex ], (ActuatorVariables*) robot->jointSetpointsList[ jointIndex ] );
     }
 
     elapsedTime = Time_GetExecSeconds() - execTime;

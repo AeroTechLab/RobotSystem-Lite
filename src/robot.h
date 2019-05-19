@@ -36,13 +36,24 @@
 /// @code
 /// {
 ///   "controller": {               // Robot controller configuration
-///     "type": "<library_name>",     // Path (without extension, relative to MODULES_DIR/robot_control/) to plugin with robot controller implementation
+///     "type": "<library_name>",   // Path (without extension, relative to MODULES_DIR/robot_control/) to plugin with robot controller implementation
 ///     "config": ""                // [o] Custom-format configuration string passed to controller (plugin) specific initialization
 ///   },
 ///   "actuators": [                // List of robot actuators identifiers (strings) or configurations (objects)
-///     "<actuator_identifier>",      // Actuator string identifier (configuration file name)
-///     { /*...*/ }                   // Inline actuator configuration (data object)
-///   ]           
+///     "<actuator_1_id>",          // Actuator string identifier (configuration file name)
+///     "<actuator_2_id>", ...      
+///   ],
+///   "extra_inputs": [             // [o] Additional inputs configuration (as for inputs in sensor configuration)
+///     {
+///       "interface": { ... },
+///       "signal_processing": { ... }
+///     }, ...
+///   ],
+///   "extra_outputs": [            // [o] Additional outputs configuration (as for outputs in motor configuration)
+///     {
+///       "interface": { ... }
+///     }, ...
+///   ]
 /// }
 /// @endcode
 

@@ -35,30 +35,23 @@ bool InitController( const char* configurationString )
   return true;
 }
 
-void EndController()
-{
-  
-}
+void EndController() { }
 
-size_t GetJointsNumber()
-{
-  return DOFS_NUMBER;
-}
+size_t GetJointsNumber() { return DOFS_NUMBER; }
 
-const char** GetJointNamesList()
-{
-  return DOF_NAMES;
-}
+const char** GetJointNamesList() { return DOF_NAMES; }
 
-size_t GetAxesNumber()
-{
-  return DOFS_NUMBER;
-}
+size_t GetAxesNumber() { return DOFS_NUMBER; }
 
-const char** GetAxisNamesList()
-{
-  return DOF_NAMES;
-}
+const char** GetAxisNamesList() { return DOF_NAMES; }
+
+size_t GetExtraInputsNumber( void ) { return 0; }
+      
+void SetExtraInputsList( double* inputsList ) { }
+
+size_t GetExtraOutputsNumber( void ) { return 0; }
+         
+void GetExtraOutputsList( double* outputsList ) { }
 
 void SetControlState( enum RobotState controlState )
 {
