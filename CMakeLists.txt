@@ -36,7 +36,7 @@ set_target_properties( TinyExpr PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_DI
 target_include_directories( TinyExpr PUBLIC ${SOURCES_DIR}/tinyexpr/ )
 target_link_libraries( TinyExpr -lm )
 
-add_executable( RobotControl ${SOURCES_DIR}/main.c ${SOURCES_DIR}/system.c ${SOURCES_DIR}/robot.c ${SOURCES_DIR}/actuator.c ${SOURCES_DIR}/sensor.c ${SOURCES_DIR}/motor.c ${SOURCES_DIR}/input.c )
+add_executable( RobotControl ${SOURCES_DIR}/main.c ${SOURCES_DIR}/system.c ${SOURCES_DIR}/robot.c ${SOURCES_DIR}/actuator.c ${SOURCES_DIR}/sensor.c ${SOURCES_DIR}/motor.c ${SOURCES_DIR}/input.c ${SOURCES_DIR}/output.c )
 target_compile_definitions( RobotControl PUBLIC -DDEBUG -DZMQ_BUILD_DRAFT_API )
 target_link_libraries( RobotControl DataLogging DataIOJSON KalmanFilters SignalProcessing IPC MultiThreading Timing TinyExpr ${CMAKE_DL_LIBS} )
 

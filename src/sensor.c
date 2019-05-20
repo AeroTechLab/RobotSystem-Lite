@@ -54,7 +54,7 @@ Sensor Sensor_Init( const char* configName )
 {
   char filePath[ DATA_IO_MAX_PATH_LENGTH ];
   DEBUG_PRINT( "trying to create sensor %s", configName );
-  sprintf( filePath, KEY_CONFIG "/" KEY_SENSOR "/%s", configName );
+  sprintf( filePath, KEY_CONFIG "/" KEY_SENSORS "/%s", configName );
   DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration == NULL ) return NULL;
   //DEBUG_PRINT( "sensor configuration found on data handle %p", configuration );
@@ -62,15 +62,16 @@ Sensor Sensor_Init( const char* configName )
   memset( newSensor, 0, sizeof(SensorData) );  
   
   bool loadSuccess = true;
-  DEBUG_PRINT( "inputs number: %lu", DataIO_GetListSize( configuration, KEY_INPUT "s" ) );
-  newSensor->inputsNumber = DataIO_GetListSize( configuration, KEY_INPUT "s" );
+  DEBUG_PRINT( "inputs number: %lu", DataIO_GetListSize( configuration, KEY_INPUTS ) );
+  newSensor->inputsNumber = DataIO_GetListSize( configuration, KEY_INPUTS );
   newSensor->inputsList = (Input*) calloc( newSensor->inputsNumber, sizeof(Input) );
   newSensor->inputValuesList = (double*) calloc( newSensor->inputsNumber, sizeof(double) );
   newSensor->inputVariables = (te_variable*) calloc( newSensor->inputsNumber, sizeof(te_variable) );
   for( size_t inputIndex = 0; inputIndex < newSensor->inputsNumber; inputIndex++ )
   {
-    newSensor->inputsList[ inputIndex ] = Input_Init( DataIO_GetSubData( configuration, KEY_INPUT "s.%lu", inputIndex ) );
-    if( newSensor->inputsList[ inputIndex ] == NULL ) loadSuccess = false;
+    newSensor->inputsList[ inputIndex ] = Input_Init( DataIO_GetSubData( configuration, KEY_INPUTS ".%lu", inputIndex ) );
+    // Input_Reset( newSensor->inputsList[ inputIndex ] );
+    loadSuccess = ! Input_HasError( newSensor->inputsList[ inputIndex ] );
     //DEBUG_PRINT( "loading input %lu success: %s", inputIndex, loadSuccess ? "true" : "false" );
     newSensor->inputVariables[ inputIndex ].name = INPUT_VARIABLE_NAMES[ inputIndex ];
     newSensor->inputVariables[ inputIndex ].address = &(newSensor->inputValuesList[ inputIndex ]);
@@ -127,24 +128,6 @@ double Sensor_Update( Sensor sensor )
   //Log_RegisterValues( sensor->log, 1, sensorOutput ); 
   
   return sensorOutput;
-}
-  
-bool Sensor_HasError( Sensor sensor )
-{
-  if( sensor == NULL ) return false;
-  
-  for( size_t inputIndex = 0; inputIndex < sensor->inputsNumber; inputIndex++ )
-    if( Input_HasError( sensor->inputsList[ inputIndex ] ) ) return true;
-  
-  return false;
-}
-
-void Sensor_Reset( Sensor sensor )
-{
-  if( sensor == NULL ) return;
-  
-  for( size_t inputIndex = 0; inputIndex < sensor->inputsNumber; inputIndex++ )
-    Input_Reset( sensor->inputsList[ inputIndex ] );
 }
 
 void Sensor_SetState( Sensor sensor, enum SensorState newState )

@@ -20,15 +20,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "motor.h"
+#include "output.h"
 
-#include "input.h"
-#include "tinyexpr/tinyexpr.h"
-
-#include "data_io/interface/data_io.h"
 #include "signal_io/signal_io.h"
 #include "debug/data_logging.h"
-#include "timing/timing.h"
       
 #include "config_keys.h" 
 
@@ -37,143 +32,88 @@
 #include <stddef.h>
 #include <string.h>
       
-const char* SETPOINT_VARIABLE_NAME = "set";
-const char* REFERENCE_VARIABLE_NAME = "ref";
-      
-struct _MotorData
+struct _OutputData
 {
   DECLARE_MODULE_INTERFACE_REF( SIGNAL_IO_INTERFACE );
-  int interfaceID;
-  unsigned int outputChannel;
-  Input reference;
-  double setpoint, offset;
-  te_variable inputVariables[ 2 ];
-  te_expr* transformFunction;
-  bool isOffsetting;
-  Log log;
+  int deviceID;
+  unsigned int channel;
 };
 
 
-Motor Motor_Init( const char* configName )
+Output Output_Init( DataHandle configuration )
 {
-  char filePath[ DATA_IO_MAX_PATH_LENGTH ];
-  DEBUG_PRINT( "trying to create motor %s", configName );
-  sprintf( filePath, KEY_CONFIG "/" KEY_MOTOR "/%s", configName );
-  DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration == NULL ) return NULL;
   
-  Motor newMotor = (Motor) malloc( sizeof(MotorData) );
-  memset( newMotor, 0, sizeof(MotorData) );
+  Output newOutput = (Output) malloc( sizeof(OutputData) );
+  memset( newOutput, 0, sizeof(OutputData) );
 
   bool loadSuccess = true;
+  char filePath[ DATA_IO_MAX_PATH_LENGTH ];
   sprintf( filePath, KEY_MODULES "/" KEY_SIGNAL_IO "/%s", DataIO_GetStringValue( configuration, "", KEY_INTERFACE "." KEY_TYPE ) );
-  LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newMotor, &loadSuccess );
+  LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newOutput, &loadSuccess );
   if( loadSuccess )
   {
-    newMotor->interfaceID = newMotor->InitDevice( DataIO_GetStringValue( configuration, "", KEY_INTERFACE "." KEY_CONFIG ) );
-    if( newMotor->interfaceID != SIGNAL_IO_DEVICE_INVALID_ID ) 
+    newOutput->deviceID = newOutput->InitDevice( DataIO_GetStringValue( configuration, "", KEY_INTERFACE "." KEY_CONFIG ) );
+    if( newOutput->deviceID != SIGNAL_IO_DEVICE_INVALID_ID ) 
     {
-      newMotor->outputChannel = (unsigned int) DataIO_GetNumericValue( configuration, -1, KEY_INTERFACE "." KEY_CHANNEL );
-      //DEBUG_PRINT( "trying to aquire channel %u from interface %d", newMotor->outputChannel, newMotor->interfaceID );
-      //loadSuccess = newMotor->AcquireOutputChannel( newMotor->interfaceID, newMotor->outputChannel );
+      newOutput->channel = (unsigned int) DataIO_GetNumericValue( configuration, -1, KEY_INTERFACE "." KEY_CHANNEL );
+      //DEBUG_PRINT( "trying to aquire channel %u from interface %d", newOutput->channel, newOutput->deviceID );
+      //loadSuccess = newOutput->AcquireOutputChannel( newOutput->deviceID, newOutput->channel );
     }
     else loadSuccess = false;
   }
-  
-  newMotor->reference = Input_Init( DataIO_GetSubData( configuration, KEY_REFERENCE ) );
-  newMotor->isOffsetting = false;
-  
-  int expressionError;
-  newMotor->inputVariables[ 0 ].name = SETPOINT_VARIABLE_NAME;
-  newMotor->inputVariables[ 0 ].address = &(newMotor->setpoint);
-  newMotor->inputVariables[ 1 ].name = REFERENCE_VARIABLE_NAME;
-  newMotor->inputVariables[ 1 ].address = &(newMotor->offset);
-  const char* transformExpression = DataIO_GetStringValue( configuration, SETPOINT_VARIABLE_NAME, KEY_OUTPUT );
-  newMotor->transformFunction = te_compile( transformExpression, newMotor->inputVariables, 2, &expressionError ); 
-  if( expressionError > 0 ) loadSuccess = false;
-  DEBUG_PRINT( "transform function: out= %s (error: %d)", transformExpression, expressionError );
-  if( DataIO_HasKey( configuration, KEY_LOG ) )
-    newMotor->log = Log_Init( DataIO_GetBooleanValue( configuration, false, KEY_LOG "." KEY_FILE ) ? configName : "", 
-                              (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
   
   DataIO_UnloadData( configuration );
   
   if( !loadSuccess )
   {
-    Motor_End( newMotor );
+    Output_End( newOutput );
     return NULL;
   }
   
-  return newMotor;
+  return newOutput;
 }
 
-void Motor_End( Motor motor )
+void Output_End( Output output )
 {
-  if( motor == NULL ) return;
+  if( output == NULL ) return;
   
-  motor->EndDevice( motor->interfaceID );
+  output->EndDevice( output->deviceID );
   
-  Input_End( motor->reference );
-  
-  if( motor->transformFunction != NULL ) te_free( motor->transformFunction );
-  
-  Log_End( motor->log );
-  
-  free( motor );
+  free( output );
 }
 
-bool Motor_Enable( Motor motor )
+bool Output_Enable( Output output )
 {
-  if( motor == NULL ) return false;
-  DEBUG_PRINT( "resetting interface %d", motor->interfaceID );
-  motor->Reset( motor->interfaceID );
-  DEBUG_PRINT( "acquiring output %u from interface %d", motor->outputChannel, motor->interfaceID );  
-  return motor->AcquireOutputChannel( motor->interfaceID, motor->outputChannel );
+  if( output == NULL ) return false;
+  DEBUG_PRINT( "acquiring output %u from interface %d", output->channel, output->deviceID );  
+  return output->AcquireOutputChannel( output->deviceID, output->channel );
 }
 
-void Motor_Disable( Motor motor )
+void Output_Disable( Output output )
 {
-  if( motor == NULL ) return;
+  if( output == NULL ) return;
   
-  motor->ReleaseOutputChannel( motor->interfaceID, motor->outputChannel );
+  output->ReleaseOutputChannel( output->deviceID, output->channel );
 }
 
-void Motor_Reset( Motor motor )
+void Output_Reset( Output output )
 {
-  if( motor == NULL ) return;
+  if( output == NULL ) return;
+  DEBUG_PRINT( "resetting interface %d", output->deviceID );
+  output->Reset( output->deviceID );
+}
+
+bool Output_HasError( Output output )
+{
+  if( output == NULL ) return true;
   
-  motor->Reset( motor->interfaceID );
+  return output->HasError( output->deviceID );
 }
 
-bool Motor_HasError( Motor motor )
+void Output_Update( Output output, double value )
 {
-  if( motor == NULL ) return false;
-  
-  return motor->HasError( motor->interfaceID );
-}
-
-void Motor_SetOffset( Motor motor, bool enabled )
-{
-  if( motor == NULL ) return;
-  if( motor->isOffsetting ) DEBUG_PRINT( "getting offset from motor reference %p", motor->reference );
-  motor->offset = 0.0;
-  if( motor->isOffsetting ) motor->offset = Input_Update( motor->reference );
-  motor->isOffsetting = enabled;
-  DEBUG_PRINT( "setting reference state to %s", enabled ? "offset" : "operation" );
-  Input_SetState( motor->reference, enabled ? SIG_PROC_STATE_OFFSET : SIG_PROC_STATE_MEASUREMENT );
-  DEBUG_PRINT( "setting motor %p to initial position", motor );
-  Motor_WriteControl( motor, 0.0 );
-}
-
-void Motor_WriteControl( Motor motor, double setpoint )
-{
-  if( motor == NULL ) return;
-  //DEBUG_PRINT( "evaluating transform function %p", motor->transformFunction );
-  motor->setpoint = setpoint;
-  double output = te_eval( motor->transformFunction );
-  //DEBUG_PRINT( "logging motor data to %p", motor->log );
-  //Log_EnterNewLine( motor->log, Time_GetExecSeconds() );
-  //Log_RegisterValues( motor->log, 3, motor->setpoint, motor->offset, output );
-  //DEBUG_PRINT( "writing %g to motor interface %d channel %u", output, motor->interfaceID, motor->outputChannel );
-  if( ! motor->isOffsetting ) motor->Write( motor->interfaceID, motor->outputChannel, output );
+  if( output == NULL ) return;
+  //DEBUG_PRINT( "evaluating transform function %p", output->transformFunction );
+  output->Write( output->deviceID, output->channel, value );
 }

@@ -117,7 +117,7 @@ double Input_Update( Input input )
   
 bool Input_HasError( Input input )
 {
-  if( input == NULL ) return false;
+  if( input == NULL ) return true;
   
   return input->HasError( input->deviceID );
 }

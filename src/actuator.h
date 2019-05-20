@@ -29,7 +29,7 @@
 /// @page actuator_config Actuator Configuration
 /// The actuator-level configuration (see [Configuration Levels](https://github.com/EESC-MKGroup/RobotSystem-Lite#robot-multi-level-configuration) is read using the [data I/O interface](https://labdin.github.io/Data-IO-Interface/data__io_8h.html). Configuration of sensors and motors listed is loaded recursively (as in @ref sensor_config and @ref motor_config)
 ///
-/// Any configuration path must be provided without file extension, and relative to [<root_dir>](https://github.com/EESC-MKGroup/RobotSystem-Lite/blob/master/README.md#running)/config/sensors/
+/// Any configuration path must be provided without file extension, and relative to [<root_dir>](https://github.com/EESC-MKGroup/RobotSystem-Lite/blob/master/README.md#running)/config/actuators/
 ///
 /// The possible configuration fields and their values are here exemplified for the case of current JSON file I/O implementation (optional parameters are presented with default values and marked with '[o]' in their description):
 /// @code
@@ -101,15 +101,6 @@ bool Actuator_Enable( Actuator actuator );
 /// @brief Prevents motor output on given actuator 
 /// @param[in] actuator reference to actuator
 void Actuator_Disable( Actuator actuator );
-
-/// @brief Calls underlying motor and sensors implementations (plugins) to check for errors on given actuator              
-/// @param[in] actuator reference to actuator
-/// @return true on error detected, false otherwise
-bool Actuator_HasError( Actuator actuator );
-
-/// @brief Calls underlying sensors and motor implementations (plugins) to clear possible device errors             
-/// @param[in] actuator reference to actuator
-void Actuator_Reset( Actuator actuator );
 
 /// @brief Calls underlying sensors implementations (plugins) to change measurement state          
 /// @param[in] actuator reference to actuator

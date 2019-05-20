@@ -57,7 +57,7 @@ Actuator Actuator_Init( const char* configName )
 {
   char filePath[ DATA_IO_MAX_PATH_LENGTH ];  
   DEBUG_PRINT( "trying to create actuator %s", configName );
-  sprintf( filePath, KEY_CONFIG "/" KEY_ACTUATOR "/%s", configName );
+  sprintf( filePath, KEY_CONFIG "/" KEY_ACTUATORS "/%s", configName );
   DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration == NULL ) return NULL;
   DEBUG_PRINT( "found actuator %s config in handle %p", configName, configuration );
@@ -65,22 +65,21 @@ Actuator Actuator_Init( const char* configName )
   memset( newActuator, 0, sizeof(ActuatorData) );
   
   bool loadSuccess = true;
-  DEBUG_PRINT( "found %lu sensors", DataIO_GetListSize( configuration, KEY_SENSOR "s" ) );
-  if( (newActuator->sensorsNumber = DataIO_GetListSize( configuration, KEY_SENSOR "s" )) > 0 )
+  DEBUG_PRINT( "found %lu sensors", DataIO_GetListSize( configuration, KEY_SENSORS ) );
+  if( (newActuator->sensorsNumber = DataIO_GetListSize( configuration, KEY_SENSORS )) > 0 )
   {
     newActuator->motionFilter = Kalman_CreateFilter( CONTROL_VARS_NUMBER );
     
     newActuator->sensorsList = (Sensor*) calloc( newActuator->sensorsNumber, sizeof(Sensor) );
     for( size_t sensorIndex = 0; sensorIndex < newActuator->sensorsNumber; sensorIndex++ )
     {
-      const char* sensorName = DataIO_GetStringValue( configuration, "", KEY_SENSOR "s.%lu." KEY_CONFIG, sensorIndex );
+      const char* sensorName = DataIO_GetStringValue( configuration, "", KEY_SENSORS ".%lu." KEY_CONFIG, sensorIndex );
       if( (newActuator->sensorsList[ sensorIndex ] = Sensor_Init( sensorName )) == NULL ) loadSuccess = false;
       DEBUG_PRINT( "loading sensor %s success: %s", sensorName, loadSuccess ? "true" : "false" );
-      Sensor_Reset( newActuator->sensorsList[ sensorIndex ] );
-      const char* sensorType = DataIO_GetStringValue( configuration, "", KEY_SENSOR "s.%lu." KEY_VARIABLE, sensorIndex );
+      const char* sensorType = DataIO_GetStringValue( configuration, "", KEY_SENSORS ".%lu." KEY_VARIABLE, sensorIndex );
       for( int controlModeIndex = 0; controlModeIndex < CONTROL_VARS_NUMBER; controlModeIndex++ )
         if( strcmp( sensorType, CONTROL_MODE_NAMES[ controlModeIndex ] ) == 0 ) Kalman_AddInput( newActuator->motionFilter, controlModeIndex );
-      Kalman_SetInputMaxError( newActuator->motionFilter, sensorIndex, DataIO_GetNumericValue( configuration, 1.0, KEY_SENSOR "s.%lu." KEY_DEVIATION ) );
+      Kalman_SetInputMaxError( newActuator->motionFilter, sensorIndex, DataIO_GetNumericValue( configuration, 1.0, KEY_SENSORS ".%lu." KEY_DEVIATION ) );
     }
   }
   
@@ -105,7 +104,7 @@ Actuator Actuator_Init( const char* configName )
     return NULL;
   }
   //DEBUG_PRINT( "reseting actuator %s", configName );
-  Actuator_Reset( newActuator );
+  Kalman_Reset( newActuator->motionFilter );
   //DEBUG_PRINT( "actuator %s ready", configName );
   return newActuator;
 }
@@ -137,18 +136,6 @@ void Actuator_Disable( Actuator actuator )
   Motor_Disable( actuator->motor );
 }
 
-void Actuator_Reset( Actuator actuator )
-{
-  if( actuator == NULL ) return;
-    
-  Motor_Reset( actuator->motor );
-  
-  for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
-    Sensor_Reset( actuator->sensorsList[ sensorIndex ] );
-  
-  Kalman_Reset( actuator->motionFilter );
-}
-
 bool Actuator_SetControlState( Actuator actuator, enum ActuatorState newState )
 {
   if( actuator == NULL ) return false;
@@ -170,21 +157,6 @@ bool Actuator_SetControlState( Actuator actuator, enum ActuatorState newState )
   
   return true;
 }
-
-bool Actuator_HasError( Actuator actuator )
-{
-  if( actuator == NULL ) return false;
-    
-  if( Motor_HasError( actuator->motor ) ) return true;
-  
-  for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
-  {
-    if( Sensor_HasError( actuator->sensorsList[ sensorIndex ] ) ) return true;
-  }
-  
-  return false;
-}
-
 
 bool Actuator_GetMeasures( Actuator actuator, ActuatorVariables* ref_measures, double timeDelta )
 {

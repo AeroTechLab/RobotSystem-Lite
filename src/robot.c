@@ -27,6 +27,7 @@
 #include "actuator.h"
 
 #include "input.h"
+#include "output.h"
 
 #include "data_io/interface/data_io.h"
 #include "threads/threads.h"
@@ -54,9 +55,11 @@ typedef struct _RobotData
   RobotVariables** axisMeasuresList;
   RobotVariables** axisSetpointsList;
   size_t axesNumber;
-  double* extraInputValues;
+  Input* extraInputsList;
+  double* extraInputValuesList;
   size_t extraInputsNumber;
-  double* extraOutputValues;
+  Output* extraOutputsList;
+  double* extraOutputValuesList;
   size_t extraOutputsNumber;
 } 
 RobotData;
@@ -76,7 +79,7 @@ bool Robot_Init( const char* configPathName )
   
   bool loadSuccess = false;
   
-  sprintf( filePath, KEY_CONFIG "/" KEY_ROBOT "/%s", configPathName );
+  sprintf( filePath, KEY_CONFIG "/" KEY_ROBOTS "/%s", configPathName );
   DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration != NULL )
   {
@@ -97,7 +100,7 @@ bool Robot_Init( const char* configPathName )
         DEBUG_PRINT( "found %lu joints", robot.jointsNumber );
         for( size_t jointIndex = 0; jointIndex < robot.jointsNumber; jointIndex++ )
         {
-          const char* actuatorName = DataIO_GetStringValue( configuration, "", KEY_ACTUATOR "s.%lu", jointIndex );
+          const char* actuatorName = DataIO_GetStringValue( configuration, "", KEY_ACTUATORS ".%lu", jointIndex );
           robot.actuatorsList[ jointIndex ] = Actuator_Init( actuatorName );
           robot.jointMeasuresList[ jointIndex ] = (RobotVariables*) malloc( sizeof(RobotVariables) );
           robot.jointSetpointsList[ jointIndex ] = (RobotVariables*) malloc( sizeof(RobotVariables) );
@@ -114,9 +117,16 @@ bool Robot_Init( const char* configPathName )
         }
         
         robot.extraInputsNumber = robot.GetExtraInputsNumber();
-        robot.extraInputValues = (double*) calloc( robot.extraInputsNumber, sizeof(double) );
+        robot.extraInputsList = (Input*) calloc( robot.extraInputsNumber, sizeof(Input) );
+        for( size_t inputIndex = 0; inputIndex < robot.extraInputsNumber; inputIndex++ )
+          robot.extraInputsList[ inputIndex ] = Input_Init( DataIO_GetSubData( configuration, KEY_EXTRA_INPUTS ".%lu", inputIndex ) );
+        robot.extraInputValuesList = (double*) calloc( robot.extraInputsNumber, sizeof(double) );
+        
         robot.extraOutputsNumber = robot.GetExtraOutputsNumber();
-        robot.extraOutputValues = (double*) calloc( robot.extraOutputsNumber, sizeof(double) );
+        robot.extraOutputsList = (Output*) calloc( robot.extraOutputsNumber, sizeof(Output) );
+        for( size_t outputIndex = 0; outputIndex < robot.extraOutputsNumber; outputIndex++ )
+          robot.extraOutputsList[ outputIndex ] = Output_Init( DataIO_GetSubData( configuration, KEY_EXTRA_OUTPUTS ".%lu", outputIndex ) );
+        robot.extraOutputValuesList = (double*) calloc( robot.extraOutputsNumber, sizeof(double) );
         
         DEBUG_PRINT( "robot %s initialized", configPathName );
       }
@@ -158,8 +168,15 @@ void Robot_End()
   free( robot.axisMeasuresList );
   free( robot.axisSetpointsList );
     
-  if( robot.extraInputValues != NULL ) free( robot.extraInputValues );
-  if( robot.extraOutputValues != NULL ) free( robot.extraOutputValues );
+  for( size_t inputIndex = 0; inputIndex < robot.extraInputsNumber; inputIndex++ )
+    Input_End( robot.extraInputsList[ inputIndex ] );
+  if( robot.extraInputsList != NULL ) free( robot.extraInputsList );
+  if( robot.extraInputValuesList != NULL ) free( robot.extraInputValuesList );
+  
+  for( size_t outputIndex = 0; outputIndex < robot.extraOutputsNumber; outputIndex++ )
+    Output_End( robot.extraOutputsList[ outputIndex ] );
+  if( robot.extraOutputsList != NULL ) free( robot.extraOutputsList );
+  if( robot.extraOutputValuesList != NULL ) free( robot.extraOutputValuesList );
   
   memset( &robot, 0, sizeof(RobotData) );
 }
@@ -301,8 +318,8 @@ static void* AsyncControl( void* ref_robot )
     execTime = Time_GetExecSeconds();
     
     for( size_t inputIndex = 0; inputIndex < robot->extraInputsNumber; inputIndex++ )
-      Input_Update(  );
-    robot->SetExtraInputsList( robot->extraInputValues );
+      robot->extraInputValuesList[ inputIndex ] = Input_Update( robot->extraInputsList[ inputIndex ] );
+    robot->SetExtraInputsList( robot->extraInputValuesList );
     
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
       (void) Actuator_GetMeasures( robot->actuatorsList[ jointIndex ], (ActuatorVariables*) robot->jointMeasuresList[ jointIndex ], elapsedTime );
@@ -312,12 +329,12 @@ static void* AsyncControl( void* ref_robot )
     //DEBUG_PRINT( "s1: %.5f, s2: %.5f", robot->jointSetpointsList[ 0 ]->position, robot->jointSetpointsList[ 1 ]->position );
 
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
-    {
-      if( Actuator_HasError( robot->actuatorsList[ jointIndex ] ) ) Actuator_Reset( robot->actuatorsList[ jointIndex ] );
-
       (void) Actuator_SetSetpoints( robot->actuatorsList[ jointIndex ], (ActuatorVariables*) robot->jointSetpointsList[ jointIndex ] );
-    }
 
+    robot->GetExtraOutputsList( robot->extraOutputValuesList );
+    for( size_t outputIndex = 0; outputIndex < robot->extraOutputsNumber; outputIndex++ )
+      Output_Update( robot->extraOutputsList[ outputIndex ], robot->extraOutputValuesList[ outputIndex ] );
+    
     elapsedTime = Time_GetExecSeconds() - execTime;
     //DEBUG_PRINT( "step time for robot %p (before delay): %.5f s", robot, elapsedTime );
     if( elapsedTime < robot->controlTimeStep ) Time_Delay( (unsigned long) ( 1000 * ( robot->controlTimeStep - elapsedTime ) ) );

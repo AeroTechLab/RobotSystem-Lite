@@ -23,6 +23,7 @@
 #include "motor.h"
 
 #include "input.h"
+#include "output.h"
 #include "tinyexpr/tinyexpr.h"
 
 #include "data_io/interface/data_io.h"
@@ -42,9 +43,7 @@ const char* REFERENCE_VARIABLE_NAME = "ref";
       
 struct _MotorData
 {
-  DECLARE_MODULE_INTERFACE_REF( SIGNAL_IO_INTERFACE );
-  int interfaceID;
-  unsigned int outputChannel;
+  Output output;
   Input reference;
   double setpoint, offset;
   te_variable inputVariables[ 2 ];
@@ -58,27 +57,16 @@ Motor Motor_Init( const char* configName )
 {
   char filePath[ DATA_IO_MAX_PATH_LENGTH ];
   DEBUG_PRINT( "trying to create motor %s", configName );
-  sprintf( filePath, KEY_CONFIG "/" KEY_MOTOR "/%s", configName );
+  sprintf( filePath, KEY_CONFIG "/" KEY_MOTORS "/%s", configName );
   DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration == NULL ) return NULL;
   
   Motor newMotor = (Motor) malloc( sizeof(MotorData) );
   memset( newMotor, 0, sizeof(MotorData) );
 
-  bool loadSuccess = true;
-  sprintf( filePath, KEY_MODULES "/" KEY_SIGNAL_IO "/%s", DataIO_GetStringValue( configuration, "", KEY_INTERFACE "." KEY_TYPE ) );
-  LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newMotor, &loadSuccess );
-  if( loadSuccess )
-  {
-    newMotor->interfaceID = newMotor->InitDevice( DataIO_GetStringValue( configuration, "", KEY_INTERFACE "." KEY_CONFIG ) );
-    if( newMotor->interfaceID != SIGNAL_IO_DEVICE_INVALID_ID ) 
-    {
-      newMotor->outputChannel = (unsigned int) DataIO_GetNumericValue( configuration, -1, KEY_INTERFACE "." KEY_CHANNEL );
-      //DEBUG_PRINT( "trying to aquire channel %u from interface %d", newMotor->outputChannel, newMotor->interfaceID );
-      //loadSuccess = newMotor->AcquireOutputChannel( newMotor->interfaceID, newMotor->outputChannel );
-    }
-    else loadSuccess = false;
-  }
+  newMotor->output = Output_Init( configuration );
+  
+  bool loadSuccess = ( newMotor->output != NULL ) ? true : false;
   
   newMotor->reference = Input_Init( DataIO_GetSubData( configuration, KEY_REFERENCE ) );
   newMotor->isOffsetting = false;
@@ -111,7 +99,7 @@ void Motor_End( Motor motor )
 {
   if( motor == NULL ) return;
   
-  motor->EndDevice( motor->interfaceID );
+  Output_End( motor->output );
   
   Input_End( motor->reference );
   
@@ -125,31 +113,21 @@ void Motor_End( Motor motor )
 bool Motor_Enable( Motor motor )
 {
   if( motor == NULL ) return false;
-  DEBUG_PRINT( "resetting interface %d", motor->interfaceID );
-  motor->Reset( motor->interfaceID );
-  DEBUG_PRINT( "acquiring output %u from interface %d", motor->outputChannel, motor->interfaceID );  
-  return motor->AcquireOutputChannel( motor->interfaceID, motor->outputChannel );
+
+  Output_Reset( motor->output );
+
+  bool enabled = Output_Enable( motor->output );
+  
+  enabled = ! Output_HasError( motor->output );
+  
+  return enabled;
 }
 
 void Motor_Disable( Motor motor )
 {
   if( motor == NULL ) return;
   
-  motor->ReleaseOutputChannel( motor->interfaceID, motor->outputChannel );
-}
-
-void Motor_Reset( Motor motor )
-{
-  if( motor == NULL ) return;
-  
-  motor->Reset( motor->interfaceID );
-}
-
-bool Motor_HasError( Motor motor )
-{
-  if( motor == NULL ) return false;
-  
-  return motor->HasError( motor->interfaceID );
+  Output_Disable( motor->output );
 }
 
 void Motor_SetOffset( Motor motor, bool enabled )
@@ -170,10 +148,10 @@ void Motor_WriteControl( Motor motor, double setpoint )
   if( motor == NULL ) return;
   //DEBUG_PRINT( "evaluating transform function %p", motor->transformFunction );
   motor->setpoint = setpoint;
-  double output = te_eval( motor->transformFunction );
+  double outputValue = te_eval( motor->transformFunction );
   //DEBUG_PRINT( "logging motor data to %p", motor->log );
   //Log_EnterNewLine( motor->log, Time_GetExecSeconds() );
   //Log_RegisterValues( motor->log, 3, motor->setpoint, motor->offset, output );
   //DEBUG_PRINT( "writing %g to motor interface %d channel %u", output, motor->interfaceID, motor->outputChannel );
-  if( ! motor->isOffsetting ) motor->Write( motor->interfaceID, motor->outputChannel, output );
+  if( ! motor->isOffsetting ) Output_Update( motor->output, outputValue );
 }

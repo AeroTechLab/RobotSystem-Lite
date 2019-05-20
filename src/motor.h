@@ -80,15 +80,6 @@ bool Motor_Enable( Motor motor );
 /// @param[in] motor reference to motor
 void Motor_Disable( Motor motor );
 
-/// @brief Calls underlying signal output implementation to check for errors on given motor              
-/// @param[in] motor reference to motor
-/// @return true on detected error, false otherwise
-bool Motor_HasError( Motor motor );
-
-/// @brief Calls underlying signal output implementation to reset possible device errors             
-/// @param[in] motor reference to motor
-void Motor_Reset( Motor motor );
-
 /// @brief Enables/disables motor setpoint offset acquisition                
 /// @param[in] motor reference to motor
 /// @param[in] enabled true to start offset aquisition, false otherwise
