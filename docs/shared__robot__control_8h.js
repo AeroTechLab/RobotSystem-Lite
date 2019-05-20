@@ -1,8 +1,14 @@
 var shared__robot__control_8h =
 [
     [ "RobotControlCode", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62", [
+      [ "ROBOT_REQ_LIST_CONFIGS", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a0592035d1637742959eaea5ffb066e0b", null ],
+      [ "ROBOT_REP_CONFIGS_LISTED", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a404cf3f54754d0489297478d13a9a116", null ],
       [ "ROBOT_REQ_GET_CONFIG", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a831f268fbf0c105afae1c73666d17a49", null ],
-      [ "ROBOT_REP_GOT_CONFIG", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a0aff6a3ea64f03d6cbce6e17b126c325", null ],
+      [ "ROBOT_REP_CONFIG_GOT", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62addbdd512b7a7936709a7cb3d513e7896", null ],
+      [ "ROBOT_REQ_SET_CONFIG", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62ab0a6a9668124b21e1201654922a1dc64", null ],
+      [ "ROBOT_REP_CONFIG_SET", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a7ba86a794f2718f4bc742c3c35e0a840", null ],
+      [ "ROBOT_REQ_SET_USER", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62ae89d0757048587be53e947c44ce7f9de", null ],
+      [ "ROBOT_REP_USER_SET", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62ac7826a1f687a695aca85469e250ce080", null ],
       [ "ROBOT_REQ_DISABLE", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62af60b2bb9f883f450a964e78e9b47ac70", null ],
       [ "ROBOT_REP_DISABLED", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a873557480cef4523abbd89642cd49d1c", null ],
       [ "ROBOT_REQ_ENABLE", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a72a267f6f9c2b4d6bec99b9398f770a6", null ],
@@ -18,10 +24,6 @@ var shared__robot__control_8h =
       [ "ROBOT_REQ_CALIBRATE", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a5268b7ec55b1da360f094f45a15c8b45", null ],
       [ "ROBOT_REP_CALIBRATING", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62ae2c0d91a648337d0e9c94ac04c0e97a9", null ],
       [ "ROBOT_REQ_PREPROCESS", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62af54391f4f119ab051546092b7cb2ff3c", null ],
-      [ "ROBOT_REP_PREPROCESSING", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62af2d58f76016e72b599c6fe7a9b7c6d0e", null ],
-      [ "ROBOT_REQ_SET_USER", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62ae89d0757048587be53e947c44ce7f9de", null ],
-      [ "ROBOT_REP_USER_SET", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62ac7826a1f687a695aca85469e250ce080", null ],
-      [ "ROBOT_REQ_SET_CONFIG", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62ab0a6a9668124b21e1201654922a1dc64", null ],
-      [ "ROBOT_REP_CONFIG_SET", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62a7ba86a794f2718f4bc742c3c35e0a840", null ]
+      [ "ROBOT_REP_PREPROCESSING", "shared__robot__control_8h.html#ad7598a9e5ce9e8282b162f551741ab62af2d58f76016e72b599c6fe7a9b7c6d0e", null ]
     ] ]
 ];

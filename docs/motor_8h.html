@@ -124,12 +124,6 @@ Functions</h2></td></tr>
 <tr class="memitem:acc7f7e948e2a5ffcc37c1b7a0c008adb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="motor_8h.html#acc7f7e948e2a5ffcc37c1b7a0c008adb">Motor_Disable</a> (<a class="el" href="motor_8h.html#abf461155037199f0a5cfa434a9ea5efb">Motor</a> motor)</td></tr>
 <tr class="memdesc:acc7f7e948e2a5ffcc37c1b7a0c008adb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prevents hardware/virtual device of given motor from outputing signal.  <a href="#acc7f7e948e2a5ffcc37c1b7a0c008adb">More...</a><br /></td></tr>
 <tr class="separator:acc7f7e948e2a5ffcc37c1b7a0c008adb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4b2107ea1130c1e4f6b60f1d71578a1f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="motor_8h.html#a4b2107ea1130c1e4f6b60f1d71578a1f">Motor_HasError</a> (<a class="el" href="motor_8h.html#abf461155037199f0a5cfa434a9ea5efb">Motor</a> motor)</td></tr>
-<tr class="memdesc:a4b2107ea1130c1e4f6b60f1d71578a1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls underlying signal output implementation to check for errors on given motor.  <a href="#a4b2107ea1130c1e4f6b60f1d71578a1f">More...</a><br /></td></tr>
-<tr class="separator:a4b2107ea1130c1e4f6b60f1d71578a1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab408faa8d3c75fa0b569ab10734dd174"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="motor_8h.html#ab408faa8d3c75fa0b569ab10734dd174">Motor_Reset</a> (<a class="el" href="motor_8h.html#abf461155037199f0a5cfa434a9ea5efb">Motor</a> motor)</td></tr>
-<tr class="memdesc:ab408faa8d3c75fa0b569ab10734dd174"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls underlying signal output implementation to reset possible device errors.  <a href="#ab408faa8d3c75fa0b569ab10734dd174">More...</a><br /></td></tr>
-<tr class="separator:ab408faa8d3c75fa0b569ab10734dd174"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8ea7a6366c732f213d4fe31bdcca51c8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="motor_8h.html#a8ea7a6366c732f213d4fe31bdcca51c8">Motor_SetOffset</a> (<a class="el" href="motor_8h.html#abf461155037199f0a5cfa434a9ea5efb">Motor</a> motor, bool enabled)</td></tr>
 <tr class="memdesc:a8ea7a6366c732f213d4fe31bdcca51c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enables/disables motor setpoint offset acquisition.  <a href="#a8ea7a6366c732f213d4fe31bdcca51c8">More...</a><br /></td></tr>
 <tr class="separator:a8ea7a6366c732f213d4fe31bdcca51c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -220,33 +214,6 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a4b2107ea1130c1e4f6b60f1d71578a1f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4b2107ea1130c1e4f6b60f1d71578a1f">&#9670;&nbsp;</a></span>Motor_HasError()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool Motor_HasError </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="motor_8h.html#abf461155037199f0a5cfa434a9ea5efb">Motor</a>&#160;</td>
-          <td class="paramname"><em>motor</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Calls underlying signal output implementation to check for errors on given motor. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">motor</td><td>reference to motor </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true on detected error, false otherwise </dd></dl>
-
-</div>
-</div>
 <a id="aa64b271913ba0122508581f02d7bc86a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa64b271913ba0122508581f02d7bc86a">&#9670;&nbsp;</a></span>Motor_Init()</h2>
 
@@ -271,32 +238,6 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>reference/pointer to newly created and initialized motor data structure </dd></dl>
-
-</div>
-</div>
-<a id="ab408faa8d3c75fa0b569ab10734dd174"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab408faa8d3c75fa0b569ab10734dd174">&#9670;&nbsp;</a></span>Motor_Reset()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Motor_Reset </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="motor_8h.html#abf461155037199f0a5cfa434a9ea5efb">Motor</a>&#160;</td>
-          <td class="paramname"><em>motor</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Calls underlying signal output implementation to reset possible device errors. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">motor</td><td>reference to motor </td></tr>
-  </table>
-  </dd>
-</dl>
 
 </div>
 </div>

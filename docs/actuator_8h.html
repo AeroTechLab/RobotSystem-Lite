@@ -146,12 +146,6 @@ Functions</h2></td></tr>
 <tr class="memitem:ac0629da50d892d501bdb9dcc1f7c75a3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="actuator_8h.html#ac0629da50d892d501bdb9dcc1f7c75a3">Actuator_Disable</a> (<a class="el" href="actuator_8h.html#ac7b519a3b7e68e245a492e1e89263288">Actuator</a> actuator)</td></tr>
 <tr class="memdesc:ac0629da50d892d501bdb9dcc1f7c75a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prevents motor output on given actuator.  <a href="#ac0629da50d892d501bdb9dcc1f7c75a3">More...</a><br /></td></tr>
 <tr class="separator:ac0629da50d892d501bdb9dcc1f7c75a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a456bbf3d4b4b5d66f37b0ed063e0a86c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="actuator_8h.html#a456bbf3d4b4b5d66f37b0ed063e0a86c">Actuator_HasError</a> (<a class="el" href="actuator_8h.html#ac7b519a3b7e68e245a492e1e89263288">Actuator</a> actuator)</td></tr>
-<tr class="memdesc:a456bbf3d4b4b5d66f37b0ed063e0a86c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls underlying motor and sensors implementations (plugins) to check for errors on given actuator.  <a href="#a456bbf3d4b4b5d66f37b0ed063e0a86c">More...</a><br /></td></tr>
-<tr class="separator:a456bbf3d4b4b5d66f37b0ed063e0a86c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a26047cc426aa652d1fa3f28837063f6a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="actuator_8h.html#a26047cc426aa652d1fa3f28837063f6a">Actuator_Reset</a> (<a class="el" href="actuator_8h.html#ac7b519a3b7e68e245a492e1e89263288">Actuator</a> actuator)</td></tr>
-<tr class="memdesc:a26047cc426aa652d1fa3f28837063f6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls underlying sensors and motor implementations (plugins) to clear possible device errors.  <a href="#a26047cc426aa652d1fa3f28837063f6a">More...</a><br /></td></tr>
-<tr class="separator:a26047cc426aa652d1fa3f28837063f6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25bf70fe00f4967dc4c6efdbffdc1ade"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="actuator_8h.html#a25bf70fe00f4967dc4c6efdbffdc1ade">Actuator_SetControlState</a> (<a class="el" href="actuator_8h.html#ac7b519a3b7e68e245a492e1e89263288">Actuator</a> actuator, enum <a class="el" href="actuator_8h.html#aff7db6eb3c126e9c2c2c116ed181fa3c">ActuatorState</a> controlState)</td></tr>
 <tr class="memdesc:a25bf70fe00f4967dc4c6efdbffdc1ade"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls underlying sensors implementations (plugins) to change measurement state.  <a href="#a25bf70fe00f4967dc4c6efdbffdc1ade">More...</a><br /></td></tr>
 <tr class="separator:a25bf70fe00f4967dc4c6efdbffdc1ade"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -317,33 +311,6 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a456bbf3d4b4b5d66f37b0ed063e0a86c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a456bbf3d4b4b5d66f37b0ed063e0a86c">&#9670;&nbsp;</a></span>Actuator_HasError()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool Actuator_HasError </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="actuator_8h.html#ac7b519a3b7e68e245a492e1e89263288">Actuator</a>&#160;</td>
-          <td class="paramname"><em>actuator</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Calls underlying motor and sensors implementations (plugins) to check for errors on given actuator. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">actuator</td><td>reference to actuator </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true on error detected, false otherwise </dd></dl>
-
-</div>
-</div>
 <a id="a800aaaded3d21eb9b280de62170e8fc9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a800aaaded3d21eb9b280de62170e8fc9">&#9670;&nbsp;</a></span>Actuator_Init()</h2>
 
@@ -368,32 +335,6 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>reference/pointer to newly created and initialized actuator data structure </dd></dl>
-
-</div>
-</div>
-<a id="a26047cc426aa652d1fa3f28837063f6a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a26047cc426aa652d1fa3f28837063f6a">&#9670;&nbsp;</a></span>Actuator_Reset()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Actuator_Reset </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="actuator_8h.html#ac7b519a3b7e68e245a492e1e89263288">Actuator</a>&#160;</td>
-          <td class="paramname"><em>actuator</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Calls underlying sensors and motor implementations (plugins) to clear possible device errors. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">actuator</td><td>reference to actuator </td></tr>
-  </table>
-  </dd>
-</dl>
 
 </div>
 </div>
