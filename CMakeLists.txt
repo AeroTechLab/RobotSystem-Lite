@@ -24,6 +24,10 @@ include( ${SOURCES_DIR}/signal_processing/CMakeLists.txt )
 include( ${SOURCES_DIR}/threads/CMakeLists.txt )
 include( ${SOURCES_DIR}/timing/CMakeLists.txt )
 include( ${SOURCES_DIR}/ipc/CMakeLists.txt )
+if( WIN32 )
+  include( ${SOURCES_DIR}/wingetopt/CMakeLists.txt )
+endif()
+
 
 include_directories( ${SOURCES_DIR} )
 link_directories( ${LIBRARY_DIR} )
@@ -39,7 +43,9 @@ target_link_libraries( TinyExpr -lm )
 add_executable( RobotControl ${SOURCES_DIR}/main.c ${SOURCES_DIR}/system.c ${SOURCES_DIR}/robot.c ${SOURCES_DIR}/actuator.c ${SOURCES_DIR}/sensor.c ${SOURCES_DIR}/motor.c ${SOURCES_DIR}/input.c ${SOURCES_DIR}/output.c )
 target_compile_definitions( RobotControl PUBLIC -DDEBUG -DZMQ_BUILD_DRAFT_API )
 target_link_libraries( RobotControl DataLogging DataIOJSON KalmanFilters SignalProcessing IPC MultiThreading Timing TinyExpr ${CMAKE_DL_LIBS} )
-
+if( WIN32 )
+  target_link_libraries( RobotControl wingetopt )
+endif()
 
 # EXAMPLE PLUGINS/MODULES
 

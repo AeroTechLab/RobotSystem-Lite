@@ -25,3 +25,6 @@
 [submodule "src/tinyexpr"]
 	path = src/tinyexpr
 	url = https://github.com/codeplea/tinyexpr.git
+[submodule "src/wingetopt"]
+	path = src/wingetopt
+	url = https://github.com/alex85k/wingetopt
