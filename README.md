@@ -80,11 +80,11 @@ With that structure, a multi-level control process can interact with external cl
   <img src="https://raw.githubusercontent.com/EESC-MKGroup/RobotSystem-Lite/master/docs/img/robot_communications.png" width="600"/>
 </p>
 
-### Request/Reply messages
+### State change messages
 
 Messages requesting state changes or information about the robot are sent by clients occasionally and their arrival should be as guaranteed as possible. Therefore, these messages are transmitted using a [request-reply](https://en.wikipedia.org/wiki/Request%E2%80%93response) protocol. Possible messages (and corresponding reply values) are listed in a [separate header](https://eesc-mkgroup.github.io/RobotSystem-Lite/shared__robot__control_8h.html)
 
-### Joint/Axis update messages
+### Axes update messages
 
 Messages transporting online updates for robot degrees-of-freedom ([axes (not joints)](https://github.com/EESC-MKGroup/Robot-Control-Interface#the-jointaxis-rationale)) control variables (measurements or setpoints) should arrive as quickly as possible, and there is no advantage in resending lost packets, as their validity is short in time. Thereby, these messages are exchanged with **RobotSystem-Lite** through lower-latency and scalable [publisher-subscriber](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) connections (possibly with [broadcast](https://en.wikipedia.org/wiki/Multicast)), in a [defined format](https://eesc-mkgroup.github.io/RobotSystem-Lite/shared__dof__variables_8h.html).
 
@@ -108,7 +108,7 @@ On a terminal, get the [GitHub code repository](https://github.com/EESC-MKGroup/
 
     $ git clone https://github.com/EESC-MKGroup/RobotSystem-Lite [<my_system_folder>]
 
-Besides operating system's libraries, this software is dependent on code from other projects ([Data Logging](https://github.com/EESC-MKGroup/Simple-Data-Logging), [Kalman Filter](https://github.com/EESC-MKGroup/Simple-Kalman-Filter), [Plugin Loader](https://github.com/EESC-MKGroup/Plugin-Loader), [Robot Control Interface](https://github.com/EESC-MKGroup/Robot-Control-Interface), [Signal I/O Interface](https://github.com/EESC-MKGroup/Signal-IO-Interface), [Signal Processing](https://github.com/EESC-MKGroup/Simple-Signal-Processing), [Multithreading](https://github.com/EESC-MKGroup/Simple-Multithreading), [Precise Timing](https://github.com/EESC-MKGroup/Precise-Timing)) and [Tiny Expr](https://github.com/codeplea/tinyexpr), that are automatically linked as [git submodules](https://chrisjean.com/git-submodules-adding-using-removing-and-updating/).
+Besides operating system's libraries, this software is dependent on code from other projects: [Data Logging](https://github.com/EESC-MKGroup/Simple-Data-Logging), [Kalman Filter](https://github.com/EESC-MKGroup/Simple-Kalman-Filter), [Plugin Loader](https://github.com/EESC-MKGroup/Plugin-Loader), [Robot Control Interface](https://github.com/EESC-MKGroup/Robot-Control-Interface), [Signal I/O Interface](https://github.com/EESC-MKGroup/Signal-IO-Interface), [Signal Processing](https://github.com/EESC-MKGroup/Simple-Signal-Processing), [Multithreading](https://github.com/EESC-MKGroup/Simple-Multithreading), [Precise Timing](https://github.com/EESC-MKGroup/Precise-Timing)), [Tiny Expr](https://github.com/codeplea/tinyexpr) and [WinGetOpt](https://github.com/alex85k/wingetopt) (for Windows builds). Those are automatically linked as [git submodules](https://chrisjean.com/git-submodules-adding-using-removing-and-updating/).
 
 To add those repositories to your sources, navigate to the root project folder and clone them with:
 
