@@ -23,7 +23,7 @@
 /// @file input.h
 /// @brief Generic input (measurement reading) functions
 ///
-/// Interface for configurable input reading and state change
+/// Interface for configurable input reading and state change (as shown in @ref sensor_config)
 
 #ifndef INPUT_H
 #define INPUT_H
@@ -40,7 +40,7 @@ typedef InputData* Input;               ///< Opaque reference to input internal 
 
                                                                    
 /// @brief Creates and initializes input data structure based on given information                                              
-/// @param[in] configuration reference to data object containing configuration parameters, as explained at @ref input_config
+/// @param[in] configuration reference to data object containing configuration parameters, as explained at @ref sensor_config
 /// @return reference/pointer to newly created and initialized input data structure
 Input Input_Init( DataHandle configuration );
 

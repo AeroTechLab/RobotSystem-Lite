@@ -53,6 +53,8 @@ Input Input_Init( DataHandle configuration )
   Input newInput = (Input) malloc( sizeof(InputData) );
   memset( newInput, 0, sizeof(InputData) ); 
   
+  newInput->deviceID = SIGNAL_IO_DEVICE_INVALID_ID;
+  
   bool loadSuccess;
   char filePath[ DATA_IO_MAX_PATH_LENGTH ];
   sprintf( filePath, KEY_MODULES "/" KEY_SIGNAL_IO "/%s", DataIO_GetStringValue( configuration, "", KEY_INTERFACE "." KEY_TYPE ) );
@@ -97,7 +99,7 @@ void Input_End( Input input )
 {
   if( input == NULL ) return;
   
-  input->EndDevice( input->deviceID );
+  if( input->EndDevice != NULL ) input->EndDevice( input->deviceID );
   
   SignalProcessor_Discard( input->processor );
   

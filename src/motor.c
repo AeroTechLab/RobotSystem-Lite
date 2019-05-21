@@ -70,7 +70,7 @@ Motor Motor_Init( const char* configName )
   
   newMotor->reference = Input_Init( DataIO_GetSubData( configuration, KEY_REFERENCE ) );
   newMotor->isOffsetting = false;
-  
+  DEBUG_PRINT( "reference input: %p", newMotor->reference );
   int expressionError;
   newMotor->inputVariables[ 0 ].name = SETPOINT_VARIABLE_NAME;
   newMotor->inputVariables[ 0 ].address = &(newMotor->setpoint);

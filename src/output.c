@@ -47,12 +47,16 @@ Output Output_Init( DataHandle configuration )
   Output newOutput = (Output) malloc( sizeof(OutputData) );
   memset( newOutput, 0, sizeof(OutputData) );
 
+  newOutput->deviceID = SIGNAL_IO_DEVICE_INVALID_ID;
+  
   bool loadSuccess = true;
   char filePath[ DATA_IO_MAX_PATH_LENGTH ];
   sprintf( filePath, KEY_MODULES "/" KEY_SIGNAL_IO "/%s", DataIO_GetStringValue( configuration, "", KEY_INTERFACE "." KEY_TYPE ) );
+  //DEBUG_PRINT( "trying to read signal IO module %s", filePath );
   LOAD_MODULE_IMPLEMENTATION( SIGNAL_IO_INTERFACE, filePath, newOutput, &loadSuccess );
   if( loadSuccess )
   {
+    //PRINT_PLUGIN_FUNCTIONS( SIGNAL_IO_INTERFACE, newOutput );
     newOutput->deviceID = newOutput->InitDevice( DataIO_GetStringValue( configuration, "", KEY_INTERFACE "." KEY_CONFIG ) );
     if( newOutput->deviceID != SIGNAL_IO_DEVICE_INVALID_ID ) 
     {
@@ -78,7 +82,7 @@ void Output_End( Output output )
 {
   if( output == NULL ) return;
   
-  output->EndDevice( output->deviceID );
+  if( output->EndDevice != NULL ) output->EndDevice( output->deviceID );
   
   free( output );
 }

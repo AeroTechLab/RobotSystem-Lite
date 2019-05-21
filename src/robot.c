@@ -148,7 +148,7 @@ void Robot_End()
 {
   Robot_Disable();
   
-  robot.EndController();
+  if( robot.EndController != NULL ) robot.EndController();
   
   for( size_t jointIndex = 0; jointIndex < robot.jointsNumber; jointIndex++ )
   {
