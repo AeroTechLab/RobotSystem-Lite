@@ -1,0 +1,7 @@
+{
+  "controller": {
+    "type": "OpenSimModelIK",
+    "config": "osim-robot_arm"
+  },
+  "actuators": [ "opensim/actuator_1", "opensim/actuator_2" ]
+}
