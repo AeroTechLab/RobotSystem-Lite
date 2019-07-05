@@ -145,12 +145,9 @@ void UpdateEvents()
   Byte* messageIn = (Byte*) messageBuffer;
   while( IPC_ReadMessage( robotEventsConnection, messageIn ) ) 
   {
-    Byte robotCommand = (Byte) *(messageIn++);
-    
+    Byte robotCommand = (Byte) *(messageIn++);    
     DEBUG_PRINT( "received robot command: %u", robotCommand );
-    
     Byte* messageOut = (Byte*) messageBuffer;
-      
     if( robotCommand == ROBOT_REQ_LIST_CONFIGS ) 
     {
       messageOut[ 0 ] = ROBOT_REP_CONFIGS_LISTED;
@@ -158,7 +155,7 @@ void UpdateEvents()
     }
     else if( robotCommand == ROBOT_REQ_GET_CONFIG ) 
     {
-      messageOut[ 0 ] = ROBOT_REP_CONFIG_GOT;
+      messageOut[ 0 ] = ROBOT_REP_GOT_CONFIG;
       GetRobotConfigString( robotConfig, (char*) ( messageOut + 1 ) );
     }
     else if( robotCommand == ROBOT_REQ_SET_CONFIG )
@@ -171,7 +168,6 @@ void UpdateEvents()
     }
     else 
     {
-      memset( messageOut, 0, IPC_MAX_MESSAGE_LENGTH );
       if( robotCommand == ROBOT_REQ_SET_USER )
       {
         char* userName = (char*) messageIn;
@@ -186,8 +182,9 @@ void UpdateEvents()
       else if( robotCommand == ROBOT_REQ_CALIBRATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_CALIBRATION ) ? ROBOT_REP_CALIBRATING : 0x00;
       else if( robotCommand == ROBOT_REQ_PREPROCESS ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_PREPROCESSING ) ? ROBOT_REP_PREPROCESSING : 0x00;
       else if( robotCommand == ROBOT_REQ_OPERATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_OPERATION ) ? ROBOT_REP_OPERATING : 0x00;
+      memset( messageOut + 1, 0, IPC_MAX_MESSAGE_LENGTH - 1 );
     }
-    
+    DEBUG_PRINT( "sending robot state: %u", messageOut[ 0 ] );
     IPC_WriteMessage( robotEventsConnection, messageOut );
   }   
 }
@@ -273,7 +270,7 @@ void ListRobotConfigs( char* sharedRobotsString )
   DataHandle robotsList = DataIO_CreateEmptyData();
   
   DataHandle sharedRobotsList = DataIO_AddList( robotsList, KEY_ROBOTS );
-  
+  DEBUG_PRINT( "searching robots config in: %s", "./" KEY_CONFIG "/" KEY_ROBOTS "/" );
   const char** dataList = DataIO_ListStorageDataEntries( "./" KEY_CONFIG "/" KEY_ROBOTS "/" );
   for( size_t dataIndex = 0; dataList[ dataIndex ] != NULL; dataIndex++ )
     DataIO_SetStringValue( sharedRobotsList, NULL, dataList[ dataIndex ] );

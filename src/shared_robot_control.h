@@ -44,7 +44,7 @@ enum RobotControlCode {
        /// @code
        /// { "id":"<robot_name>", "axes":[ "<axis1_name>", "<axis2_name>" ], "joints":[ "<joint1_name>", "<joint2_name>" ] }
        /// @endcode
-       ROBOT_REP_CONFIG_GOT = ROBOT_REQ_GET_CONFIG,
+       ROBOT_REP_GOT_CONFIG = ROBOT_REQ_GET_CONFIG,
        ROBOT_REQ_SET_CONFIG,                            ///< Request setting new @ref robot_config, reloading all parameters. Must be followed, in the same message, by a string with the new @ref robot_config name
        ROBOT_REP_CONFIG_SET = ROBOT_REQ_SET_CONFIG,     ///< Confirmation reply to ROBOT_REQ_SET_CONFIG. Followed by the same JSON string type as in ROBOT_REP_GOT_CONFIG
        ROBOT_REQ_SET_USER,                              ///< Request setting new user/folder name for [data logging](https://github.com/EESC-MKGroup/Simple-Data-Logging). Must be followed, in the same message, by a string with the name
@@ -53,18 +53,18 @@ enum RobotControlCode {
        ROBOT_REP_DISABLED = ROBOT_REQ_DISABLE,          ///< Confirmation reply to ROBOT_REQ_DISABLE
        ROBOT_REQ_ENABLE,                                ///< Request turning on the robot and starting its control thread
        ROBOT_REP_ENABLED = ROBOT_REQ_ENABLE,            ///< Confirmation reply to ROBOT_REQ_ENABLE
-       ROBOT_REQ_RESET,                                 ///< Clear errors and calibration values for the robot of corresponding index
-       ROBOT_REP_ERROR = ROBOT_REQ_RESET,               ///< Robot error/failure signal, can come before ROBOT_REQ_RESET
        ROBOT_REQ_PASSIVATE,                             ///< Request setting robot to a fully compliant control state (passed on to control implementation)
        ROBOT_REP_PASSIVE = ROBOT_REQ_PASSIVATE,         ///< Confirmation reply to ROBOT_REQ_PASSIVATE
-       ROBOT_REQ_OPERATE,                               ///< Request setting robot to normal operation state (passed on to control implementation)
-       ROBOT_REP_OPERATING = ROBOT_REQ_OPERATE,         ///< Confirmation reply to ROBOT_REQ_OPERATE
        ROBOT_REQ_OFFSET,                                ///< Request setting robot to offset measurement state (passed on to control implementation)
        ROBOT_REP_OFFSETTING = ROBOT_REQ_OFFSET,         ///< Confirmation reply to ROBOT_REQ_OFFSET
        ROBOT_REQ_CALIBRATE,                             ///< Request setting robot to motion range measurement state (passed on to control implementation)
        ROBOT_REP_CALIBRATING = ROBOT_REQ_CALIBRATE,     ///< Confirmation reply to ROBOT_REQ_CALIBRATE
+       ROBOT_REQ_OPERATE,                               ///< Request setting robot to normal operation state (passed on to control implementation)
+       ROBOT_REP_OPERATING = ROBOT_REQ_OPERATE,         ///< Confirmation reply to ROBOT_REQ_OPERATE
        ROBOT_REQ_PREPROCESS,                            ///< Request setting robot to implementation-specific pre-operation state (passed on to control implementation)
        ROBOT_REP_PREPROCESSING = ROBOT_REQ_PREPROCESS,  ///< Confirmation reply to ROBOT_REQ_PREPROCESS
+       ROBOT_REQ_RESET,                                 ///< Clear errors and calibration values for the robot of corresponding index
+       ROBOT_REP_ERROR = ROBOT_REQ_RESET                ///< Robot error/failure signal, can come before ROBOT_REQ_RESET
 };
 
 #endif // SHARED_ROBOT_CONTROL_H
