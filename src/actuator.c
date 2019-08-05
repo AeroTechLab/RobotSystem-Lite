@@ -37,11 +37,11 @@
 #include <string.h>
 
 
-enum ControlVariable { POSITION, VELOCITY, FORCE, ACCELERATION, CONTROL_VARS_NUMBER };
+enum ControlVariable { POSITION, VELOCITY, ACCELERATION, FORCE, CONTROL_VARS_NUMBER };
 
 struct _ActuatorData
 {
-  enum ActuatorState controlState;
+  enum ControlState controlState;
   enum ControlVariable controlMode;
   Motor motor;
   Sensor* sensorsList;
@@ -52,7 +52,7 @@ struct _ActuatorData
 
 
 const char* CONTROL_MODE_NAMES[ CONTROL_VARS_NUMBER ] = { [ POSITION ] = "POSITION", [ VELOCITY ] = "VELOCITY", 
-                                                          [ FORCE ] = "FORCE", [ ACCELERATION ] = "ACCELERATION" };
+                                                          [ ACCELERATION ] = "ACCELERATION", [ FORCE ] = "FORCE" };
 Actuator Actuator_Init( const char* configName )
 {
   char filePath[ DATA_IO_MAX_PATH_LENGTH ];  
@@ -94,7 +94,7 @@ Actuator Actuator_Init( const char* configName )
     newActuator->log = Log_Init( DataIO_GetBooleanValue( configuration, false, KEY_LOG "." KEY_FILE ) ? configName : "", 
                                  (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
   //DEBUG_PRINT( "log created with handle %p", newActuator->log );
-  newActuator->controlState = ACTUATOR_OPERATION;
+  newActuator->controlState = CONTROL_OPERATION;
   //DEBUG_PRINT( "loading success: %s", loadSuccess ? "true" : "false" );
   DataIO_UnloadData( configuration );
   //DEBUG_PRINT( "data on handle %p unloaded", configuration );
@@ -136,33 +136,34 @@ void Actuator_Disable( Actuator actuator )
   Motor_Disable( actuator->motor );
 }
 
-bool Actuator_SetControlState( Actuator actuator, enum ActuatorState newState )
+bool Actuator_SetControlState( Actuator actuator, enum ControlState newState )
 {
   if( actuator == NULL ) return false;
   
   if( newState == actuator->controlState ) return false;
   
-  if( newState >= ACTUATOR_STATES_NUMBER ) return false;
+  if( newState >= CONTROL_STATES_NUMBER ) return false;
 
   enum SensorState sensorsState = SENSOR_STATE_MEASUREMENT;
-  if( newState == ACTUATOR_OFFSET ) sensorsState = SENSOR_STATE_OFFSET;
-  else if( newState == ACTUATOR_CALIBRATION ) sensorsState = SENSOR_STATE_CALIBRATION;
+  if( newState == CONTROL_OFFSET ) sensorsState = SENSOR_STATE_OFFSET;
+  else if( newState == CONTROL_CALIBRATION ) sensorsState = SENSOR_STATE_CALIBRATION;
   DEBUG_PRINT( "setting %lu sensors to state %d", actuator->sensorsNumber, sensorsState );
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
     Sensor_SetState( actuator->sensorsList[ sensorIndex ], sensorsState );
-  DEBUG_PRINT( "setting motor state to %s", ( newState == ACTUATOR_OFFSET ) ? "offset" : "operation" );
-  Motor_SetOffset( actuator->motor, ( newState == ACTUATOR_OFFSET ) );
+  DEBUG_PRINT( "setting motor state to %s", ( newState == CONTROL_OFFSET ) ? "offset" : "operation" );
+  Motor_SetOffset( actuator->motor, ( newState == CONTROL_OFFSET ) );
   
   actuator->controlState = newState;
   
   return true;
 }
 
-bool Actuator_GetMeasures( Actuator actuator, ActuatorVariables* ref_measures, double timeDelta )
+bool Actuator_GetMeasures( Actuator actuator, DoFVariables* ref_measures, double timeDelta )
 {
   if( actuator == NULL ) return false;
   
   //DEBUG_PRINT( "reading measures from %lu sensors", actuator->sensorsNumber );
+  double filteredMeasures[ CONTROL_VARS_NUMBER ];
   
   Kalman_SetPredictionFactor( actuator->motionFilter, POSITION, VELOCITY, timeDelta );
   Kalman_SetPredictionFactor( actuator->motionFilter, POSITION, ACCELERATION, timeDelta * timeDelta / 2.0 );
@@ -172,25 +173,29 @@ bool Actuator_GetMeasures( Actuator actuator, ActuatorVariables* ref_measures, d
     double sensorMeasure = Sensor_Update( actuator->sensorsList[ sensorIndex ] );
     Kalman_SetInput( actuator->motionFilter, sensorIndex, sensorMeasure );
   }
-  (void) Kalman_Predict( actuator->motionFilter, (double*) ref_measures );
-  (void) Kalman_Update( actuator->motionFilter, NULL, (double*) ref_measures );
+  (void) Kalman_Predict( actuator->motionFilter, (double*) filteredMeasures );
+  (void) Kalman_Update( actuator->motionFilter, NULL, (double*) filteredMeasures );
   
-  //DEBUG_PRINT( "p=%.5f, v=%.5f, f=%.5f", ref_measures->position, ref_measures->velocity, ref_measures->force );
+  //DEBUG_PRINT( "p=%.5f, v=%.5f, f=%.5f", filteredMeasures->position, filteredMeasures->velocity, filteredMeasures->force );
+  ref_measures->position = filteredMeasures[ POSITION ];
+  ref_measures->velocity = filteredMeasures[ VELOCITY ];
+  ref_measures->acceleration = filteredMeasures[ ACCELERATION ];
+  ref_measures->force = filteredMeasures[ FORCE ];
   
   Log_EnterNewLine( actuator->log, Time_GetExecSeconds() );
-  Log_RegisterList( actuator->log, 4, (double*) ref_measures );
+  Log_RegisterList( actuator->log, CONTROL_VARS_NUMBER, (double*) filteredMeasures );
   
   return true;
 }
 
-double Actuator_SetSetpoints( Actuator actuator, ActuatorVariables* ref_setpoints )
+double Actuator_SetSetpoints( Actuator actuator, DoFVariables* ref_setpoints )
 {
   if( actuator == NULL ) return 0.0;
   
   double motorSetpoint = ( (double*) ref_setpoints )[ actuator->controlMode ];
   //DEBUG_PRINT( "writing setpoint %g to motor", motorSetpoint );
   // If the motor is being actually controlled, write its control output
-  if( actuator->controlState != ACTUATOR_OFFSET ) Motor_WriteControl( actuator->motor, motorSetpoint );
+  if( actuator->controlState != CONTROL_OFFSET ) Motor_WriteControl( actuator->motor, motorSetpoint );
   //DEBUG_PRINT( "setpoint %g written to motor", motorSetpoint );
   return motorSetpoint;
 }

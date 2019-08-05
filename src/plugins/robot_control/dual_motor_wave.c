@@ -45,7 +45,7 @@ static struct
   double lastInputWavesList[ DOFS_NUMBER ];
   double lastFilteredWavesList[ DOFS_NUMBER ];
   size_t setpointCount;
-  enum RobotState state;
+  enum ControlState state;
   double elapsedTime;
   Log samplingLog;
 }
@@ -64,7 +64,7 @@ bool InitController( const char* configurationString )
   
   controlData.elapsedTime = 0.0;
   
-  controlData.state = ROBOT_PASSIVE;
+  controlData.state = CONTROL_PASSIVE;
   
   return true;
 }
@@ -102,11 +102,11 @@ size_t GetExtraOutputsNumber( void ) { return 0; }
          
 void GetExtraOutputsList( double* outputsList ) { }
 
-void SetControlState( enum RobotState newControlState )
+void SetControlState( enum ControlState newControlState )
 {
   fprintf( stderr, "Setting robot control phase: %x\n", newControlState );
   
-  if( newControlState == ROBOT_PREPROCESSING ) controlData.elapsedTime = 0.0;
+  if( newControlState == CONTROL_PREPROCESSING ) controlData.elapsedTime = 0.0;
   
   controlData.state = newControlState;
 }
@@ -153,7 +153,7 @@ double BuildWave( double waveImpedance, double velocity, double force )
   return outputWave;
 }
 
-void ControlJoint( RobotVariables* ref_jointMeasures, RobotVariables* ref_axisMeasures, RobotVariables* ref_jointSetpoints, RobotVariables* ref_axisSetpoints )
+void ControlJoint( DoFVariables* ref_jointMeasures, DoFVariables* ref_axisMeasures, DoFVariables* ref_jointSetpoints, DoFVariables* ref_axisSetpoints )
 {
   ref_axisMeasures->acceleration = ref_jointMeasures->acceleration;
   ref_axisMeasures->velocity = ref_jointMeasures->velocity;
@@ -172,7 +172,7 @@ void ControlJoint( RobotVariables* ref_jointMeasures, RobotVariables* ref_axisMe
   //fprintf( stderr, "position=%.5f, setpoint=%.5f, control force=%.5f\n", ref_jointMeasures->position, ref_jointSetpoints->position, ref_jointSetpoints->force );
 }
 
-void RunControlStep( RobotVariables** jointMeasuresList, RobotVariables** axisMeasuresList, RobotVariables** jointSetpointsList, RobotVariables** axisSetpointsList, double timeDelta )
+void RunControlStep( DoFVariables** jointMeasuresList, DoFVariables** axisMeasuresList, DoFVariables** jointSetpointsList, DoFVariables** axisSetpointsList, double timeDelta )
 {
   size_t setpointIndex = controlData.setpointCount % DELAY_SETPOINTS_NUMBER;
   

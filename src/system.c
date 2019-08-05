@@ -177,11 +177,11 @@ void UpdateEvents()
       }
       else if( robotCommand == ROBOT_REQ_DISABLE ) messageOut[ 0 ] = Robot_Disable() ? ROBOT_REP_DISABLED : 0x00;
       else if( robotCommand == ROBOT_REQ_ENABLE ) messageOut[ 0 ] = Robot_Enable() ? ROBOT_REP_ENABLED : 0x00;
-      else if( robotCommand == ROBOT_REQ_PASSIVATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_PASSIVE ) ? ROBOT_REP_PASSIVE : 0x00;
-      else if( robotCommand == ROBOT_REQ_OFFSET ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_OFFSET ) ? ROBOT_REP_OFFSETTING : 0x00;
-      else if( robotCommand == ROBOT_REQ_CALIBRATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_CALIBRATION ) ? ROBOT_REP_CALIBRATING : 0x00;
-      else if( robotCommand == ROBOT_REQ_PREPROCESS ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_PREPROCESSING ) ? ROBOT_REP_PREPROCESSING : 0x00;
-      else if( robotCommand == ROBOT_REQ_OPERATE ) messageOut[ 0 ] = Robot_SetControlState( ROBOT_OPERATION ) ? ROBOT_REP_OPERATING : 0x00;
+      else if( robotCommand == ROBOT_REQ_PASSIVATE ) messageOut[ 0 ] = Robot_SetControlState( CONTROL_PASSIVE ) ? ROBOT_REP_PASSIVE : 0x00;
+      else if( robotCommand == ROBOT_REQ_OFFSET ) messageOut[ 0 ] = Robot_SetControlState( CONTROL_OFFSET ) ? ROBOT_REP_OFFSETTING : 0x00;
+      else if( robotCommand == ROBOT_REQ_CALIBRATE ) messageOut[ 0 ] = Robot_SetControlState( CONTROL_CALIBRATION ) ? ROBOT_REP_CALIBRATING : 0x00;
+      else if( robotCommand == ROBOT_REQ_PREPROCESS ) messageOut[ 0 ] = Robot_SetControlState( CONTROL_PREPROCESSING ) ? ROBOT_REP_PREPROCESSING : 0x00;
+      else if( robotCommand == ROBOT_REQ_OPERATE ) messageOut[ 0 ] = Robot_SetControlState( CONTROL_OPERATION ) ? ROBOT_REP_OPERATING : 0x00;
       memset( messageOut + 1, 0, IPC_MAX_MESSAGE_LENGTH - 1 );
     }
     DEBUG_PRINT( "sending robot state: %u", messageOut[ 0 ] );
@@ -205,10 +205,10 @@ bool UpdateAxes( unsigned long lastNetworkUpdateElapsedTimeMS )
       if( axisIndex >= axesNumber ) continue;      
       
       float* axisSetpointsList = (float*) messageIn;
-      RobotVariables axisSetpoints = { .position = axisSetpointsList[ DOF_POSITION ], .velocity = axisSetpointsList[ DOF_VELOCITY ],
-                                       .acceleration = axisSetpointsList[ DOF_ACCELERATION ], .force = axisSetpointsList[ DOF_FORCE ],
-                                       .inertia = axisSetpointsList[ DOF_INERTIA ],
-                                       .stiffness = axisSetpointsList[ DOF_STIFFNESS ], .damping = axisSetpointsList[ DOF_DAMPING ] };
+      DoFVariables axisSetpoints = { .position = axisSetpointsList[ DOF_POSITION ], .velocity = axisSetpointsList[ DOF_VELOCITY ],
+                                     .acceleration = axisSetpointsList[ DOF_ACCELERATION ], .force = axisSetpointsList[ DOF_FORCE ],
+                                     .inertia = axisSetpointsList[ DOF_INERTIA ],
+                                     .stiffness = axisSetpointsList[ DOF_STIFFNESS ], .damping = axisSetpointsList[ DOF_DAMPING ] };
       //if( axisIndex == 0 ) DEBUG_PRINT( "setpoints: p: %.3f - v: %.3f", axisSetpoints.position, axisSetpoints.velocity );
       Robot_SetAxisSetpoints( axisIndex, &axisSetpoints );
 
@@ -220,7 +220,7 @@ bool UpdateAxes( unsigned long lastNetworkUpdateElapsedTimeMS )
   size_t axisdataOffset = 1;
   for( size_t axisIndex = 0; axisIndex < axesNumber; axisIndex++ )
   {    
-    RobotVariables axisMeasures = { 0 };
+    DoFVariables axisMeasures = { 0 };
     if( Robot_GetAxisMeasures( axisIndex, &axisMeasures ) )
     {
       message[ 0 ]++;

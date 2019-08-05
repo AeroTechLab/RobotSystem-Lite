@@ -85,7 +85,7 @@ bool Robot_Disable();
 /// @brief Change control state of given robot actuators and underlying (plugin) control implementation           
 /// @param[in] controlState new control state to be set
 /// @return true if control state was changed, false otherwise
-bool Robot_SetControlState( enum RobotState controlState );
+bool Robot_SetControlState( enum ControlState controlState );
 
 /// @brief Calls underlying (plugin) implementation to get string identifier for specified joint in given robot                
 /// @param[in] jointIndex index of robot joint (in the order listed on robot's configuration)
@@ -101,18 +101,18 @@ const char* Robot_GetAxisName( size_t axisIndex );
 /// @param[in] jointIndex index of robot axis (in the order listed on robot's configuration)
 /// @param[out] ref_measures pointer/reference to variables structure where values will be stored
 /// @return true on if new values were acquired, false otherwise
-bool Robot_GetJointMeasures( size_t jointIndex, RobotVariables* ref_measures );
+bool Robot_GetJointMeasures( size_t jointIndex, DoFVariables* ref_measures );
 
 /// @brief Gets current value of specified axis measurements (see @ref joint_axis_rationale)          
 /// @param[in] axisIndex index of robot axis (in the order listed on robot's configuration)
 /// @param[out] ref_measures pointer/reference to variables structure where values will be stored
 /// @return true on if new values were acquired, false otherwise
-bool Robot_GetAxisMeasures( size_t axisIndex, RobotVariables* ref_measures );
+bool Robot_GetAxisMeasures( size_t axisIndex, DoFVariables* ref_measures );
 
 /// @brief Sets value of specified setpoint for given axis       
 /// @param[in] axisIndex index of robot axis (in the order listed on robot's configuration)
 /// @param[in] ref_setpoints pointer/reference to variables structure with the new setpoints
-void Robot_SetAxisSetpoints( size_t axisIndex, RobotVariables* ref_setpoints );
+void Robot_SetAxisSetpoints( size_t axisIndex, DoFVariables* ref_setpoints );
 
 /// @brief Calls underlying (plugin) implementation to get number of joint degrees-of-freedom for given robot        
 /// @return number of joint degrees-of-freedom

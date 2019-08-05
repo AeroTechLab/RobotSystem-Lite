@@ -61,24 +61,9 @@
 #ifndef ACTUATOR_H
 #define ACTUATOR_H 
 
+#include "robot_control/robot_control.h"
 
 #include <stdbool.h>
-
-/// Defined possible control states enumeration. Passed to internal motor and sensors
-enum ActuatorState 
-{ 
-  ACTUATOR_OFFSET,             ///< State of reference (zero) taking for controller measurements 
-  ACTUATOR_CALIBRATION,        ///< State of limits (min-max) taking for controller measurements 
-  ACTUATOR_OPERATION,          ///< State of normal controller operation 
-  ACTUATOR_STATES_NUMBER       ///< Total number of control states 
-};
-
-/// Control used variables list indexes enumeration
-typedef struct ActuatorVariables
-{
-  double position, velocity, force, acceleration;
-}
-ActuatorVariables;
 
 typedef struct _ActuatorData ActuatorData;      ///< Single actuator internal data structure    
 typedef ActuatorData* Actuator;                 ///< Opaque reference to actuator internal data structure
@@ -106,20 +91,20 @@ void Actuator_Disable( Actuator actuator );
 /// @param[in] actuator reference to actuator
 /// @param[in] controlState new control state to be set
 /// @return true if control state was changed, false otherwise
-bool Actuator_SetControlState( Actuator actuator, enum ActuatorState controlState );
+bool Actuator_SetControlState( Actuator actuator, enum ControlState controlState );
 
 /// @brief Reads sensors of given actuator               
 /// @param[in] actuator reference to actuator
 /// @param[out] ref_measures pointer to variables structure where values will be stored
 /// @param[in] timeDelta time passed between measurements for sensor filtering/fusion state prediction
 /// @return true if new measurements were taken, false otherwise
-bool Actuator_GetMeasures( Actuator actuator, ActuatorVariables* ref_measures, double timeDelta );
+bool Actuator_GetMeasures( Actuator actuator, DoFVariables* ref_measures, double timeDelta );
 
 /// @brief Writes possible motor setpoint values for given actuator       
 /// @param[in] actuator reference to actuator
 /// @param[in] ref_setpoints pointer/reference to variables structure with the new setpoints
 /// @return control action applied on motor of given actuator (control variable specified in @ref actuator_config)
-double Actuator_SetSetpoints( Actuator actuator, ActuatorVariables* ref_setpoints );
+double Actuator_SetSetpoints( Actuator actuator, DoFVariables* ref_setpoints );
 
 
 #endif // ACTUATOR_H

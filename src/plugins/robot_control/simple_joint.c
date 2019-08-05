@@ -53,12 +53,12 @@ size_t GetExtraOutputsNumber( void ) { return 0; }
          
 void GetExtraOutputsList( double* outputsList ) { }
 
-void SetControlState( enum RobotState controlState )
+void SetControlState( enum ControlState controlState )
 {
   fprintf( stderr, "Setting robot control phase: %x\n", controlState );
 }
 
-void RunControlStep( RobotVariables** jointMeasuresTable, RobotVariables** axisMeasuresTable, RobotVariables** jointSetpointsTable, RobotVariables** axisSetpointsTable, double elapsedTime )
+void RunControlStep( DoFVariables** jointMeasuresTable, DoFVariables** axisMeasuresTable, DoFVariables** jointSetpointsTable, DoFVariables** axisSetpointsTable, double elapsedTime )
 {
   axisMeasuresTable[ 0 ]->position = jointMeasuresTable[ 0 ]->position;
   axisMeasuresTable[ 0 ]->velocity = jointMeasuresTable[ 0 ]->velocity;
