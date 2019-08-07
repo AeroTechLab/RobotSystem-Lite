@@ -124,9 +124,12 @@ Functions</h2></td></tr>
 <tr class="memitem:acc7f7e948e2a5ffcc37c1b7a0c008adb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="motor_8h.html#acc7f7e948e2a5ffcc37c1b7a0c008adb">Motor_Disable</a> (<a class="el" href="motor_8h.html#abf461155037199f0a5cfa434a9ea5efb">Motor</a> motor)</td></tr>
 <tr class="memdesc:acc7f7e948e2a5ffcc37c1b7a0c008adb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prevents hardware/virtual device of given motor from outputing signal.  <a href="#acc7f7e948e2a5ffcc37c1b7a0c008adb">More...</a><br /></td></tr>
 <tr class="separator:acc7f7e948e2a5ffcc37c1b7a0c008adb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8ea7a6366c732f213d4fe31bdcca51c8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="motor_8h.html#a8ea7a6366c732f213d4fe31bdcca51c8">Motor_SetOffset</a> (<a class="el" href="motor_8h.html#abf461155037199f0a5cfa434a9ea5efb">Motor</a> motor, bool enabled)</td></tr>
-<tr class="memdesc:a8ea7a6366c732f213d4fe31bdcca51c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enables/disables motor setpoint offset acquisition.  <a href="#a8ea7a6366c732f213d4fe31bdcca51c8">More...</a><br /></td></tr>
-<tr class="separator:a8ea7a6366c732f213d4fe31bdcca51c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a157e072380d82b46a18a5f57acf9f6b8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="motor_8h.html#a157e072380d82b46a18a5f57acf9f6b8">Motor_SetOffset</a> (<a class="el" href="motor_8h.html#abf461155037199f0a5cfa434a9ea5efb">Motor</a> motor)</td></tr>
+<tr class="memdesc:a157e072380d82b46a18a5f57acf9f6b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enables motor setpoint offset acquisition.  <a href="#a157e072380d82b46a18a5f57acf9f6b8">More...</a><br /></td></tr>
+<tr class="separator:a157e072380d82b46a18a5f57acf9f6b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae938b041cf408cda795aa61cb06e9685"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="motor_8h.html#ae938b041cf408cda795aa61cb06e9685">Motor_SetOperation</a> (<a class="el" href="motor_8h.html#abf461155037199f0a5cfa434a9ea5efb">Motor</a> motor)</td></tr>
+<tr class="memdesc:ae938b041cf408cda795aa61cb06e9685"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enables motor output/operation.  <a href="#ae938b041cf408cda795aa61cb06e9685">More...</a><br /></td></tr>
+<tr class="separator:ae938b041cf408cda795aa61cb06e9685"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a570ad28d299071a1045b8d36a8434744"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="motor_8h.html#a570ad28d299071a1045b8d36a8434744">Motor_WriteControl</a> (<a class="el" href="motor_8h.html#abf461155037199f0a5cfa434a9ea5efb">Motor</a> motor, double setpoint)</td></tr>
 <tr class="memdesc:a570ad28d299071a1045b8d36a8434744"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes specified value to given motor ouput device.  <a href="#a570ad28d299071a1045b8d36a8434744">More...</a><br /></td></tr>
 <tr class="separator:a570ad28d299071a1045b8d36a8434744"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -241,8 +244,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a8ea7a6366c732f213d4fe31bdcca51c8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8ea7a6366c732f213d4fe31bdcca51c8">&#9670;&nbsp;</a></span>Motor_SetOffset()</h2>
+<a id="a157e072380d82b46a18a5f57acf9f6b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a157e072380d82b46a18a5f57acf9f6b8">&#9670;&nbsp;</a></span>Motor_SetOffset()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -251,27 +254,42 @@ Functions</h2></td></tr>
           <td class="memname">void Motor_SetOffset </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="motor_8h.html#abf461155037199f0a5cfa434a9ea5efb">Motor</a>&#160;</td>
-          <td class="paramname"><em>motor</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramname"><em>motor</em></td><td>)</td>
           <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>enabled</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Enables/disables motor setpoint offset acquisition. </p>
+<p>Enables motor setpoint offset acquisition. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">motor</td><td>reference to motor </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">enabled</td><td>true to start offset aquisition, false otherwise </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ae938b041cf408cda795aa61cb06e9685"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae938b041cf408cda795aa61cb06e9685">&#9670;&nbsp;</a></span>Motor_SetOperation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Motor_SetOperation </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="motor_8h.html#abf461155037199f0a5cfa434a9ea5efb">Motor</a>&#160;</td>
+          <td class="paramname"><em>motor</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Enables motor output/operation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">motor</td><td>reference to motor </td></tr>
   </table>
   </dd>
 </dl>

@@ -86,9 +86,7 @@ $(document).ready(function(){initNavTree('actuator_8h.html','');});
 
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">actuator.h File Reference</div>  </div>
@@ -97,22 +95,13 @@ $(document).ready(function(){initNavTree('actuator_8h.html','');});
 
 <p>Generic actuator control (measurement + actuation) functions.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;stdbool.h&gt;</code><br />
+<div class="textblock"><code>#include &quot;robot_control/robot_control.h&quot;</code><br />
+<code>#include &lt;stdbool.h&gt;</code><br />
 </div>
 <p><a href="actuator_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structActuatorVariables.html">ActuatorVariables</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Control used variables list indexes enumeration.  <a href="structActuatorVariables.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:ada92a81c6d6c87d0d6b0298f4e76b317"><td class="memItemLeft" align="right" valign="top"><a id="ada92a81c6d6c87d0d6b0298f4e76b317"></a>
-typedef struct <a class="el" href="structActuatorVariables.html">ActuatorVariables</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="actuator_8h.html#ada92a81c6d6c87d0d6b0298f4e76b317">ActuatorVariables</a></td></tr>
-<tr class="memdesc:ada92a81c6d6c87d0d6b0298f4e76b317"><td class="mdescLeft">&#160;</td><td class="mdescRight">Control used variables list indexes enumeration. <br /></td></tr>
-<tr class="separator:ada92a81c6d6c87d0d6b0298f4e76b317"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a73836f6b85421cb0ecf4cbf565b5a574"><td class="memItemLeft" align="right" valign="top"><a id="a73836f6b85421cb0ecf4cbf565b5a574"></a>
 typedef struct _ActuatorData&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="actuator_8h.html#a73836f6b85421cb0ecf4cbf565b5a574">ActuatorData</a></td></tr>
 <tr class="memdesc:a73836f6b85421cb0ecf4cbf565b5a574"><td class="mdescLeft">&#160;</td><td class="mdescRight">Single actuator internal data structure. <br /></td></tr>
@@ -121,16 +110,6 @@ typedef struct _ActuatorData&#160;</td><td class="memItemRight" valign="bottom">
 typedef <a class="el" href="actuator_8h.html#a73836f6b85421cb0ecf4cbf565b5a574">ActuatorData</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="actuator_8h.html#ac7b519a3b7e68e245a492e1e89263288">Actuator</a></td></tr>
 <tr class="memdesc:ac7b519a3b7e68e245a492e1e89263288"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opaque reference to actuator internal data structure. <br /></td></tr>
 <tr class="separator:ac7b519a3b7e68e245a492e1e89263288"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
-Enumerations</h2></td></tr>
-<tr class="memitem:aff7db6eb3c126e9c2c2c116ed181fa3c"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="actuator_8h.html#aff7db6eb3c126e9c2c2c116ed181fa3c">ActuatorState</a> { <a class="el" href="actuator_8h.html#aff7db6eb3c126e9c2c2c116ed181fa3cafba2879c3d742417e784f099794905d6">ACTUATOR_OFFSET</a>, 
-<a class="el" href="actuator_8h.html#aff7db6eb3c126e9c2c2c116ed181fa3ca9c65b8bd794506448d0596adafe1fb45">ACTUATOR_CALIBRATION</a>, 
-<a class="el" href="actuator_8h.html#aff7db6eb3c126e9c2c2c116ed181fa3ca2792012caf009143def61b240fa66f3c">ACTUATOR_OPERATION</a>, 
-<a class="el" href="actuator_8h.html#aff7db6eb3c126e9c2c2c116ed181fa3caeec6a2968624d0e01dd897a309518106">ACTUATOR_STATES_NUMBER</a>
- }</td></tr>
-<tr class="memdesc:aff7db6eb3c126e9c2c2c116ed181fa3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined possible control states enumeration. Passed to internal motor and sensors.  <a href="actuator_8h.html#aff7db6eb3c126e9c2c2c116ed181fa3c">More...</a><br /></td></tr>
-<tr class="separator:aff7db6eb3c126e9c2c2c116ed181fa3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -146,47 +125,20 @@ Functions</h2></td></tr>
 <tr class="memitem:ac0629da50d892d501bdb9dcc1f7c75a3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="actuator_8h.html#ac0629da50d892d501bdb9dcc1f7c75a3">Actuator_Disable</a> (<a class="el" href="actuator_8h.html#ac7b519a3b7e68e245a492e1e89263288">Actuator</a> actuator)</td></tr>
 <tr class="memdesc:ac0629da50d892d501bdb9dcc1f7c75a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prevents motor output on given actuator.  <a href="#ac0629da50d892d501bdb9dcc1f7c75a3">More...</a><br /></td></tr>
 <tr class="separator:ac0629da50d892d501bdb9dcc1f7c75a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a25bf70fe00f4967dc4c6efdbffdc1ade"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="actuator_8h.html#a25bf70fe00f4967dc4c6efdbffdc1ade">Actuator_SetControlState</a> (<a class="el" href="actuator_8h.html#ac7b519a3b7e68e245a492e1e89263288">Actuator</a> actuator, enum <a class="el" href="actuator_8h.html#aff7db6eb3c126e9c2c2c116ed181fa3c">ActuatorState</a> controlState)</td></tr>
-<tr class="memdesc:a25bf70fe00f4967dc4c6efdbffdc1ade"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls underlying sensors implementations (plugins) to change measurement state.  <a href="#a25bf70fe00f4967dc4c6efdbffdc1ade">More...</a><br /></td></tr>
-<tr class="separator:a25bf70fe00f4967dc4c6efdbffdc1ade"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9ca8fd04c18bde3360673bf32a1386f9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="actuator_8h.html#a9ca8fd04c18bde3360673bf32a1386f9">Actuator_GetMeasures</a> (<a class="el" href="actuator_8h.html#ac7b519a3b7e68e245a492e1e89263288">Actuator</a> actuator, <a class="el" href="structActuatorVariables.html">ActuatorVariables</a> *ref_measures, double timeDelta)</td></tr>
-<tr class="memdesc:a9ca8fd04c18bde3360673bf32a1386f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads sensors of given actuator.  <a href="#a9ca8fd04c18bde3360673bf32a1386f9">More...</a><br /></td></tr>
-<tr class="separator:a9ca8fd04c18bde3360673bf32a1386f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9bea19770d7b5601f5ee7ac1c466f114"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="actuator_8h.html#a9bea19770d7b5601f5ee7ac1c466f114">Actuator_SetSetpoints</a> (<a class="el" href="actuator_8h.html#ac7b519a3b7e68e245a492e1e89263288">Actuator</a> actuator, <a class="el" href="structActuatorVariables.html">ActuatorVariables</a> *ref_setpoints)</td></tr>
-<tr class="memdesc:a9bea19770d7b5601f5ee7ac1c466f114"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes possible motor setpoint values for given actuator.  <a href="#a9bea19770d7b5601f5ee7ac1c466f114">More...</a><br /></td></tr>
-<tr class="separator:a9bea19770d7b5601f5ee7ac1c466f114"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae17f508a78817d59f229a8cc2a23e256"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="actuator_8h.html#ae17f508a78817d59f229a8cc2a23e256">Actuator_SetControlState</a> (<a class="el" href="actuator_8h.html#ac7b519a3b7e68e245a492e1e89263288">Actuator</a> actuator, enum ControlState controlState)</td></tr>
+<tr class="memdesc:ae17f508a78817d59f229a8cc2a23e256"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls underlying sensors implementations (plugins) to change measurement state.  <a href="#ae17f508a78817d59f229a8cc2a23e256">More...</a><br /></td></tr>
+<tr class="separator:ae17f508a78817d59f229a8cc2a23e256"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaecda33e9da5f72361d1238713bcc6dc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="actuator_8h.html#aaecda33e9da5f72361d1238713bcc6dc">Actuator_GetMeasures</a> (<a class="el" href="actuator_8h.html#ac7b519a3b7e68e245a492e1e89263288">Actuator</a> actuator, DoFVariables *ref_measures, double timeDelta)</td></tr>
+<tr class="memdesc:aaecda33e9da5f72361d1238713bcc6dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads sensors of given actuator.  <a href="#aaecda33e9da5f72361d1238713bcc6dc">More...</a><br /></td></tr>
+<tr class="separator:aaecda33e9da5f72361d1238713bcc6dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a2c425d03a14b035e11f0090feb2cc1"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="actuator_8h.html#a5a2c425d03a14b035e11f0090feb2cc1">Actuator_SetSetpoints</a> (<a class="el" href="actuator_8h.html#ac7b519a3b7e68e245a492e1e89263288">Actuator</a> actuator, DoFVariables *ref_setpoints)</td></tr>
+<tr class="memdesc:a5a2c425d03a14b035e11f0090feb2cc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes possible motor setpoint values for given actuator.  <a href="#a5a2c425d03a14b035e11f0090feb2cc1">More...</a><br /></td></tr>
+<tr class="separator:a5a2c425d03a14b035e11f0090feb2cc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Generic actuator control (measurement + actuation) functions. </p>
 <p>Interface for configurable actuator control. Available configuration options are detailed in <a class="el" href="actuator_config.html">Actuator Configuration</a>. Every actuator contains a single motor and a set of sensors combined with a <a href="https://github.com/EESC-MKGroup/Simple-Kalman-Filter">Kalman filter</a> for motion measurements (see <a href="https://github.com/EESC-MKGroup/RobotSystem-Lite#robot-multi-level-configuration">Configuration Levels</a>. </p>
-</div><h2 class="groupheader">Enumeration Type Documentation</h2>
-<a id="aff7db6eb3c126e9c2c2c116ed181fa3c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aff7db6eb3c126e9c2c2c116ed181fa3c">&#9670;&nbsp;</a></span>ActuatorState</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="actuator_8h.html#aff7db6eb3c126e9c2c2c116ed181fa3c">ActuatorState</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Defined possible control states enumeration. Passed to internal motor and sensors. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="aff7db6eb3c126e9c2c2c116ed181fa3cafba2879c3d742417e784f099794905d6"></a>ACTUATOR_OFFSET&#160;</td><td class="fielddoc"><p>State of reference (zero) taking for controller measurements. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="aff7db6eb3c126e9c2c2c116ed181fa3ca9c65b8bd794506448d0596adafe1fb45"></a>ACTUATOR_CALIBRATION&#160;</td><td class="fielddoc"><p>State of limits (min-max) taking for controller measurements. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="aff7db6eb3c126e9c2c2c116ed181fa3ca2792012caf009143def61b240fa66f3c"></a>ACTUATOR_OPERATION&#160;</td><td class="fielddoc"><p>State of normal controller operation. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="aff7db6eb3c126e9c2c2c116ed181fa3caeec6a2968624d0e01dd897a309518106"></a>ACTUATOR_STATES_NUMBER&#160;</td><td class="fielddoc"><p>Total number of control states. </p>
-</td></tr>
-</table>
-
-</div>
-</div>
-<h2 class="groupheader">Function Documentation</h2>
+</div><h2 class="groupheader">Function Documentation</h2>
 <a id="ac0629da50d892d501bdb9dcc1f7c75a3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac0629da50d892d501bdb9dcc1f7c75a3">&#9670;&nbsp;</a></span>Actuator_Disable()</h2>
 
@@ -266,8 +218,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a9ca8fd04c18bde3360673bf32a1386f9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9ca8fd04c18bde3360673bf32a1386f9">&#9670;&nbsp;</a></span>Actuator_GetMeasures()</h2>
+<a id="aaecda33e9da5f72361d1238713bcc6dc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaecda33e9da5f72361d1238713bcc6dc">&#9670;&nbsp;</a></span>Actuator_GetMeasures()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -281,7 +233,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structActuatorVariables.html">ActuatorVariables</a> *&#160;</td>
+          <td class="paramtype">DoFVariables *&#160;</td>
           <td class="paramname"><em>ref_measures</em>, </td>
         </tr>
         <tr>
@@ -338,8 +290,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a25bf70fe00f4967dc4c6efdbffdc1ade"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a25bf70fe00f4967dc4c6efdbffdc1ade">&#9670;&nbsp;</a></span>Actuator_SetControlState()</h2>
+<a id="ae17f508a78817d59f229a8cc2a23e256"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae17f508a78817d59f229a8cc2a23e256">&#9670;&nbsp;</a></span>Actuator_SetControlState()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -353,7 +305,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">enum <a class="el" href="actuator_8h.html#aff7db6eb3c126e9c2c2c116ed181fa3c">ActuatorState</a>&#160;</td>
+          <td class="paramtype">enum ControlState&#160;</td>
           <td class="paramname"><em>controlState</em>&#160;</td>
         </tr>
         <tr>
@@ -376,8 +328,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a9bea19770d7b5601f5ee7ac1c466f114"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9bea19770d7b5601f5ee7ac1c466f114">&#9670;&nbsp;</a></span>Actuator_SetSetpoints()</h2>
+<a id="a5a2c425d03a14b035e11f0090feb2cc1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a2c425d03a14b035e11f0090feb2cc1">&#9670;&nbsp;</a></span>Actuator_SetSetpoints()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -391,7 +343,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structActuatorVariables.html">ActuatorVariables</a> *&#160;</td>
+          <td class="paramtype">DoFVariables *&#160;</td>
           <td class="paramname"><em>ref_setpoints</em>&#160;</td>
         </tr>
         <tr>

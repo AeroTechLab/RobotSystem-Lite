@@ -96,6 +96,7 @@ $(document).ready(function(){initNavTree('robot_8h.html','');});
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;robot_control/robot_control.h&quot;</code><br />
 <code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;stddef.h&gt;</code><br />
 </div>
 <p><a href="robot_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -114,24 +115,24 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robo
 <tr class="memitem:a80e90d8bccfb5145d9e715918aa17b96"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robot_8h.html#a80e90d8bccfb5145d9e715918aa17b96">Robot_Disable</a> ()</td></tr>
 <tr class="memdesc:a80e90d8bccfb5145d9e715918aa17b96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Terminates (if running) update/operation thread for the given robot.  <a href="#a80e90d8bccfb5145d9e715918aa17b96">More...</a><br /></td></tr>
 <tr class="separator:a80e90d8bccfb5145d9e715918aa17b96"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adca92562de2ab78471fda1643d102338"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robot_8h.html#adca92562de2ab78471fda1643d102338">Robot_SetControlState</a> (enum RobotState controlState)</td></tr>
-<tr class="memdesc:adca92562de2ab78471fda1643d102338"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change control state of given robot actuators and underlying (plugin) control implementation.  <a href="#adca92562de2ab78471fda1643d102338">More...</a><br /></td></tr>
-<tr class="separator:adca92562de2ab78471fda1643d102338"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a019d467062fba9d07d9d7a66f3b87f51"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robot_8h.html#a019d467062fba9d07d9d7a66f3b87f51">Robot_SetControlState</a> (enum ControlState controlState)</td></tr>
+<tr class="memdesc:a019d467062fba9d07d9d7a66f3b87f51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change control state of given robot actuators and underlying (plugin) control implementation.  <a href="#a019d467062fba9d07d9d7a66f3b87f51">More...</a><br /></td></tr>
+<tr class="separator:a019d467062fba9d07d9d7a66f3b87f51"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2098368a06b849450a3bbbdc6e73a655"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robot_8h.html#a2098368a06b849450a3bbbdc6e73a655">Robot_GetJointName</a> (size_t jointIndex)</td></tr>
 <tr class="memdesc:a2098368a06b849450a3bbbdc6e73a655"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls underlying (plugin) implementation to get string identifier for specified joint in given robot.  <a href="#a2098368a06b849450a3bbbdc6e73a655">More...</a><br /></td></tr>
 <tr class="separator:a2098368a06b849450a3bbbdc6e73a655"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a777ae06d45acb3271db012929eb39e51"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robot_8h.html#a777ae06d45acb3271db012929eb39e51">Robot_GetAxisName</a> (size_t axisIndex)</td></tr>
 <tr class="memdesc:a777ae06d45acb3271db012929eb39e51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls underlying (plugin) implementation to get string identifier for specified axis in given robot.  <a href="#a777ae06d45acb3271db012929eb39e51">More...</a><br /></td></tr>
 <tr class="separator:a777ae06d45acb3271db012929eb39e51"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a8c6a51732cd0f8560bcf3522f3cdc7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robot_8h.html#a1a8c6a51732cd0f8560bcf3522f3cdc7">Robot_GetJointMeasures</a> (size_t jointIndex, RobotVariables *ref_measures)</td></tr>
-<tr class="memdesc:a1a8c6a51732cd0f8560bcf3522f3cdc7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets current value of specified joint measurements (see joint_axis_rationale)  <a href="#a1a8c6a51732cd0f8560bcf3522f3cdc7">More...</a><br /></td></tr>
-<tr class="separator:a1a8c6a51732cd0f8560bcf3522f3cdc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1758b1969d198174b2f9de06bb12de09"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robot_8h.html#a1758b1969d198174b2f9de06bb12de09">Robot_GetAxisMeasures</a> (size_t axisIndex, RobotVariables *ref_measures)</td></tr>
-<tr class="memdesc:a1758b1969d198174b2f9de06bb12de09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets current value of specified axis measurements (see joint_axis_rationale)  <a href="#a1758b1969d198174b2f9de06bb12de09">More...</a><br /></td></tr>
-<tr class="separator:a1758b1969d198174b2f9de06bb12de09"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a34e0aba6572269c442de7b4a9b37aa44"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robot_8h.html#a34e0aba6572269c442de7b4a9b37aa44">Robot_SetAxisSetpoints</a> (size_t axisIndex, RobotVariables *ref_setpoints)</td></tr>
-<tr class="memdesc:a34e0aba6572269c442de7b4a9b37aa44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets value of specified setpoint for given axis.  <a href="#a34e0aba6572269c442de7b4a9b37aa44">More...</a><br /></td></tr>
-<tr class="separator:a34e0aba6572269c442de7b4a9b37aa44"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1cb353d23dcaff23ac7edc092bb0af0c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robot_8h.html#a1cb353d23dcaff23ac7edc092bb0af0c">Robot_GetJointMeasures</a> (size_t jointIndex, DoFVariables *ref_measures)</td></tr>
+<tr class="memdesc:a1cb353d23dcaff23ac7edc092bb0af0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets current value of specified joint measurements (see joint_axis_rationale)  <a href="#a1cb353d23dcaff23ac7edc092bb0af0c">More...</a><br /></td></tr>
+<tr class="separator:a1cb353d23dcaff23ac7edc092bb0af0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5769d079e4b9148c7f7f523cbbc17e2d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robot_8h.html#a5769d079e4b9148c7f7f523cbbc17e2d">Robot_GetAxisMeasures</a> (size_t axisIndex, DoFVariables *ref_measures)</td></tr>
+<tr class="memdesc:a5769d079e4b9148c7f7f523cbbc17e2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets current value of specified axis measurements (see joint_axis_rationale)  <a href="#a5769d079e4b9148c7f7f523cbbc17e2d">More...</a><br /></td></tr>
+<tr class="separator:a5769d079e4b9148c7f7f523cbbc17e2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae83447ffcba624883609259a0b1ab573"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robot_8h.html#ae83447ffcba624883609259a0b1ab573">Robot_SetAxisSetpoints</a> (size_t axisIndex, DoFVariables *ref_setpoints)</td></tr>
+<tr class="memdesc:ae83447ffcba624883609259a0b1ab573"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets value of specified setpoint for given axis.  <a href="#ae83447ffcba624883609259a0b1ab573">More...</a><br /></td></tr>
+<tr class="separator:ae83447ffcba624883609259a0b1ab573"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adca7c76726c86f9bc020ec3832f908ba"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robot_8h.html#adca7c76726c86f9bc020ec3832f908ba">Robot_GetJointsNumber</a> ()</td></tr>
 <tr class="memdesc:adca7c76726c86f9bc020ec3832f908ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls underlying (plugin) implementation to get number of joint degrees-of-freedom for given robot.  <a href="#adca7c76726c86f9bc020ec3832f908ba">More...</a><br /></td></tr>
 <tr class="separator:adca7c76726c86f9bc020ec3832f908ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -203,8 +204,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robo
 
 </div>
 </div>
-<a id="a1758b1969d198174b2f9de06bb12de09"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1758b1969d198174b2f9de06bb12de09">&#9670;&nbsp;</a></span>Robot_GetAxisMeasures()</h2>
+<a id="a5769d079e4b9148c7f7f523cbbc17e2d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5769d079e4b9148c7f7f523cbbc17e2d">&#9670;&nbsp;</a></span>Robot_GetAxisMeasures()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -218,7 +219,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robo
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">RobotVariables *&#160;</td>
+          <td class="paramtype">DoFVariables *&#160;</td>
           <td class="paramname"><em>ref_measures</em>&#160;</td>
         </tr>
         <tr>
@@ -268,8 +269,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robo
 
 </div>
 </div>
-<a id="a1a8c6a51732cd0f8560bcf3522f3cdc7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1a8c6a51732cd0f8560bcf3522f3cdc7">&#9670;&nbsp;</a></span>Robot_GetJointMeasures()</h2>
+<a id="a1cb353d23dcaff23ac7edc092bb0af0c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1cb353d23dcaff23ac7edc092bb0af0c">&#9670;&nbsp;</a></span>Robot_GetJointMeasures()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -283,7 +284,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robo
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">RobotVariables *&#160;</td>
+          <td class="paramtype">DoFVariables *&#160;</td>
           <td class="paramname"><em>ref_measures</em>&#160;</td>
         </tr>
         <tr>
@@ -380,8 +381,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robo
 
 </div>
 </div>
-<a id="a34e0aba6572269c442de7b4a9b37aa44"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a34e0aba6572269c442de7b4a9b37aa44">&#9670;&nbsp;</a></span>Robot_SetAxisSetpoints()</h2>
+<a id="ae83447ffcba624883609259a0b1ab573"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae83447ffcba624883609259a0b1ab573">&#9670;&nbsp;</a></span>Robot_SetAxisSetpoints()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -395,7 +396,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robo
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">RobotVariables *&#160;</td>
+          <td class="paramtype">DoFVariables *&#160;</td>
           <td class="paramname"><em>ref_setpoints</em>&#160;</td>
         </tr>
         <tr>
@@ -417,8 +418,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robo
 
 </div>
 </div>
-<a id="adca92562de2ab78471fda1643d102338"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adca92562de2ab78471fda1643d102338">&#9670;&nbsp;</a></span>Robot_SetControlState()</h2>
+<a id="a019d467062fba9d07d9d7a66f3b87f51"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a019d467062fba9d07d9d7a66f3b87f51">&#9670;&nbsp;</a></span>Robot_SetControlState()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -426,7 +427,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="robo
         <tr>
           <td class="memname">bool Robot_SetControlState </td>
           <td>(</td>
-          <td class="paramtype">enum RobotState&#160;</td>
+          <td class="paramtype">enum ControlState&#160;</td>
           <td class="paramname"><em>controlState</em></td><td>)</td>
           <td></td>
         </tr>

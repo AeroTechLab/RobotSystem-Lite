@@ -1,39 +1,36 @@
 var indexSectionsWithContent =
 {
   0: "adimors",
-  1: "a",
+  1: "aimors",
   2: "aimors",
-  3: "aimors",
-  4: "aimos",
-  5: "ars",
-  6: "ars",
-  7: "d",
-  8: "amrs"
+  3: "aimos",
+  4: "r",
+  5: "r",
+  6: "d",
+  7: "amrs"
 };
 
 var indexSectionNames =
 {
   0: "all",
-  1: "classes",
-  2: "files",
-  3: "functions",
-  4: "typedefs",
-  5: "enums",
-  6: "enumvalues",
-  7: "defines",
-  8: "pages"
+  1: "files",
+  2: "functions",
+  3: "typedefs",
+  4: "enums",
+  5: "enumvalues",
+  6: "defines",
+  7: "pages"
 };
 
 var indexSectionLabels =
 {
   0: "All",
-  1: "Classes",
-  2: "Files",
-  3: "Functions",
-  4: "Typedefs",
-  5: "Enumerations",
-  6: "Enumerator",
-  7: "Macros",
-  8: "Pages"
+  1: "Files",
+  2: "Functions",
+  3: "Typedefs",
+  4: "Enumerations",
+  5: "Enumerator",
+  6: "Macros",
+  7: "Pages"
 };
 

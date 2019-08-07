@@ -28,10 +28,6 @@ var NAVTREE =
     [ "Motor Configuration", "motor_config.html", null ],
     [ "Robot Configuration", "robot_config.html", null ],
     [ "Sensor Configuration", "sensor_config.html", null ],
-    [ "Classes", "annotated.html", [
-      [ "Class List", "annotated.html", "annotated_dup" ],
-      [ "Class Index", "classes.html", null ]
-    ] ],
     [ "Files", "files.html", [
       [ "File List", "files.html", "files_dup" ],
       [ "File Members", "globals.html", [

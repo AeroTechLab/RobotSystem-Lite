@@ -87,7 +87,6 @@ $(document).ready(function(){initNavTree('sensor_8h.html','');});
 <div class="header">
   <div class="summary">
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">sensor.h File Reference</div>  </div>
@@ -111,16 +110,6 @@ typedef <a class="el" href="sensor_8h.html#adaf2adc3465e6ea3d1ba322d602918c9">Se
 <tr class="memdesc:a31b44f125e6e6a5234a7bdd4b1256e97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opaque reference to sensor internal data structure. <br /></td></tr>
 <tr class="separator:a31b44f125e6e6a5234a7bdd4b1256e97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
-Enumerations</h2></td></tr>
-<tr class="memitem:a4e26684045a9059b9df2181c65cf2a00"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sensor_8h.html#a4e26684045a9059b9df2181c65cf2a00">SensorState</a> { <a class="el" href="sensor_8h.html#a4e26684045a9059b9df2181c65cf2a00a09baa0611792f1185d44e15a827f0afb">SENSOR_STATE_MEASUREMENT</a>, 
-<a class="el" href="sensor_8h.html#a4e26684045a9059b9df2181c65cf2a00a06ec29c3f871677de49374471fce894c">SENSOR_STATE_CALIBRATION</a>, 
-<a class="el" href="sensor_8h.html#a4e26684045a9059b9df2181c65cf2a00ab15edce22ddfb09ffe874c097c4c0489">SENSOR_STATE_OFFSET</a>, 
-<a class="el" href="sensor_8h.html#a4e26684045a9059b9df2181c65cf2a00a00ccb9b3c78fb61fecdc3a8d59974ee3">SENSOR_STATES_NUMBER</a>
- }</td></tr>
-<tr class="memdesc:a4e26684045a9059b9df2181c65cf2a00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Selectable signal processing phases/modes.  <a href="sensor_8h.html#a4e26684045a9059b9df2181c65cf2a00">More...</a><br /></td></tr>
-<tr class="separator:a4e26684045a9059b9df2181c65cf2a00"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ad64ebc831b832eb1dcbb581e3a30f565"><td class="memItemLeft" align="right" valign="top"><a class="el" href="sensor_8h.html#a31b44f125e6e6a5234a7bdd4b1256e97">Sensor</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sensor_8h.html#ad64ebc831b832eb1dcbb581e3a30f565">Sensor_Init</a> (const char *configName)</td></tr>
@@ -138,41 +127,20 @@ Functions</h2></td></tr>
 <tr class="memitem:a86e0bd84bb90261e20e67de290011f81"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sensor_8h.html#a86e0bd84bb90261e20e67de290011f81">Sensor_Reset</a> (<a class="el" href="sensor_8h.html#a31b44f125e6e6a5234a7bdd4b1256e97">Sensor</a> sensor)</td></tr>
 <tr class="memdesc:a86e0bd84bb90261e20e67de290011f81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets signal processing state and possible sensor device errors.  <a href="#a86e0bd84bb90261e20e67de290011f81">More...</a><br /></td></tr>
 <tr class="separator:a86e0bd84bb90261e20e67de290011f81"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2f3641861d2e45a260fed804d2489e6b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sensor_8h.html#a2f3641861d2e45a260fed804d2489e6b">Sensor_SetState</a> (<a class="el" href="sensor_8h.html#a31b44f125e6e6a5234a7bdd4b1256e97">Sensor</a> sensor, enum <a class="el" href="sensor_8h.html#a4e26684045a9059b9df2181c65cf2a00">SensorState</a> newState)</td></tr>
-<tr class="memdesc:a2f3641861d2e45a260fed804d2489e6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets current processing phase/state/mode of given sensor.  <a href="#a2f3641861d2e45a260fed804d2489e6b">More...</a><br /></td></tr>
-<tr class="separator:a2f3641861d2e45a260fed804d2489e6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06352c1a0aa5557aaa868e4f33b71f1d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sensor_8h.html#a06352c1a0aa5557aaa868e4f33b71f1d">Sensor_SetOffset</a> (<a class="el" href="sensor_8h.html#a31b44f125e6e6a5234a7bdd4b1256e97">Sensor</a> sensor)</td></tr>
+<tr class="memdesc:a06352c1a0aa5557aaa868e4f33b71f1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets given sensor to offset acquisition mode.  <a href="#a06352c1a0aa5557aaa868e4f33b71f1d">More...</a><br /></td></tr>
+<tr class="separator:a06352c1a0aa5557aaa868e4f33b71f1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab876ecc4750d632cde815c1ab90c25d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sensor_8h.html#aab876ecc4750d632cde815c1ab90c25d">Sensor_SetCalibration</a> (<a class="el" href="sensor_8h.html#a31b44f125e6e6a5234a7bdd4b1256e97">Sensor</a> sensor)</td></tr>
+<tr class="memdesc:aab876ecc4750d632cde815c1ab90c25d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets given sensor to range calibration mode.  <a href="#aab876ecc4750d632cde815c1ab90c25d">More...</a><br /></td></tr>
+<tr class="separator:aab876ecc4750d632cde815c1ab90c25d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae800624552a7692442d5a1c5c7769e5a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sensor_8h.html#ae800624552a7692442d5a1c5c7769e5a">Sensor_SetMeasurement</a> (<a class="el" href="sensor_8h.html#a31b44f125e6e6a5234a7bdd4b1256e97">Sensor</a> sensor)</td></tr>
+<tr class="memdesc:ae800624552a7692442d5a1c5c7769e5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets given sensor to measurement/operation mode.  <a href="#ae800624552a7692442d5a1c5c7769e5a">More...</a><br /></td></tr>
+<tr class="separator:ae800624552a7692442d5a1c5c7769e5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Generic sensor (measurement reading) functions. </p>
 <p>Interface for configurable sensor reading and state change. Specific underlying implementation (plug-in) and further configuration are defined as explained in <a class="el" href="sensor_config.html">Sensor Configuration</a> </p>
-</div><h2 class="groupheader">Enumeration Type Documentation</h2>
-<a id="a4e26684045a9059b9df2181c65cf2a00"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4e26684045a9059b9df2181c65cf2a00">&#9670;&nbsp;</a></span>SensorState</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="sensor_8h.html#a4e26684045a9059b9df2181c65cf2a00">SensorState</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Selectable signal processing phases/modes. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a4e26684045a9059b9df2181c65cf2a00a09baa0611792f1185d44e15a827f0afb"></a>SENSOR_STATE_MEASUREMENT&#160;</td><td class="fielddoc"><p>Default mode: signal is processed and result is returned assuming normal operation (measurement offset and gain, processing, reference offset and differential gain are applied) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a4e26684045a9059b9df2181c65cf2a00a06ec29c3f871677de49374471fce894c"></a>SENSOR_STATE_CALIBRATION&#160;</td><td class="fielddoc"><p>Minimum and maximum values from filtered signal are registered for posterior normalization, if specified. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a4e26684045a9059b9df2181c65cf2a00ab15edce22ddfb09ffe874c097c4c0489"></a>SENSOR_STATE_OFFSET&#160;</td><td class="fielddoc"><p>Raw values mean is stored for posterior offset removal (no processed result is returned) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a4e26684045a9059b9df2181c65cf2a00a00ccb9b3c78fb61fecdc3a8d59974ee3"></a>SENSOR_STATES_NUMBER&#160;</td><td class="fielddoc"><p>Number of signal processing phases/modes. </p>
-</td></tr>
-</table>
-
-</div>
-</div>
-<h2 class="groupheader">Function Documentation</h2>
+</div><h2 class="groupheader">Function Documentation</h2>
 <a id="ad180a8f351618ce96bde169c7aa9255e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad180a8f351618ce96bde169c7aa9255e">&#9670;&nbsp;</a></span>Sensor_End()</h2>
 
@@ -279,37 +247,78 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a2f3641861d2e45a260fed804d2489e6b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2f3641861d2e45a260fed804d2489e6b">&#9670;&nbsp;</a></span>Sensor_SetState()</h2>
+<a id="aab876ecc4750d632cde815c1ab90c25d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aab876ecc4750d632cde815c1ab90c25d">&#9670;&nbsp;</a></span>Sensor_SetCalibration()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void Sensor_SetState </td>
+          <td class="memname">void Sensor_SetCalibration </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="sensor_8h.html#a31b44f125e6e6a5234a7bdd4b1256e97">Sensor</a>&#160;</td>
-          <td class="paramname"><em>sensor</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramname"><em>sensor</em></td><td>)</td>
           <td></td>
-          <td class="paramtype">enum <a class="el" href="sensor_8h.html#a4e26684045a9059b9df2181c65cf2a00">SensorState</a>&#160;</td>
-          <td class="paramname"><em>newState</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Sets current processing phase/state/mode of given sensor. </p>
+<p>Sets given sensor to range calibration mode. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">sensor</td><td>reference to sensor </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">newProcessingState</td><td>desired signal processing phase </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ae800624552a7692442d5a1c5c7769e5a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae800624552a7692442d5a1c5c7769e5a">&#9670;&nbsp;</a></span>Sensor_SetMeasurement()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Sensor_SetMeasurement </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="sensor_8h.html#a31b44f125e6e6a5234a7bdd4b1256e97">Sensor</a>&#160;</td>
+          <td class="paramname"><em>sensor</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets given sensor to measurement/operation mode. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">sensor</td><td>reference to sensor </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a06352c1a0aa5557aaa868e4f33b71f1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a06352c1a0aa5557aaa868e4f33b71f1d">&#9670;&nbsp;</a></span>Sensor_SetOffset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Sensor_SetOffset </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="sensor_8h.html#a31b44f125e6e6a5234a7bdd4b1256e97">Sensor</a>&#160;</td>
+          <td class="paramname"><em>sensor</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets given sensor to offset acquisition mode. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">sensor</td><td>reference to sensor </td></tr>
   </table>
   </dd>
 </dl>
