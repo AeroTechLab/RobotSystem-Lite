@@ -65,16 +65,6 @@
 #include <stdbool.h>
 
 
-/// Selectable signal processing phases/modes
-enum SensorState 
-{ 
-  SENSOR_STATE_MEASUREMENT,    ///< Default mode: signal is processed and result is returned assuming normal operation (measurement offset and gain, processing, reference offset and differential gain are applied)
-  SENSOR_STATE_CALIBRATION,    ///< Minimum and maximum values from filtered signal are registered for posterior normalization, if specified
-  SENSOR_STATE_OFFSET,         ///< Raw values mean is stored for posterior offset removal (no processed result is returned)
-  SENSOR_STATES_NUMBER         ///< Number of signal processing phases/modes
-};
-
-
 typedef struct _SensorData SensorData;    ///< Single sensor internal data structure    
 typedef SensorData* Sensor;               ///< Opaque reference to sensor internal data structure
 
@@ -102,10 +92,17 @@ bool Sensor_HasError( Sensor sensor );
 /// @param[in] sensor reference to sensor
 void Sensor_Reset( Sensor sensor );
 
-/// @brief Sets current processing phase/state/mode of given sensor                     
+/// @brief Sets given sensor to offset acquisition mode                     
 /// @param[in] sensor reference to sensor
-/// @param[in] newProcessingState desired signal processing phase
-void Sensor_SetState( Sensor sensor, enum SensorState newState );
+void Sensor_SetOffset( Sensor sensor );
+
+/// @brief Sets given sensor to range calibration mode       
+/// @param[in] sensor reference to sensor
+void Sensor_SetCalibration( Sensor sensor );
+
+/// @brief Sets given sensor to measurement/operation mode                        
+/// @param[in] sensor reference to sensor
+void Sensor_SetMeasurement( Sensor sensor );
 
 
 #endif // SENSOR_H

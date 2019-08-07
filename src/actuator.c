@@ -144,14 +144,25 @@ bool Actuator_SetControlState( Actuator actuator, enum ControlState newState )
   
   if( newState >= CONTROL_STATES_NUMBER ) return false;
 
-  enum SensorState sensorsState = SENSOR_STATE_MEASUREMENT;
-  if( newState == CONTROL_OFFSET ) sensorsState = SENSOR_STATE_OFFSET;
-  else if( newState == CONTROL_CALIBRATION ) sensorsState = SENSOR_STATE_CALIBRATION;
-  DEBUG_PRINT( "setting %lu sensors to state %d", actuator->sensorsNumber, sensorsState );
-  for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
-    Sensor_SetState( actuator->sensorsList[ sensorIndex ], sensorsState );
-  DEBUG_PRINT( "setting motor state to %s", ( newState == CONTROL_OFFSET ) ? "offset" : "operation" );
-  Motor_SetOffset( actuator->motor, ( newState == CONTROL_OFFSET ) );
+  DEBUG_PRINT( "setting actuator state to %s", ( newState == CONTROL_OFFSET ) ? "offset" : ( ( newState == CONTROL_CALIBRATION ) ? "calibration" : "operation" ) );
+  if( newState == CONTROL_OFFSET )
+  {
+    for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
+      Sensor_SetOffset( actuator->sensorsList[ sensorIndex ] );
+    Motor_SetOffset( actuator->motor );
+  }
+  else if( newState == CONTROL_CALIBRATION )
+  {
+    for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
+      Sensor_SetCalibration( actuator->sensorsList[ sensorIndex ] );
+    Motor_SetOperation( actuator->motor );
+  }
+  else
+  {
+    for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
+      Sensor_SetMeasurement( actuator->sensorsList[ sensorIndex ] );
+    Motor_SetOperation( actuator->motor );
+  }
   
   actuator->controlState = newState;
   

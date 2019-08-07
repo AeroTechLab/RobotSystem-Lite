@@ -130,14 +130,18 @@ double Sensor_Update( Sensor sensor )
   return sensorOutput;
 }
 
-void Sensor_SetState( Sensor sensor, enum SensorState newState )
+void SetState( Sensor sensor, enum SigProcState newProcessingState )
 {
   if( sensor == NULL ) return;
   
-  enum SigProcState newProcessingState = SIG_PROC_STATE_MEASUREMENT;
-  if( newState == SENSOR_STATE_OFFSET ) newProcessingState = SIG_PROC_STATE_OFFSET;
-  else if( newState == SENSOR_STATE_CALIBRATION ) newProcessingState = SIG_PROC_STATE_CALIBRATION;
+  if( newProcessingState >= SIG_PROC_STATES_NUMBER ) return;
   
   for( size_t inputIndex = 0; inputIndex < sensor->inputsNumber; inputIndex++ )
     Input_SetState( sensor->inputsList[ inputIndex ], newProcessingState );
 }
+
+void Sensor_SetOffset( Sensor sensor ) { SetState( sensor, SIG_PROC_STATE_OFFSET ); }
+
+void Sensor_SetCalibration( Sensor sensor ) { SetState( sensor, SIG_PROC_STATE_CALIBRATION ); }
+
+void Sensor_SetMeasurement( Sensor sensor ) { SetState( sensor, SIG_PROC_STATE_MEASUREMENT ); }

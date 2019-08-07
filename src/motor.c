@@ -130,15 +130,28 @@ void Motor_Disable( Motor motor )
   Output_Disable( motor->output );
 }
 
-void Motor_SetOffset( Motor motor, bool enabled )
+void Motor_SetOffset( Motor motor )
 {
   if( motor == NULL ) return;
-  if( motor->isOffsetting ) DEBUG_PRINT( "getting offset from motor reference %p", motor->reference );
+
   motor->offset = 0.0;
+
+  motor->isOffsetting = true;
+  DEBUG_PRINT( "setting motor %p reference state to offset", motor );
+  Input_SetState( motor->reference, SIG_PROC_STATE_OFFSET );
+  DEBUG_PRINT( "setting motor %p to initial position", motor );
+  Motor_WriteControl( motor, 0.0 );
+}
+
+void Motor_SetOperation( Motor motor )
+{
+  if( motor == NULL ) return;
+
   if( motor->isOffsetting ) motor->offset = Input_Update( motor->reference );
-  motor->isOffsetting = enabled;
-  DEBUG_PRINT( "setting reference state to %s", enabled ? "offset" : "operation" );
-  Input_SetState( motor->reference, enabled ? SIG_PROC_STATE_OFFSET : SIG_PROC_STATE_MEASUREMENT );
+  
+  motor->isOffsetting = false;
+  DEBUG_PRINT( "setting motor %p reference state to operation", motor );
+  Input_SetState( motor->reference, SIG_PROC_STATE_MEASUREMENT );
   DEBUG_PRINT( "setting motor %p to initial position", motor );
   Motor_WriteControl( motor, 0.0 );
 }

@@ -80,10 +80,13 @@ bool Motor_Enable( Motor motor );
 /// @param[in] motor reference to motor
 void Motor_Disable( Motor motor );
 
-/// @brief Enables/disables motor setpoint offset acquisition                
+/// @brief Enables motor setpoint offset acquisition                
 /// @param[in] motor reference to motor
-/// @param[in] enabled true to start offset aquisition, false otherwise
-void Motor_SetOffset( Motor motor, bool enabled );
+void Motor_SetOffset( Motor motor );
+
+/// @brief Enables motor output/operation               
+/// @param[in] motor reference to motor
+void Motor_SetOperation( Motor motor );
 
 /// @brief Writes specified value to given motor ouput device                
 /// @param[in] motor reference to motor
