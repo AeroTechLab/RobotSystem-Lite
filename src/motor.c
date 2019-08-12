@@ -158,11 +158,11 @@ void Motor_WriteControl( Motor motor, double setpoint )
 {
   if( motor == NULL ) return;
   motor->setpoint = setpoint;
-  DEBUG_PRINT( "evaluating transform function %p (set=%g, ref=%g)", motor->transformFunction, *((double*) motor->inputVariables[ 0 ].address), *((double*) motor->inputVariables[ 1 ].address) );
+  //DEBUG_PRINT( "evaluating transform function %p (set=%g, ref=%g)", motor->transformFunction, *((double*) motor->inputVariables[ 0 ].address), *((double*) motor->inputVariables[ 1 ].address) );
   double outputValue = te_eval( motor->transformFunction );
-  DEBUG_PRINT( "logging motor data to %p", motor->log );
+  //DEBUG_PRINT( "logging motor data to %p", motor->log );
   //Log_EnterNewLine( motor->log, Time_GetExecSeconds() );
   //Log_RegisterValues( motor->log, 3, motor->setpoint, motor->offset, output );
-  DEBUG_PRINT( "writing %g to output %p", outputValue, motor->output );
+  //DEBUG_PRINT( "writing %g to output %p", outputValue, motor->output );
   if( ! motor->isOffsetting ) Output_Update( motor->output, outputValue );
 }
