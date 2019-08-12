@@ -67,8 +67,6 @@ Output Output_Init( DataHandle configuration )
     else loadSuccess = false;
   }
   
-  DataIO_UnloadData( configuration );
-  
   if( !loadSuccess )
   {
     Output_End( newOutput );

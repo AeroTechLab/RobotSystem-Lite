@@ -139,8 +139,6 @@ void Motor_SetOffset( Motor motor )
   motor->isOffsetting = true;
   DEBUG_PRINT( "setting motor %p reference state to offset", motor );
   Input_SetState( motor->reference, SIG_PROC_STATE_OFFSET );
-  DEBUG_PRINT( "setting motor %p to initial position", motor );
-  Motor_WriteControl( motor, 0.0 );
 }
 
 void Motor_SetOperation( Motor motor )
@@ -159,12 +157,12 @@ void Motor_SetOperation( Motor motor )
 void Motor_WriteControl( Motor motor, double setpoint )
 {
   if( motor == NULL ) return;
-  //DEBUG_PRINT( "evaluating transform function %p", motor->transformFunction );
   motor->setpoint = setpoint;
+  DEBUG_PRINT( "evaluating transform function %p (set=%g, ref=%g)", motor->transformFunction, *((double*) motor->inputVariables[ 0 ].address), *((double*) motor->inputVariables[ 1 ].address) );
   double outputValue = te_eval( motor->transformFunction );
-  //DEBUG_PRINT( "logging motor data to %p", motor->log );
+  DEBUG_PRINT( "logging motor data to %p", motor->log );
   //Log_EnterNewLine( motor->log, Time_GetExecSeconds() );
   //Log_RegisterValues( motor->log, 3, motor->setpoint, motor->offset, output );
-  //DEBUG_PRINT( "writing %g to motor interface %d channel %u", output, motor->interfaceID, motor->outputChannel );
+  DEBUG_PRINT( "writing %g to output %p", outputValue, motor->output );
   if( ! motor->isOffsetting ) Output_Update( motor->output, outputValue );
 }
