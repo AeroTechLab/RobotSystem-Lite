@@ -235,9 +235,7 @@ bool UpdateAxes( unsigned long lastNetworkUpdateElapsedTimeMS )
       axisMeasuresList[ DOF_INERTIA ] = (float) axisMeasures.inertia;
       axisMeasuresList[ DOF_STIFFNESS ] = (float) axisMeasures.stiffness;
       axisMeasuresList[ DOF_DAMPING ] = (float) axisMeasures.damping;
-      
       //if( axisIndex == 0 ) DEBUG_PRINT( "measures: p: %+.5f, v: %+.5f, f: %+.5f", axisMeasuresList[ DOF_POSITION ], axisMeasuresList[ DOF_VELOCITY ], axisMeasuresList[ DOF_FORCE ] );
-    
       axisdataOffset += DOF_DATA_BLOCK_SIZE;
     }
   }
@@ -260,7 +258,7 @@ void System_Update()
   UpdateEvents();
   
   lastNetworkUpdateElapsedTimeMS += lastUpdateElapsedTimeMS;
-  if( UpdateAxes( lastNetworkUpdateElapsedTimeMS ) /*|| UpdateJoints( lastNetworkUpdateElapsedTimeMS )*/ )
+  if( UpdateAxes( lastNetworkUpdateElapsedTimeMS ) )
     lastNetworkUpdateElapsedTimeMS = 0;
 }
 
