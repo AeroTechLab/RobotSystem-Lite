@@ -49,7 +49,7 @@ size_t GetJointsNumber()
 
 const char** GetJointNamesList()
 {
-  return (char**) DOF_NAMES;
+  return (const char**) DOF_NAMES;
 }
 
 size_t GetAxesNumber()
@@ -59,14 +59,14 @@ size_t GetAxesNumber()
 
 const char** GetAxisNamesList()
 {
-  return (char**) DOF_NAMES;
+  return (const char**) DOF_NAMES;
 }
 
-void SetControlState( enum RobotState newControlState )
+void SetControlState( enum ControlState newControlState )
 {
   fprintf( stderr, "Setting robot control phase: %x\n", newControlState );
   
-  proportionalGain = ( newControlState == ROBOT_OPERATION ) ? 500.0 : 0.0; 
+  proportionalGain = ( newControlState == CONTROL_OPERATION ) ? 500.0 : 0.0; 
 }
 
 void RunControlStep( RobotVariables** jointMeasuresTable, RobotVariables** axisMeasuresTable, RobotVariables** jointSetpointsTable, RobotVariables** axisSetpointsTable, double timeDelta )

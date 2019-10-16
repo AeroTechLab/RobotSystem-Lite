@@ -35,7 +35,7 @@ bool InitController( const char* configurationString )
   return true;
 }
 
-void EndController() { }
+void EndController() { return; }
 
 size_t GetJointsNumber() { return DOFS_NUMBER; }
 
