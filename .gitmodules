@@ -28,3 +28,6 @@
 [submodule "src/wingetopt"]
 	path = src/wingetopt
 	url = https://github.com/alex85k/wingetopt
+[submodule "src/linearizer"]
+	path = src/linearizer
+	url = https://github.com/EESC-MKGroup/Simple-System-Linearizer.git
