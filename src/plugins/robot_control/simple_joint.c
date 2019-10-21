@@ -47,11 +47,11 @@ const char** GetAxisNamesList() { return DOF_NAMES; }
 
 size_t GetExtraInputsNumber( void ) { return 0; }
       
-void SetExtraInputsList( double* inputsList ) { }
+void SetExtraInputsList( double* inputsList ) { return; }
 
 size_t GetExtraOutputsNumber( void ) { return 0; }
          
-void GetExtraOutputsList( double* outputsList ) { }
+void GetExtraOutputsList( double* outputsList ) { return; }
 
 void SetControlState( enum ControlState controlState )
 {

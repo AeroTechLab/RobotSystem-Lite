@@ -68,7 +68,7 @@ Actuator Actuator_Init( const char* configName )
   DEBUG_PRINT( "found %lu sensors", DataIO_GetListSize( configuration, KEY_SENSORS ) );
   if( (newActuator->sensorsNumber = DataIO_GetListSize( configuration, KEY_SENSORS )) > 0 )
   {
-    newActuator->motionFilter = Kalman_CreateFilter( CONTROL_VARS_NUMBER );
+    newActuator->motionFilter = Kalman_CreateFilter( CONTROL_VARS_NUMBER, newActuator->sensorsNumber, 0 );
     
     newActuator->sensorsList = (Sensor*) calloc( newActuator->sensorsNumber, sizeof(Sensor) );
     for( size_t sensorIndex = 0; sensorIndex < newActuator->sensorsNumber; sensorIndex++ )
@@ -77,9 +77,10 @@ Actuator Actuator_Init( const char* configName )
       if( (newActuator->sensorsList[ sensorIndex ] = Sensor_Init( sensorName )) == NULL ) loadSuccess = false;
       DEBUG_PRINT( "loading sensor %s success: %s", sensorName, loadSuccess ? "true" : "false" );
       const char* sensorType = DataIO_GetStringValue( configuration, "", KEY_SENSORS ".%lu." KEY_VARIABLE, sensorIndex );
+      double measurementDeviation = DataIO_GetNumericValue( configuration, 1.0, KEY_SENSORS ".%lu." KEY_DEVIATION, sensorIndex );
       for( int controlModeIndex = 0; controlModeIndex < CONTROL_VARS_NUMBER; controlModeIndex++ )
-        if( strcmp( sensorType, CONTROL_MODE_NAMES[ controlModeIndex ] ) == 0 ) Kalman_AddInput( newActuator->motionFilter, controlModeIndex );
-      Kalman_SetInputMaxError( newActuator->motionFilter, sensorIndex, DataIO_GetNumericValue( configuration, 1.0, KEY_SENSORS ".%lu." KEY_DEVIATION ) );
+        if( strcmp( sensorType, CONTROL_MODE_NAMES[ controlModeIndex ] ) == 0 ) 
+          Kalman_SetMeasureWeight( newActuator->motionFilter, sensorIndex, controlModeIndex, measurementDeviation );
     }
   }
   
@@ -176,15 +177,15 @@ bool Actuator_GetMeasures( Actuator actuator, DoFVariables* ref_measures, double
   //DEBUG_PRINT( "reading measures from %lu sensors", actuator->sensorsNumber );
   double filteredMeasures[ CONTROL_VARS_NUMBER ];
   
-  Kalman_SetPredictionFactor( actuator->motionFilter, POSITION, VELOCITY, timeDelta );
-  Kalman_SetPredictionFactor( actuator->motionFilter, POSITION, ACCELERATION, timeDelta * timeDelta / 2.0 );
-  Kalman_SetPredictionFactor( actuator->motionFilter, VELOCITY, ACCELERATION, timeDelta );
+  Kalman_SetTransitionFactor( actuator->motionFilter, POSITION, VELOCITY, timeDelta );
+  Kalman_SetTransitionFactor( actuator->motionFilter, POSITION, ACCELERATION, timeDelta * timeDelta / 2.0 );
+  Kalman_SetTransitionFactor( actuator->motionFilter, VELOCITY, ACCELERATION, timeDelta );
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
   {
     double sensorMeasure = Sensor_Update( actuator->sensorsList[ sensorIndex ] );
     Kalman_SetInput( actuator->motionFilter, sensorIndex, sensorMeasure );
   }
-  (void) Kalman_Predict( actuator->motionFilter, (double*) filteredMeasures );
+  (void) Kalman_Predict( actuator->motionFilter, NULL, (double*) filteredMeasures );
   (void) Kalman_Update( actuator->motionFilter, NULL, (double*) filteredMeasures );
   
   //DEBUG_PRINT( "p=%.5f, v=%.5f, f=%.5f", filteredMeasures->position, filteredMeasures->velocity, filteredMeasures->force );
