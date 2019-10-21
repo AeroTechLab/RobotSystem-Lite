@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2019 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2019 Leonardo Consoni <leonardojc@protonmail.com>      //
 //                                                                            //
 //  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
@@ -34,6 +34,8 @@
 #include "timing/timing.h"
 #include "debug/data_logging.h"
 
+#include "linearizer/system_linearizer.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -51,9 +53,11 @@ typedef struct _RobotData
   Actuator* actuatorsList;
   DoFVariables** jointMeasuresList;
   DoFVariables** jointSetpointsList;
+  LinearSystem* jointLinearizersList;
   size_t jointsNumber;
   DoFVariables** axisMeasuresList;
   DoFVariables** axisSetpointsList;
+  LinearSystem* axisLinearizersList;
   size_t axesNumber;
   Input* extraInputsList;
   double* extraInputValuesList;
@@ -104,16 +108,19 @@ bool Robot_Init( const char* configPathName )
           robot.actuatorsList[ jointIndex ] = Actuator_Init( actuatorName );
           robot.jointMeasuresList[ jointIndex ] = (DoFVariables*) malloc( sizeof(DoFVariables) );
           robot.jointSetpointsList[ jointIndex ] = (DoFVariables*) malloc( sizeof(DoFVariables) );
+          robot.jointLinearizersList[ jointIndex ] = SystemLinearizer_CreateSystem( 3, 1, (int)( 1.0 / CONTROL_PASS_DEFAULT_INTERVAL ) );
         }
 
         robot.axesNumber = robot.GetAxesNumber();
         robot.axisMeasuresList = (DoFVariables**) calloc( robot.axesNumber, sizeof(DoFVariables*) );
         robot.axisSetpointsList = (DoFVariables**) calloc( robot.axesNumber, sizeof(DoFVariables*) );
+        robot.axisLinearizersList = (LinearSystem*) calloc( robot.axesNumber, sizeof(LinearSystem) );
         DEBUG_PRINT( "found %lu axes", robot.axesNumber );
         for( size_t axisIndex = 0; axisIndex < robot.axesNumber; axisIndex++ )
         {
           robot.axisMeasuresList[ axisIndex ] = (DoFVariables*) malloc( sizeof(DoFVariables) );
           robot.axisSetpointsList[ axisIndex ] = (DoFVariables*) malloc( sizeof(DoFVariables) );
+          robot.axisLinearizersList[ axisIndex ] = SystemLinearizer_CreateSystem( 3, 1, (int)( 1.0 / CONTROL_PASS_DEFAULT_INTERVAL ) );
         }
         
         robot.extraInputsNumber = robot.GetExtraInputsNumber();
@@ -155,6 +162,7 @@ void Robot_End()
     Actuator_End( robot.actuatorsList[ jointIndex ] );
     free( robot.jointMeasuresList[ jointIndex ] );
     free( robot.jointSetpointsList[ jointIndex ] );
+    SystemLinearizer_DeleteSystem( robot.jointLinearizersList[ jointIndex ] );
   }
   free( robot.actuatorsList );
   free( robot.jointMeasuresList );
@@ -164,6 +172,7 @@ void Robot_End()
   {
     free( robot.axisMeasuresList[ axisIndex ] );
     free( robot.axisSetpointsList[ axisIndex ] );
+    SystemLinearizer_DeleteSystem( robot.axisLinearizersList[ axisIndex ] );
   }
   free( robot.axisMeasuresList );
   free( robot.axisSetpointsList );
@@ -296,6 +305,21 @@ size_t Robot_GetAxesNumber()
 /////                         ASYNCHRONOUS CONTROL                          /////
 /////////////////////////////////////////////////////////////////////////////////
 
+void LinearizeDoFDynamics( DoFVariables* variables, LinearSystem linearizer )
+{
+  double inputsList[ 3 ], outputsList[ 1 ], impedancesList[ 3 ];
+  
+  inputsList[ 0 ] = variables->position;
+  inputsList[ 1 ] = variables->velocity;
+  inputsList[ 2 ] = variables->acceleration;
+  outputsList[ 0 ] = variables->force;
+  SystemLinearizer_AddSample( linearizer, inputsList, outputsList );
+  SystemLinearizer_Identify( linearizer, impedancesList );
+  variables->stiffness = impedancesList[ 0 ];
+  variables->damping = impedancesList[ 1 ];
+  variables->inertia = impedancesList[ 2 ];
+}
+
 static void* AsyncControl( void* ref_robot )
 {
   RobotData* robot = (RobotData*) ref_robot;
@@ -318,7 +342,13 @@ static void* AsyncControl( void* ref_robot )
     robot->SetExtraInputsList( robot->extraInputValuesList );
     
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
+    {
       (void) Actuator_GetMeasures( robot->actuatorsList[ jointIndex ], robot->jointMeasuresList[ jointIndex ], elapsedTime );
+      LinearizeDoFDynamics( robot->jointMeasuresList[ jointIndex ], robot->jointLinearizersList[ jointIndex ] );
+    }
+    
+    for( size_t axisIndex = 0; axisIndex < robot->axesNumber; axisIndex++ )
+      LinearizeDoFDynamics( robot->axisMeasuresList[ axisIndex ], robot->axisLinearizersList[ axisIndex ] );
     
     robot->RunControlStep( robot->jointMeasuresList, robot->axisMeasuresList, robot->jointSetpointsList, robot->axisSetpointsList, elapsedTime );
     
