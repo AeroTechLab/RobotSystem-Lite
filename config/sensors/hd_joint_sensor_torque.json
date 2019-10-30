@@ -1,16 +1,8 @@
 {
-  "input_interface": {
-    "type": "NISPI",
-    "config": "Clock EncoderRead ChipSelect",
-    "channel": 0
-  },
-  "input_gain": {
-    "multiplier": -6.28,
-    "divisor": 65536
-  },
-  "reference": "hd_joint_sensor_motor",
-  "signal_processing": {
-    "max_frequency": 0.25
-  },
-  "log_data": false
+  "inputs": [
+    { "interface": { "type": "NISPI", "config": "Clock EncoderRead ChipSelect", "channel": 0 } },
+    { "interface": { "type": "NICANEPOS", "config": "1", "channel": 0 } }
+  ],
+  "output": "100 * ( ( -6.28 / 65536 ) * in0 - ( 6.28 / 1292800 ) * in1 )",
+  "log": { "file": true, "precision": 5 }
 }

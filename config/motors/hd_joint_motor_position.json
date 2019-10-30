@@ -1,12 +1,5 @@
 {
-  "output_interface": {
-    "type": "NICANEPOS",
-    "config": "1",
-    "channel": 0
-  },
-  "output_gain": {
-    "multiplier": 1292800,
-    "divisor": 6.28
-  },
-  "reference": "hd_joint_sensor_motor"
+  "interface": { "type": "NICANEPOS", "config": "1", "channel": 0 },
+  "output": "( 1292800 / 6.28 ) * set",
+  "reference": { "interface": { "type": "NICANEPOS", "config": "1", "channel": 0 } }
 }

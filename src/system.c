@@ -42,6 +42,7 @@
 #include <stdio.h>
 #ifdef _CVI_DLL_
 #define chdir( dirName )
+#include "getopt.h"
 #elif WIN32
 #include <dirent.h>
 #include "getopt.h"
@@ -129,7 +130,6 @@ void System_End()
 
   IPC_CloseConnection( robotEventsConnection );
   IPC_CloseConnection( robotAxesConnection );
-//   IPC_CloseConnection( robotJointsConnection );
 
   DataIO_UnloadData( robotConfig );
 

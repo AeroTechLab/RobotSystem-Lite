@@ -32,35 +32,25 @@ double proportionalGain = 500.0;
 
 DECLARE_MODULE_INTERFACE( ROBOT_CONTROL_INTERFACE );
 
-bool InitController( const char* configurationString )
-{
-  return true;
-}
+bool InitController( const char* configurationString ) { return true; }
 
-void EndController()
-{
-  
-}
+void EndController() { return; }
 
-size_t GetJointsNumber()
-{
-  return DOFS_NUMBER;
-}
+size_t GetJointsNumber() { return DOFS_NUMBER; }
 
-const char** GetJointNamesList()
-{
-  return (const char**) DOF_NAMES;
-}
+const char** GetJointNamesList() { return (const char**) DOF_NAMES; }
 
-size_t GetAxesNumber()
-{
-  return DOFS_NUMBER;
-}
+size_t GetAxesNumber() { return DOFS_NUMBER; }
 
-const char** GetAxisNamesList()
-{
-  return (const char**) DOF_NAMES;
-}
+const char** GetAxisNamesList() { return (const char**) DOF_NAMES; }
+
+size_t GetExtraInputsNumber( void ) { return 0; }
+      
+void SetExtraInputsList( double* inputsList ) { return; }
+
+size_t GetExtraOutputsNumber( void ) { return 0; }
+         
+void GetExtraOutputsList( double* outputsList ) { return; }
 
 void SetControlState( enum ControlState newControlState )
 {

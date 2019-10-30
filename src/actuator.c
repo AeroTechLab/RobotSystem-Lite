@@ -95,7 +95,7 @@ Actuator Actuator_Init( const char* configName )
     newActuator->log = Log_Init( DataIO_GetBooleanValue( configuration, false, KEY_LOG "." KEY_FILE ) ? configName : "", 
                                  (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
   //DEBUG_PRINT( "log created with handle %p", newActuator->log );
-  newActuator->controlState = CONTROL_OPERATION;
+  newActuator->controlState = CONTROL_PASSIVE;
   //DEBUG_PRINT( "loading success: %s", loadSuccess ? "true" : "false" );
   DataIO_UnloadData( configuration );
   //DEBUG_PRINT( "data on handle %p unloaded", configuration );
@@ -183,12 +183,12 @@ bool Actuator_GetMeasures( Actuator actuator, DoFVariables* ref_measures, double
   for( size_t sensorIndex = 0; sensorIndex < actuator->sensorsNumber; sensorIndex++ )
   {
     double sensorMeasure = Sensor_Update( actuator->sensorsList[ sensorIndex ] );
-    Kalman_SetInput( actuator->motionFilter, sensorIndex, sensorMeasure );
+    Kalman_SetMeasure( actuator->motionFilter, sensorIndex, sensorMeasure );
   }
   (void) Kalman_Predict( actuator->motionFilter, NULL, (double*) filteredMeasures );
   (void) Kalman_Update( actuator->motionFilter, NULL, (double*) filteredMeasures );
   
-  //DEBUG_PRINT( "p=%.5f, v=%.5f, f=%.5f", filteredMeasures->position, filteredMeasures->velocity, filteredMeasures->force );
+  DEBUG_PRINT( "p=%.5f, v=%.5f, f=%.5f", filteredMeasures[ POSITION ], filteredMeasures[ VELOCITY ], filteredMeasures[ FORCE ] );
   ref_measures->position = filteredMeasures[ POSITION ];
   ref_measures->velocity = filteredMeasures[ VELOCITY ];
   ref_measures->acceleration = filteredMeasures[ ACCELERATION ];
@@ -207,7 +207,7 @@ double Actuator_SetSetpoints( Actuator actuator, DoFVariables* ref_setpoints )
   double motorSetpoint = ( (double*) ref_setpoints )[ actuator->controlMode ];
   //DEBUG_PRINT( "writing setpoint %g to motor", motorSetpoint );
   // If the motor is being actually controlled, write its control output
-  if( actuator->controlState != CONTROL_OFFSET ) Motor_WriteControl( actuator->motor, motorSetpoint );
+  if( actuator->controlState == CONTROL_OPERATION ) Motor_WriteControl( actuator->motor, motorSetpoint );
   //DEBUG_PRINT( "setpoint %g written to motor", motorSetpoint );
   return motorSetpoint;
 }

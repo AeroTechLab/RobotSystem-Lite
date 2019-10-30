@@ -101,6 +101,7 @@ bool Robot_Init( const char* configPathName )
         robot.actuatorsList = (Actuator*) calloc( robot.jointsNumber, sizeof(Actuator) );
         robot.jointMeasuresList = (DoFVariables**) calloc( robot.jointsNumber, sizeof(DoFVariables*) );
         robot.jointSetpointsList = (DoFVariables**) calloc( robot.jointsNumber, sizeof(DoFVariables*) );
+        robot.jointLinearizersList = (LinearSystem*) calloc( robot.jointsNumber, sizeof(LinearSystem) );
         DEBUG_PRINT( "found %lu joints", robot.jointsNumber );
         for( size_t jointIndex = 0; jointIndex < robot.jointsNumber; jointIndex++ )
         {
@@ -108,7 +109,7 @@ bool Robot_Init( const char* configPathName )
           robot.actuatorsList[ jointIndex ] = Actuator_Init( actuatorName );
           robot.jointMeasuresList[ jointIndex ] = (DoFVariables*) malloc( sizeof(DoFVariables) );
           robot.jointSetpointsList[ jointIndex ] = (DoFVariables*) malloc( sizeof(DoFVariables) );
-          robot.jointLinearizersList[ jointIndex ] = SystemLinearizer_CreateSystem( 3, 1, (int)( 1.0 / CONTROL_PASS_DEFAULT_INTERVAL ) );
+          robot.jointLinearizersList[ jointIndex ] = SystemLinearizer_CreateSystem( 3, 1, 50 );//(int)( 1.0 / CONTROL_PASS_DEFAULT_INTERVAL ) );
         }
 
         robot.axesNumber = robot.GetAxesNumber();
@@ -120,7 +121,7 @@ bool Robot_Init( const char* configPathName )
         {
           robot.axisMeasuresList[ axisIndex ] = (DoFVariables*) malloc( sizeof(DoFVariables) );
           robot.axisSetpointsList[ axisIndex ] = (DoFVariables*) malloc( sizeof(DoFVariables) );
-          robot.axisLinearizersList[ axisIndex ] = SystemLinearizer_CreateSystem( 3, 1, (int)( 1.0 / CONTROL_PASS_DEFAULT_INTERVAL ) );
+          robot.axisLinearizersList[ axisIndex ] = SystemLinearizer_CreateSystem( 3, 1, 50 );//(int)( 1.0 / CONTROL_PASS_DEFAULT_INTERVAL ) );
         }
         
         robot.extraInputsNumber = robot.GetExtraInputsNumber();
@@ -144,8 +145,8 @@ bool Robot_Init( const char* configPathName )
     if( !loadSuccess ) Robot_End();
     
     // testing hack
-    //Robot_Enable();
-    //Robot_SetControlState( ROBOT_OPERATION );
+    Robot_Enable();
+    Robot_SetControlState( CONTROL_OPERATION );
   }
   
   return loadSuccess;
@@ -305,19 +306,23 @@ size_t Robot_GetAxesNumber()
 /////                         ASYNCHRONOUS CONTROL                          /////
 /////////////////////////////////////////////////////////////////////////////////
 
-void LinearizeDoFDynamics( DoFVariables* variables, LinearSystem linearizer )
+void LinearizeDoF( DoFVariables* measures, DoFVariables* setpoints, LinearSystem linearizer )
 {
   double inputsList[ 3 ], outputsList[ 1 ], impedancesList[ 3 ];
   
-  inputsList[ 0 ] = variables->position;
-  inputsList[ 1 ] = variables->velocity;
-  inputsList[ 2 ] = variables->acceleration;
-  outputsList[ 0 ] = variables->force;
-  SystemLinearizer_AddSample( linearizer, inputsList, outputsList );
-  SystemLinearizer_Identify( linearizer, impedancesList );
-  variables->stiffness = impedancesList[ 0 ];
-  variables->damping = impedancesList[ 1 ];
-  variables->inertia = impedancesList[ 2 ];
+  inputsList[ 0 ] = measures->position;
+  inputsList[ 1 ] = measures->velocity;
+  inputsList[ 2 ] = measures->acceleration;
+  outputsList[ 0 ] = measures->force + setpoints->force;
+  if( SystemLinearizer_AddSample( linearizer, inputsList, outputsList ) >= 50 )
+  {
+    if( SystemLinearizer_Identify( linearizer, impedancesList ) )
+    {
+      measures->stiffness = impedancesList[ 0 ];
+      measures->damping = impedancesList[ 1 ];
+      measures->inertia = impedancesList[ 2 ];
+    }
+  }
 }
 
 static void* AsyncControl( void* ref_robot )
@@ -344,11 +349,11 @@ static void* AsyncControl( void* ref_robot )
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
     {
       (void) Actuator_GetMeasures( robot->actuatorsList[ jointIndex ], robot->jointMeasuresList[ jointIndex ], elapsedTime );
-      LinearizeDoFDynamics( robot->jointMeasuresList[ jointIndex ], robot->jointLinearizersList[ jointIndex ] );
+      LinearizeDoF( robot->jointMeasuresList[ jointIndex ], robot->jointSetpointsList[ jointIndex ], robot->jointLinearizersList[ jointIndex ] );
     }
     
     for( size_t axisIndex = 0; axisIndex < robot->axesNumber; axisIndex++ )
-      LinearizeDoFDynamics( robot->axisMeasuresList[ axisIndex ], robot->axisLinearizersList[ axisIndex ] );
+      LinearizeDoF( robot->axisMeasuresList[ axisIndex ], robot->axisSetpointsList[ axisIndex ], robot->axisLinearizersList[ axisIndex ] );
     
     robot->RunControlStep( robot->jointMeasuresList, robot->axisMeasuresList, robot->jointSetpointsList, robot->axisSetpointsList, elapsedTime );
     

@@ -1,7 +1,7 @@
 {
   "sensors": [
-    { "variable_type": "POSITION", "config": "hd_joint_sensor_position", "deviation": 1.0 },
-    { "variable_type": "FORCE", "config": "hd_joint_sensor_torque", "deviation": 1.0 }
+    { "variable_type": "POSITION", "config": "hd_joint_sensor_position", "deviation": 0.1 },
+    { "variable_type": "FORCE", "config": "hd_joint_sensor_torque", "deviation": 0.1 }
   ],
   "motor": { "variable_type": "POSITION", "config": "hd_joint_motor_position" }
 }
