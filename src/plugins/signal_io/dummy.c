@@ -26,54 +26,54 @@
 
 DECLARE_MODULE_INTERFACE( SIGNAL_IO_INTERFACE );
 
-int InitDevice( const char* taskConfig )
-{  
+long int InitDevice( const char* taskConfig )
+{
   return 0;
 }
 
-void EndDevice( int taskID )
+void EndDevice( long int taskID )
 {
   return;
 }
 
-size_t GetMaxInputSamplesNumber( int taskID )
+size_t GetMaxInputSamplesNumber( long int taskID )
 {
   return 1;
 }
 
-size_t Read( int taskID, unsigned int channel, double* ref_value )
+size_t Read( long int taskID, unsigned int channel, double* ref_value )
 {
   *ref_value = ( rand() % 1001 ) / 1000.0 - 0.5;
-  
+
   return 1;
 }
 
-bool HasError( int taskID )
+bool HasError( long int taskID )
 {
   return false;
 }
 
-void Reset( int taskID )
+void Reset( long int taskID )
 {
   return;
 }
 
-bool CheckInputChannel( int taskID, unsigned int channel )
+bool CheckInputChannel( long int taskID, unsigned int channel )
 {
   return true;
 }
 
-bool Write( int taskID, unsigned int channel, double value )
+bool Write( long int taskID, unsigned int channel, double value )
 {
   return true;
 }
 
-bool AcquireOutputChannel( int taskID, unsigned int channel )
+bool AcquireOutputChannel( long int taskID, unsigned int channel )
 {
   return true;
 }
 
-void ReleaseOutputChannel( int taskID, unsigned int channel )
+void ReleaseOutputChannel( long int taskID, unsigned int channel )
 {
   return;
 }
