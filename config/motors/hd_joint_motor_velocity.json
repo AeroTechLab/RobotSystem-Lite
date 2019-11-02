@@ -1,4 +1,0 @@
-{
-  "interface": { "type": "NICANEPOS", "config": "1", "channel": 1 },
-  "output": "( 101 / 60 ) * set"
-}

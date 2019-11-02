@@ -1,5 +1,0 @@
-{
-  "inputs": [ { "interface": { "type": "NICANEPOS", "config": "1", "channel": 0 } } ],
-  "output": "( 6.28 / 1292800 ) * set",
-  "log": { "file": true, "precision": 5 }
-}

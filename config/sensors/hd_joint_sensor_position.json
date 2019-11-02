@@ -1,5 +1,0 @@
-{
-  "inputs": [ { "interface": { "type": "NISPI", "config": "Clock EncoderRead ChipSelect", "channel": 0 } } ],
-  "output": "( -6.28 / 65536 ) * in0",
-  "log": { "file": true, "precision": 5 }
-}
