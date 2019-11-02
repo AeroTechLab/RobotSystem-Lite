@@ -1,7 +1,7 @@
 {
   "sensors": [
-    { "variable_type": "POSITION", "config": "accel_position_sensor", "deviation": 2.0 },
-    { "variable_type": "ACCELERATION", "config": "accel_sensor", "deviation": 1.0 }
+    { "variable": "POSITION", "config": "accel_position_sensor", "deviation": 2.0 },
+    { "variable": "ACCELERATION", "config": "accel_sensor", "deviation": 1.0 }
   ],
-  "motor": { "variable_type": "VELOCITY", "config": "virtual_motor" }
+  "motor": { "variable": "VELOCITY", "config": "virtual_motor" }
 }

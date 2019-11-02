@@ -1,8 +1,8 @@
 {
   "sensors": [
-    { "variable_type": "POSITION", "config": "virtual_sensor_position" },
-    { "variable_type": "VELOCITY", "config": "virtual_sensor_velocity" },
-    { "variable_type": "FORCE", "config": "virtual_sensor_force" }
+    { "variable": "POSITION", "config": "virtual_sensor_position" },
+    { "variable": "VELOCITY", "config": "virtual_sensor_velocity" },
+    { "variable": "FORCE", "config": "virtual_sensor_force" }
   ],
-  "motor": { "variable_type": "VELOCITY", "config": "virtual_motor" }
+  "motor": { "variable": "VELOCITY", "config": "virtual_motor" }
 }

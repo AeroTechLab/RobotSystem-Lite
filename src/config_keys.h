@@ -21,7 +21,7 @@
 #define KEY_INTERFACE             "interface"
 #define KEY_TYPE                  "type"
 #define KEY_CHANNEL               "channel"
-#define KEY_VARIABLE              "variable_type"
+#define KEY_VARIABLE              "variable"
 #define KEY_DEVIATION             "deviation"
 #define KEY_REFERENCE             "reference"
 #define KEY_INPUT                 "input"
