@@ -70,7 +70,7 @@ Sensor Sensor_Init( const char* configName )
   for( size_t inputIndex = 0; inputIndex < newSensor->inputsNumber; inputIndex++ )
   {
     newSensor->inputsList[ inputIndex ] = Input_Init( DataIO_GetSubData( configuration, KEY_INPUTS ".%lu", inputIndex ) );
-    // Input_Reset( newSensor->inputsList[ inputIndex ] );
+    Input_Reset( newSensor->inputsList[ inputIndex ] );
     loadSuccess = ! Input_HasError( newSensor->inputsList[ inputIndex ] );
     //DEBUG_PRINT( "loading input %lu success: %s", inputIndex, loadSuccess ? "true" : "false" );
     newSensor->inputVariables[ inputIndex ].name = INPUT_VARIABLE_NAMES[ inputIndex ];
@@ -120,9 +120,9 @@ double Sensor_Update( Sensor sensor )
   
   for( size_t inputIndex = 0; inputIndex < sensor->inputsNumber; inputIndex++ )
     sensor->inputValuesList[ inputIndex ] = Input_Update( sensor->inputsList[ inputIndex ] );
-    
+   
   double sensorOutput = te_eval( sensor->transformFunction );
-  
+  if( sensor->inputsNumber > 1 ) DEBUG_PRINT( "in0=%.5f, in1=%.5f, out=%.5f", sensor->inputValuesList[ 0 ], sensor->inputValuesList[ 1 ], sensorOutput );
   //Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
   //Log_RegisterList( sensor->log, sensor->inputsNumber, sensor->inputValuesList );
   //Log_RegisterValues( sensor->log, 1, sensorOutput ); 

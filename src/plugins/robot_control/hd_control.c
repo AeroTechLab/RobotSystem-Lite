@@ -28,9 +28,14 @@
 
 const char* DOF_NAMES[ DOFS_NUMBER ] = { "angle" };
 
-double proportionalGain = 500.0;
+enum ControlState controlState = CONTROL_PASSIVE;
+
+double lastForceError = 0.0;
+double velocitySetpoint = 0.0;
+
 
 DECLARE_MODULE_INTERFACE( ROBOT_CONTROL_INTERFACE );
+
 
 bool InitController( const char* configurationString ) { return true; }
 
@@ -56,7 +61,7 @@ void SetControlState( enum ControlState newControlState )
 {
   fprintf( stderr, "Setting robot control phase: %x\n", newControlState );
   
-  proportionalGain = ( newControlState == CONTROL_OPERATION ) ? 500.0 : 0.0; 
+  controlState = newControlState;
 }
 
 void RunControlStep( DoFVariables** jointMeasuresList, DoFVariables** axisMeasuresList, DoFVariables** jointSetpointsList, DoFVariables** axisSetpointsList, double timeDelta )
@@ -68,16 +73,24 @@ void RunControlStep( DoFVariables** jointMeasuresList, DoFVariables** axisMeasur
   axisMeasuresList[ 0 ]->stiffness = jointMeasuresList[ 0 ]->stiffness;
   axisMeasuresList[ 0 ]->damping = jointMeasuresList[ 0 ]->damping;
   
+  double proportionalGain = 0.0, integralGain = 0.0;
+  if( controlState == CONTROL_OPERATION )
+  {
+    proportionalGain = axisSetpointsList[ 0 ]->stiffness; 
+    integralGain = axisSetpointsList[ 0 ]->damping;
+  }
+  
+  double forceError = axisSetpointsList[ 0 ]->force - axisMeasuresList[ 0 ]->force;
+  velocitySetpoint += proportionalGain * ( forceError - lastForceError ) + integralGain * timeDelta * forceError;
+  axisSetpointsList[ 0 ]->velocity = velocitySetpoint;
+  lastForceError = forceError;
+  
+  //fprintf( stderr, "f=%.4f, fd=%.4f, kp=%.1f, ki=%.1f, vd=%.4f\n", axisMeasuresList[ 0 ]->force, axisSetpointsList[ 0 ]->force, proportionalGain, integralGain, velocitySetpoint );
+  
   jointSetpointsList[ 0 ]->position = axisSetpointsList[ 0 ]->position;
   jointSetpointsList[ 0 ]->velocity = axisSetpointsList[ 0 ]->velocity;
   jointSetpointsList[ 0 ]->acceleration = axisSetpointsList[ 0 ]->acceleration;
   jointSetpointsList[ 0 ]->force = axisSetpointsList[ 0 ]->force;
   jointSetpointsList[ 0 ]->stiffness = axisSetpointsList[ 0 ]->stiffness;
   jointSetpointsList[ 0 ]->damping = axisSetpointsList[ 0 ]->damping;
-  
-  jointSetpointsList[ 0 ]->velocity = proportionalGain * ( jointSetpointsList[ 0 ]->position - jointMeasuresList[ 0 ]->position );
-  
-  //double stiffness = jointSetpointsList[ 0 ]->stiffness; 
-  //double positionError = jointSetpointsList[ 0 ]->position - jointMeasuresList[ 0 ]->position;
-  //jointSetpointsList[ 0 ]->force = stiffness * positionError;
 }

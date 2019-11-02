@@ -145,8 +145,8 @@ bool Robot_Init( const char* configPathName )
     if( !loadSuccess ) Robot_End();
     
     // testing hack
-    Robot_Enable();
-    Robot_SetControlState( CONTROL_OPERATION );
+    //Robot_Enable();
+    //Robot_SetControlState( CONTROL_OPERATION );
   }
   
   return loadSuccess;
