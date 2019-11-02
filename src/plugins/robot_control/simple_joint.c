@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2019 Leonardo Consoni <consoni_2519@hotmail.com>       //
+//  Copyright (c) 2016-2019 Leonardo Consoni <leonardojc@protonmail.com>      //
 //                                                                            //
 //  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
@@ -28,12 +28,16 @@
 
 const char* DOF_NAMES[ DOFS_NUMBER ] = { "angle" };
 
+enum ControlState controlState = CONTROL_PASSIVE;
+
+double lastForceError = 0.0;
+double velocitySetpoint = 0.0;
+
+
 DECLARE_MODULE_INTERFACE( ROBOT_CONTROL_INTERFACE );
 
-bool InitController( const char* configurationString )
-{
-  return true;
-}
+
+bool InitController( const char* configurationString ) { return true; }
 
 void EndController() { return; }
 
@@ -53,28 +57,45 @@ size_t GetExtraOutputsNumber( void ) { return 0; }
          
 void GetExtraOutputsList( double* outputsList ) { return; }
 
-void SetControlState( enum ControlState controlState )
+void SetControlState( enum ControlState newControlState )
 {
-  fprintf( stderr, "Setting robot control phase: %x\n", controlState );
+  fprintf( stderr, "Setting robot control phase: %x\n", newControlState );
+  
+  controlState = newControlState;
+  
+  if( controlState != CONTROL_OPERATION ) velocitySetpoint = 0.0;
 }
 
-void RunControlStep( DoFVariables** jointMeasuresTable, DoFVariables** axisMeasuresTable, DoFVariables** jointSetpointsTable, DoFVariables** axisSetpointsTable, double elapsedTime )
+void RunControlStep( DoFVariables** jointMeasuresList, DoFVariables** axisMeasuresList, DoFVariables** jointSetpointsList, DoFVariables** axisSetpointsList, double timeDelta )
 {
-  axisMeasuresTable[ 0 ]->position = jointMeasuresTable[ 0 ]->position;
-  axisMeasuresTable[ 0 ]->velocity = jointMeasuresTable[ 0 ]->velocity;
-  axisMeasuresTable[ 0 ]->acceleration = jointMeasuresTable[ 0 ]->acceleration;
-  axisMeasuresTable[ 0 ]->force = jointMeasuresTable[ 0 ]->force;
-  axisMeasuresTable[ 0 ]->stiffness = jointMeasuresTable[ 0 ]->stiffness;
-  axisMeasuresTable[ 0 ]->damping = jointMeasuresTable[ 0 ]->damping;
+  axisMeasuresList[ 0 ]->position = jointMeasuresList[ 0 ]->position;
+  axisMeasuresList[ 0 ]->velocity = jointMeasuresList[ 0 ]->velocity;
+  axisMeasuresList[ 0 ]->acceleration = jointMeasuresList[ 0 ]->acceleration;
+  axisMeasuresList[ 0 ]->force = jointMeasuresList[ 0 ]->force;
+  axisMeasuresList[ 0 ]->stiffness = jointMeasuresList[ 0 ]->stiffness;
+  axisMeasuresList[ 0 ]->damping = jointMeasuresList[ 0 ]->damping;
   
-  jointSetpointsTable[ 0 ]->position = axisSetpointsTable[ 0 ]->position;
-  jointSetpointsTable[ 0 ]->velocity = axisSetpointsTable[ 0 ]->velocity;
-  jointSetpointsTable[ 0 ]->acceleration = axisSetpointsTable[ 0 ]->acceleration;
-  jointSetpointsTable[ 0 ]->force = axisSetpointsTable[ 0 ]->force;
-  jointSetpointsTable[ 0 ]->stiffness = axisSetpointsTable[ 0 ]->stiffness;
-  jointSetpointsTable[ 0 ]->damping = axisSetpointsTable[ 0 ]->damping;
+  double proportionalGain = 0.0, integralGain = 0.0;
+  if( controlState == CONTROL_OPERATION )
+  {
+    proportionalGain = axisSetpointsList[ 0 ]->stiffness; 
+    integralGain = axisSetpointsList[ 0 ]->damping;
+  }
   
-  double stiffness = jointSetpointsTable[ 0 ]->position; 
-  double positionError = jointSetpointsTable[ 0 ]->position - jointMeasuresTable[ 0 ]->position;
-  jointSetpointsTable[ 0 ]->force = stiffness * positionError;
+  //double positionError = axisSetpointsList[ 0 ]->position - axisMeasuresList[ 0 ]->position;
+  //axisSetpointsList[ 0 ]->force += proportionalGain * positionError;
+  
+  double forceError = axisSetpointsList[ 0 ]->force - axisMeasuresList[ 0 ]->force;
+  velocitySetpoint += proportionalGain * ( forceError - lastForceError ) + integralGain * timeDelta * forceError;
+  axisSetpointsList[ 0 ]->velocity = velocitySetpoint;
+  lastForceError = forceError;
+  
+  fprintf( stderr, "f=%.4f, fd=%.4f, kp=%.1f, ki=%.1f, vd=%.4f\n", axisMeasuresList[ 0 ]->force, axisSetpointsList[ 0 ]->force, proportionalGain, integralGain, velocitySetpoint );
+  
+  jointSetpointsList[ 0 ]->position = axisSetpointsList[ 0 ]->position;
+  jointSetpointsList[ 0 ]->velocity = axisSetpointsList[ 0 ]->velocity;
+  jointSetpointsList[ 0 ]->acceleration = axisSetpointsList[ 0 ]->acceleration;
+  jointSetpointsList[ 0 ]->force = axisSetpointsList[ 0 ]->force;
+  jointSetpointsList[ 0 ]->stiffness = axisSetpointsList[ 0 ]->stiffness;
+  jointSetpointsList[ 0 ]->damping = axisSetpointsList[ 0 ]->damping;
 }
