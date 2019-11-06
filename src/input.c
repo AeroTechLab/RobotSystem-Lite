@@ -36,7 +36,7 @@
 struct _InputData
 {
   DECLARE_MODULE_INTERFACE_REF( SIGNAL_IO_INTERFACE );
-  int deviceID;
+  long int deviceID;
   unsigned int channel;
   double* buffer;
   double value;
@@ -68,7 +68,7 @@ Input Input_Init( DataHandle configuration )
     {
       newInput->channel = (unsigned int) DataIO_GetNumericValue( configuration, -1, KEY_INTERFACE "." KEY_CHANNEL );
       loadSuccess = newInput->CheckInputChannel( newInput->deviceID, newInput->channel );
-      
+      DEBUG_PRINT( "new device ID: %ld %p", newInput->deviceID, newInput->deviceID );
       size_t maxInputSamplesNumber = newInput->GetMaxInputSamplesNumber( newInput->deviceID );
       newInput->buffer = (double*) calloc( maxInputSamplesNumber, sizeof(double) );
       

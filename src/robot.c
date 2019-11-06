@@ -347,14 +347,16 @@ static void* AsyncControl( void* ref_robot )
     robot->SetExtraInputsList( robot->extraInputValuesList );
     
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
-    {
       (void) Actuator_GetMeasures( robot->actuatorsList[ jointIndex ], robot->jointMeasuresList[ jointIndex ], elapsedTime );
-      LinearizeDoF( robot->jointMeasuresList[ jointIndex ], robot->jointSetpointsList[ jointIndex ], robot->jointLinearizersList[ jointIndex ] );
+
+    if( robot->controlState == CONTROL_OPERATION || robot->controlState == CONTROL_PREPROCESSING )
+    {
+      for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
+        LinearizeDoF( robot->jointMeasuresList[ jointIndex ], robot->jointSetpointsList[ jointIndex ], robot->jointLinearizersList[ jointIndex ] );
+      for( size_t axisIndex = 0; axisIndex < robot->axesNumber; axisIndex++ )
+        LinearizeDoF( robot->axisMeasuresList[ axisIndex ], robot->axisSetpointsList[ axisIndex ], robot->axisLinearizersList[ axisIndex ] );
     }
-    
-    for( size_t axisIndex = 0; axisIndex < robot->axesNumber; axisIndex++ )
-      LinearizeDoF( robot->axisMeasuresList[ axisIndex ], robot->axisSetpointsList[ axisIndex ], robot->axisLinearizersList[ axisIndex ] );
-    
+
     robot->RunControlStep( robot->jointMeasuresList, robot->axisMeasuresList, robot->jointSetpointsList, robot->axisSetpointsList, elapsedTime );
     
     //DEBUG_PRINT( "s1: %.5f, s2: %.5f", robot->jointSetpointsList[ 0 ]->position, robot->jointSetpointsList[ 1 ]->position );

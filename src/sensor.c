@@ -72,7 +72,7 @@ Sensor Sensor_Init( const char* configName )
     newSensor->inputsList[ inputIndex ] = Input_Init( DataIO_GetSubData( configuration, KEY_INPUTS ".%lu", inputIndex ) );
     Input_Reset( newSensor->inputsList[ inputIndex ] );
     loadSuccess = ! Input_HasError( newSensor->inputsList[ inputIndex ] );
-    //DEBUG_PRINT( "loading input %lu success: %s", inputIndex, loadSuccess ? "true" : "false" );
+    DEBUG_PRINT( "loading input %lu success: %s", inputIndex, loadSuccess ? "true" : "false" );
     newSensor->inputVariables[ inputIndex ].name = INPUT_VARIABLE_NAMES[ inputIndex ];
     newSensor->inputVariables[ inputIndex ].address = &(newSensor->inputValuesList[ inputIndex ]);
   }

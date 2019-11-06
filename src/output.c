@@ -35,7 +35,7 @@
 struct _OutputData
 {
   DECLARE_MODULE_INTERFACE_REF( SIGNAL_IO_INTERFACE );
-  int deviceID;
+  long int deviceID;
   unsigned int channel;
 };
 

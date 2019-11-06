@@ -90,7 +90,7 @@ void RunControlStep( DoFVariables** jointMeasuresList, DoFVariables** axisMeasur
   axisSetpointsList[ 0 ]->velocity = velocitySetpoint;
   lastForceError = forceError;
   
-  fprintf( stderr, "f=%.4f, fd=%.4f, kp=%.1f, ki=%.1f, vd=%.4f\n", axisMeasuresList[ 0 ]->force, axisSetpointsList[ 0 ]->force, proportionalGain, integralGain, velocitySetpoint );
+  //fprintf( stderr, "f=%.4f, fd=%.4f, kp=%.1f, ki=%.1f, vd=%.4f\n", axisMeasuresList[ 0 ]->force, axisSetpointsList[ 0 ]->force, proportionalGain, integralGain, velocitySetpoint );
   
   jointSetpointsList[ 0 ]->position = axisSetpointsList[ 0 ]->position;
   jointSetpointsList[ 0 ]->velocity = axisSetpointsList[ 0 ]->velocity;
