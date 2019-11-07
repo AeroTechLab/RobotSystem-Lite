@@ -109,7 +109,7 @@ bool Robot_Init( const char* configPathName )
           robot.actuatorsList[ jointIndex ] = Actuator_Init( actuatorName );
           robot.jointMeasuresList[ jointIndex ] = (DoFVariables*) malloc( sizeof(DoFVariables) );
           robot.jointSetpointsList[ jointIndex ] = (DoFVariables*) malloc( sizeof(DoFVariables) );
-          robot.jointLinearizersList[ jointIndex ] = SystemLinearizer_CreateSystem( 3, 1, 50 );//(int)( 1.0 / CONTROL_PASS_DEFAULT_INTERVAL ) );
+          robot.jointLinearizersList[ jointIndex ] = SystemLinearizer_CreateSystem( 3, 1, LINEARIZATION_MAX_SAMPLES );
         }
 
         robot.axesNumber = robot.GetAxesNumber();
@@ -121,7 +121,7 @@ bool Robot_Init( const char* configPathName )
         {
           robot.axisMeasuresList[ axisIndex ] = (DoFVariables*) malloc( sizeof(DoFVariables) );
           robot.axisSetpointsList[ axisIndex ] = (DoFVariables*) malloc( sizeof(DoFVariables) );
-          robot.axisLinearizersList[ axisIndex ] = SystemLinearizer_CreateSystem( 3, 1, 50 );//(int)( 1.0 / CONTROL_PASS_DEFAULT_INTERVAL ) );
+          robot.axisLinearizersList[ axisIndex ] = SystemLinearizer_CreateSystem( 3, 1, LINEARIZATION_MAX_SAMPLES );
         }
         
         robot.extraInputsNumber = robot.GetExtraInputsNumber();
@@ -314,7 +314,7 @@ void LinearizeDoF( DoFVariables* measures, DoFVariables* setpoints, LinearSystem
   inputsList[ 1 ] = measures->velocity;
   inputsList[ 2 ] = measures->acceleration;
   outputsList[ 0 ] = measures->force + setpoints->force;
-  if( SystemLinearizer_AddSample( linearizer, inputsList, outputsList ) >= 50 )
+  if( SystemLinearizer_AddSample( linearizer, inputsList, outputsList ) >= LINEARIZATION_MAX_SAMPLES )
   {
     if( SystemLinearizer_Identify( linearizer, impedancesList ) )
     {
