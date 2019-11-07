@@ -82,8 +82,8 @@ void RunControlStep( DoFVariables** jointMeasuresList, DoFVariables** axisMeasur
     integralGain = axisSetpointsList[ 0 ]->damping;
   }
   
-  //double positionError = axisSetpointsList[ 0 ]->position - axisMeasuresList[ 0 ]->position;
-  //axisSetpointsList[ 0 ]->force += proportionalGain * positionError;
+  double positionError = axisSetpointsList[ 0 ]->position - axisMeasuresList[ 0 ]->position;
+  axisSetpointsList[ 0 ]->force += proportionalGain * positionError;
   
   double forceError = axisSetpointsList[ 0 ]->force - axisMeasuresList[ 0 ]->force;
   velocitySetpoint += proportionalGain * ( forceError - lastForceError ) + integralGain * timeDelta * forceError;
