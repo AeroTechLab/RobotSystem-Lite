@@ -46,8 +46,9 @@
 ///     }, ...
 ///   ],
 ///   "motor": {                          // Actuation motor used on configured actuator
-///     "variable_type": "VELOCITY",      // Controlled dimension/variable (POSITION, VELOCITY, FORCE or ACCELERATION)
-///     "config": "<motor_identifier>"      // Motor string identifier (configuration file path) or inline configuration object 
+///     "variable_type": "VELOCITY",        // Controlled dimension/variable (POSITION, VELOCITY, FORCE or ACCELERATION)
+///     "config": "<motor_identifier>",     // Motor string identifier (configuration file path) or inline configuration object 
+///     "limit": -1.0                       // [o] Absolute maximum allowed for control motor setpoint/output
 ///   },
 ///   "log": {                            // [o] Set logging of measurement and setpoint numeric data over time
 ///     "to_file": false,                   // [o] Save data logging to <log_dir>/[<user_name>-]<actuator_name>-<time_stamp>.log, to log file 

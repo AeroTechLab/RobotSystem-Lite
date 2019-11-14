@@ -44,6 +44,7 @@ struct _ActuatorData
   enum ControlState controlState;
   enum ControlVariable controlMode;
   Motor motor;
+  double setpointLimit;
   Sensor* sensorsList;
   size_t sensorsNumber;
   KFilter motionFilter;
@@ -91,6 +92,8 @@ Actuator Actuator_Init( const char* configName )
   for( newActuator->controlMode = 0; newActuator->controlMode < CONTROL_VARS_NUMBER; newActuator->controlMode++ )
     if( strcmp( controlModeName, CONTROL_MODE_NAMES[ newActuator->controlMode ] ) == 0 ) break;
   DEBUG_PRINT( "control mode: %s", CONTROL_MODE_NAMES[ newActuator->controlMode ] );
+  newActuator->setpointLimit = DataIO_GetNumericValue( configuration, -1.0, KEY_MOTOR "." KEY_LIMIT  );
+  
   if( DataIO_HasKey( configuration, KEY_LOG ) )
     newActuator->log = Log_Init( DataIO_GetBooleanValue( configuration, false, KEY_LOG "." KEY_FILE ) ? configName : "", 
                                  (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
@@ -205,6 +208,11 @@ double Actuator_SetSetpoints( Actuator actuator, DoFVariables* ref_setpoints )
   if( actuator == NULL ) return 0.0;
   
   double motorSetpoint = ( (double*) ref_setpoints )[ actuator->controlMode ];
+  if( actuator->setpointLimit > 0.0 )
+  {
+    if( motorSetpoint < -actuator->setpointLimit ) motorSetpoint = -actuator->setpointLimit;
+    else if( motorSetpoint > actuator->setpointLimit ) motorSetpoint = actuator->setpointLimit;
+  }
   //DEBUG_PRINT( "writing mode %d setpoint %g to motor", actuator->controlMode, motorSetpoint );
   // If the motor is being actually controlled, write its control output
   if( actuator->controlState == CONTROL_OPERATION ) Motor_WriteControl( actuator->motor, motorSetpoint );
