@@ -122,7 +122,7 @@ double Sensor_Update( Sensor sensor )
     sensor->inputValuesList[ inputIndex ] = Input_Update( sensor->inputsList[ inputIndex ] );
    
   double sensorOutput = te_eval( sensor->transformFunction );
-  if( sensor->inputsNumber > 1 ) DEBUG_PRINT( "in0=%.5f, in1=%.5f, out=%.5f", sensor->inputValuesList[ 0 ], sensor->inputValuesList[ 1 ], sensorOutput );
+  //if( sensor->inputsNumber > 1 ) DEBUG_PRINT( "in0=%.5f, in1=%.5f, out=%.5f", sensor->inputValuesList[ 0 ], sensor->inputValuesList[ 1 ], sensorOutput );
   //Log_EnterNewLine( sensor->log, Time_GetExecSeconds() );
   //Log_RegisterList( sensor->log, sensor->inputsNumber, sensor->inputValuesList );
   //Log_RegisterValues( sensor->log, 1, sensorOutput ); 

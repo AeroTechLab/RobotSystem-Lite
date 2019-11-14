@@ -22,6 +22,8 @@
 
 #include "robot_control/robot_control.h"
 
+#include "debug/data_logging.h"
+
 #include <math.h>
 
 #define DOFS_NUMBER 1
@@ -30,16 +32,32 @@ const char* DOF_NAMES[ DOFS_NUMBER ] = { "angle" };
 
 enum ControlState controlState = CONTROL_PASSIVE;
 
+Log controlLog = NULL;
+
 double lastForceError = 0.0;
 double velocitySetpoint = 0.0;
+
+double runningTime = 0.0;
 
 
 DECLARE_MODULE_INTERFACE( ROBOT_CONTROL_INTERFACE );
 
 
-bool InitController( const char* configurationString ) { return true; }
+bool InitController( const char* configurationString ) 
+{
+  Log_SetDirectory( "./logs/" );
+  Log_SetTimeStamp();
+  controlLog = Log_Init( "simple_joint", 5 );  
+ 
+  return true; 
+}
 
-void EndController() { return; }
+void EndController() 
+{
+  Log_End( controlLog );  
+ 
+  return; 
+}
 
 size_t GetJointsNumber() { return DOFS_NUMBER; }
 
@@ -63,7 +81,7 @@ void SetControlState( enum ControlState newControlState )
   
   controlState = newControlState;
   
-  if( controlState != CONTROL_OPERATION ) velocitySetpoint = 0.0;
+  velocitySetpoint = 0.0;
 }
 
 void RunControlStep( DoFVariables** jointMeasuresList, DoFVariables** axisMeasuresList, DoFVariables** jointSetpointsList, DoFVariables** axisSetpointsList, double timeDelta )
@@ -75,23 +93,36 @@ void RunControlStep( DoFVariables** jointMeasuresList, DoFVariables** axisMeasur
   axisMeasuresList[ 0 ]->stiffness = jointMeasuresList[ 0 ]->stiffness;
   axisMeasuresList[ 0 ]->damping = jointMeasuresList[ 0 ]->damping;
   
-  double proportionalGain = 0.0, integralGain = 0.0;
+  double positionGain = 0.0, proportionalGain = 0.0, integralGain = 0.0;
   if( controlState == CONTROL_OPERATION )
   {
+    positionGain = axisSetpointsList[ 0 ]->inertia;
     proportionalGain = axisSetpointsList[ 0 ]->stiffness; 
     integralGain = axisSetpointsList[ 0 ]->damping;
   }
   
   double positionError = axisSetpointsList[ 0 ]->position - axisMeasuresList[ 0 ]->position;
-  axisSetpointsList[ 0 ]->force += proportionalGain * positionError;
   
-  double forceError = axisSetpointsList[ 0 ]->force - axisMeasuresList[ 0 ]->force;
+  double totalForceSetpoint = axisSetpointsList[ 0 ]->force + positionGain * positionError;
+  
+  double forceError = totalForceSetpoint - axisMeasuresList[ 0 ]->force;
   velocitySetpoint += proportionalGain * ( forceError - lastForceError ) + integralGain * timeDelta * forceError;
   axisSetpointsList[ 0 ]->velocity = velocitySetpoint;
   lastForceError = forceError;
   
-  //fprintf( stderr, "f=%.4f, fd=%.4f, kp=%.1f, ki=%.1f, vd=%.4f\n", axisMeasuresList[ 0 ]->force, axisSetpointsList[ 0 ]->force, proportionalGain, integralGain, velocitySetpoint );
-  
+  if( velocitySetpoint > 500.0 ) velocitySetpoint = 500.0;
+  if( velocitySetpoint < -500.0 ) velocitySetpoint = -500.0;
+
+  fprintf( stderr, "pd=%.3f, p=%.3f, fd=%.3f, f=%.3f, k=%.1f, kp=%.1f, ki=%.1f, vd=%.3f\n", axisSetpointsList[ 0 ]->position, axisMeasuresList[ 0 ]->position,
+                                                                                            axisSetpointsList[ 0 ]->force, axisMeasuresList[ 0 ]->force, 
+                                                                                            positionGain, proportionalGain, integralGain, velocitySetpoint );
+  runningTime += timeDelta;
+  if( controlState == CONTROL_OPERATION )
+  {
+    Log_EnterNewLine( controlLog, runningTime );
+    Log_RegisterValues( controlLog, 4, axisMeasuresList[ 0 ]->position, axisMeasuresList[ 0 ]->force, axisSetpointsList[ 0 ]->force, velocitySetpoint );
+  }  
+
   jointSetpointsList[ 0 ]->position = axisSetpointsList[ 0 ]->position;
   jointSetpointsList[ 0 ]->velocity = axisSetpointsList[ 0 ]->velocity;
   jointSetpointsList[ 0 ]->acceleration = axisSetpointsList[ 0 ]->acceleration;

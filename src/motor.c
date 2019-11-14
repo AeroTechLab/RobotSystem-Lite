@@ -148,7 +148,7 @@ void Motor_SetOperation( Motor motor )
   if( motor->isOffsetting ) motor->offset = Input_Update( motor->reference );
   
   motor->isOffsetting = false;
-  DEBUG_PRINT( "setting motor %p reference state to operation", motor );
+  DEBUG_PRINT( "setting motor %p reference state (%g) to operation", motor->offset, motor );
   Input_SetState( motor->reference, SIG_PROC_STATE_MEASUREMENT );
   DEBUG_PRINT( "setting motor %p to initial position", motor );
   Motor_WriteControl( motor, 0.0 );
@@ -163,6 +163,6 @@ void Motor_WriteControl( Motor motor, double setpoint )
   //DEBUG_PRINT( "logging motor data to %p", motor->log );
   //Log_EnterNewLine( motor->log, Time_GetExecSeconds() );
   //Log_RegisterValues( motor->log, 3, motor->setpoint, motor->offset, output );
-  //DEBUG_PRINT( "writing %g to output %p", outputValue, motor->output );
+  //DEBUG_PRINT( "writing %g,%g -> %g to output %p", motor->setpoint, motor->offset, outputValue, motor->output );
   if( ! motor->isOffsetting ) Output_Update( motor->output, outputValue );
 }

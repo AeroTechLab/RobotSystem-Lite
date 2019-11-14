@@ -188,7 +188,7 @@ bool Actuator_GetMeasures( Actuator actuator, DoFVariables* ref_measures, double
   (void) Kalman_Predict( actuator->motionFilter, NULL, (double*) filteredMeasures );
   (void) Kalman_Update( actuator->motionFilter, NULL, (double*) filteredMeasures );
   
-  DEBUG_PRINT( "p=%.5f, v=%.5f, f=%.5f", filteredMeasures[ POSITION ], filteredMeasures[ VELOCITY ], filteredMeasures[ FORCE ] );
+  //DEBUG_PRINT( "p=%.5f, v=%.5f, f=%.5f", filteredMeasures[ POSITION ], filteredMeasures[ VELOCITY ], filteredMeasures[ FORCE ] );
   ref_measures->position = filteredMeasures[ POSITION ];
   ref_measures->velocity = filteredMeasures[ VELOCITY ];
   ref_measures->acceleration = filteredMeasures[ ACCELERATION ];
@@ -205,7 +205,7 @@ double Actuator_SetSetpoints( Actuator actuator, DoFVariables* ref_setpoints )
   if( actuator == NULL ) return 0.0;
   
   double motorSetpoint = ( (double*) ref_setpoints )[ actuator->controlMode ];
-  //DEBUG_PRINT( "writing setpoint %g to motor", motorSetpoint );
+  //DEBUG_PRINT( "writing mode %d setpoint %g to motor", actuator->controlMode, motorSetpoint );
   // If the motor is being actually controlled, write its control output
   if( actuator->controlState == CONTROL_OPERATION ) Motor_WriteControl( actuator->motor, motorSetpoint );
   //DEBUG_PRINT( "setpoint %g written to motor", motorSetpoint );
