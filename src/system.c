@@ -67,9 +67,9 @@ IPCConnection robotEventsConnection = NULL;
 IPCConnection robotAxesConnection = NULL;
 
 
-void ListRobotConfigs( char* );
+void ListRobotConfigs( char*, size_t );
 DataHandle ReloadRobotConfig( const char* );
-void GetRobotConfigString( DataHandle, char* );
+void GetRobotConfigString( DataHandle, char*, size_t );
 
 
 bool System_Init( const int argc, const char** argv )
@@ -128,10 +128,10 @@ void System_End()
 {
   DEBUG_PRINT( "Ending Robot Control at time %g", Time_GetExecSeconds() );
 
-  IPC_CloseConnection( robotEventsConnection );
-  IPC_CloseConnection( robotAxesConnection );
+  IPC_CloseConnection( robotEventsConnection ); DEBUG_PRINT( "closing events connection %p", robotEventsConnection );
+  IPC_CloseConnection( robotAxesConnection ); DEBUG_PRINT( "closing data connection %p", robotAxesConnection );
 
-  DataIO_UnloadData( robotConfig );
+  DataIO_UnloadData( robotConfig ); DEBUG_PRINT( "unloading robot config %p", robotConfig );
 
   Robot_End();
   
@@ -146,17 +146,17 @@ void UpdateEvents()
   while( IPC_ReadMessage( robotEventsConnection, messageIn ) ) 
   {
     Byte robotCommand = (Byte) *(messageIn++);    
-    DEBUG_PRINT( "received robot command: %u", robotCommand );
+    DEBUG_PRINT( "received robot command: %u (data: %s)", robotCommand, messageIn );
     Byte* messageOut = (Byte*) messageBuffer;
     if( robotCommand == ROBOT_REQ_LIST_CONFIGS ) 
     {
       messageOut[ 0 ] = ROBOT_REP_CONFIGS_LISTED;
-      ListRobotConfigs( (char*) ( messageOut + 1 ) );
+      ListRobotConfigs( (char*) ( messageOut + 1 ), IPC_MAX_MESSAGE_LENGTH - 1 );
     }
     else if( robotCommand == ROBOT_REQ_GET_CONFIG ) 
     {
       messageOut[ 0 ] = ROBOT_REP_GOT_CONFIG;
-      GetRobotConfigString( robotConfig, (char*) ( messageOut + 1 ) );
+      GetRobotConfigString( robotConfig, (char*) ( messageOut + 1 ), IPC_MAX_MESSAGE_LENGTH - 1 );
     }
     else if( robotCommand == ROBOT_REQ_SET_CONFIG )
     {
@@ -164,7 +164,7 @@ void UpdateEvents()
       DEBUG_PRINT( "robot config %s set", robotName );
       robotConfig = ReloadRobotConfig( robotName );
       messageOut[ 0 ] = ROBOT_REP_CONFIG_SET;
-      GetRobotConfigString( robotConfig, (char*) ( messageOut + 1 ) );
+      GetRobotConfigString( robotConfig, (char*) ( messageOut + 1 ), IPC_MAX_MESSAGE_LENGTH - 1 );
     }
     else 
     {
@@ -263,7 +263,7 @@ void System_Update()
 }
 
 
-void ListRobotConfigs( char* sharedRobotsString )
+void ListRobotConfigs( char* sharedRobotsString, size_t bufferSize )
 {
   DataHandle robotsList = DataIO_CreateEmptyData();
   
@@ -275,7 +275,7 @@ void ListRobotConfigs( char* sharedRobotsString )
   
   char* robotsListString = DataIO_GetDataString( robotsList );
   DEBUG_PRINT( "robots info string: %s", robotsListString );
-  strncpy( sharedRobotsString, robotsListString, strlen( robotsListString ) );
+  strncpy( sharedRobotsString, robotsListString, bufferSize );
   free( robotsListString );
   
   DataIO_UnloadData( robotsList );
@@ -319,13 +319,13 @@ DataHandle ReloadRobotConfig( const char* robotName )
   return robotConfig;
 }
 
-void GetRobotConfigString( DataHandle robotConfig, char* sharedControlsString )
+void GetRobotConfigString( DataHandle robotConfig, char* sharedControlsString, size_t bufferSize )
 {
   if( sharedControlsString != NULL )
   {
     char* robotConfigString = DataIO_GetDataString( robotConfig );
     DEBUG_PRINT( "robots info string: %s", robotConfigString );
-    strncpy( sharedControlsString, robotConfigString, strlen( robotConfigString ) );
+    strncpy( sharedControlsString, robotConfigString, bufferSize );
     free( robotConfigString );
   }
 }

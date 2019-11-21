@@ -369,9 +369,8 @@ static void* AsyncControl( void* ref_robot )
       Output_Update( robot->extraOutputsList[ outputIndex ], robot->extraOutputValuesList[ outputIndex ] );
     
     elapsedTime = Time_GetExecSeconds() - execTime;
-    //DEBUG_PRINT( "step time for robot %p (before delay): %.5f s", robot, elapsedTime );
     if( elapsedTime < robot->controlTimeStep ) Time_Delay( (unsigned long) ( 1000 * ( robot->controlTimeStep - elapsedTime ) ) );
-    //DEBUG_PRINT( "step time for robot %p (before delay): %.5f s", robot, Time_GetExecSeconds() - execTime );
+    //DEBUG_PRINT( "step time for robot %p: before delay=%.5fs, after delay=%.5fs", robot, elapsedTime, Time_GetExecSeconds() - execTime );
   }
   
   return NULL;

@@ -82,6 +82,7 @@ void SetControlState( enum ControlState newControlState )
   controlState = newControlState;
   
   velocitySetpoint = 0.0;
+  runningTime = 0.0;
 }
 
 void RunControlStep( DoFVariables** jointMeasuresList, DoFVariables** axisMeasuresList, DoFVariables** jointSetpointsList, DoFVariables** axisSetpointsList, double timeDelta )
@@ -93,12 +94,14 @@ void RunControlStep( DoFVariables** jointMeasuresList, DoFVariables** axisMeasur
   axisMeasuresList[ 0 ]->stiffness = jointMeasuresList[ 0 ]->stiffness;
   axisMeasuresList[ 0 ]->damping = jointMeasuresList[ 0 ]->damping;
   
+  runningTime += timeDelta;
   double positionGain = 0.0, proportionalGain = 0.0, integralGain = 0.0;
   if( controlState == CONTROL_OPERATION )
   {
     positionGain = axisSetpointsList[ 0 ]->inertia;
-    proportionalGain = axisSetpointsList[ 0 ]->stiffness; 
-    integralGain = axisSetpointsList[ 0 ]->damping;
+    proportionalGain = 40.0;//axisSetpointsList[ 0 ]->stiffness; 
+    integralGain = 1.0;//axisSetpointsList[ 0 ]->damping;
+    axisSetpointsList[ 0 ]->force = 2 * sin( 2 * M_PI * runningTime / 4 );
   }
   
   double positionError = axisSetpointsList[ 0 ]->position - axisMeasuresList[ 0 ]->position;
@@ -110,17 +113,14 @@ void RunControlStep( DoFVariables** jointMeasuresList, DoFVariables** axisMeasur
   axisSetpointsList[ 0 ]->velocity = velocitySetpoint;
   lastForceError = forceError;
   
-  if( velocitySetpoint > 500.0 ) velocitySetpoint = 500.0;
-  if( velocitySetpoint < -500.0 ) velocitySetpoint = -500.0;
-
   fprintf( stderr, "pd=%.3f, p=%.3f, fd=%.3f, f=%.3f, k=%.1f, kp=%.1f, ki=%.1f, vd=%.3f\n", axisSetpointsList[ 0 ]->position, axisMeasuresList[ 0 ]->position,
                                                                                             axisSetpointsList[ 0 ]->force, axisMeasuresList[ 0 ]->force, 
                                                                                             positionGain, proportionalGain, integralGain, velocitySetpoint );
-  runningTime += timeDelta;
   if( controlState == CONTROL_OPERATION )
   {
     Log_EnterNewLine( controlLog, runningTime );
-    Log_RegisterValues( controlLog, 4, axisMeasuresList[ 0 ]->position, axisMeasuresList[ 0 ]->force, axisSetpointsList[ 0 ]->force, velocitySetpoint );
+    Log_RegisterValues( controlLog, 8, axisSetpointsList[ 0 ]->force, axisMeasuresList[ 0 ]->position, axisMeasuresList[ 0 ]->velocity, axisMeasuresList[ 0 ]->acceleration, 
+                                       axisMeasuresList[ 0 ]->force, axisMeasuresList[ 0 ]->inertia, axisMeasuresList[ 0 ]->damping, axisMeasuresList[ 0 ]->stiffness );
   }  
 
   jointSetpointsList[ 0 ]->position = axisSetpointsList[ 0 ]->position;
