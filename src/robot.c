@@ -318,9 +318,9 @@ void LinearizeDoF( DoFVariables* measures, DoFVariables* setpoints, LinearSystem
   {
     if( SystemLinearizer_Identify( linearizer, impedancesList ) )
     {
-      measures->stiffness = impedancesList[ 0 ];
-      measures->damping = impedancesList[ 1 ];
-      measures->inertia = impedancesList[ 2 ];
+      measures->stiffness = ( impedancesList[ 0 ] > 0.0 ) ? impedancesList[ 0 ] : 0.0;
+      measures->damping = ( impedancesList[ 1 ] > 0.0 ) ? impedancesList[ 1 ] : 0.0;
+      measures->inertia = ( impedancesList[ 2 ] > 0.0 ) ? impedancesList[ 2 ] : 0.0;
     }
   }
 }
@@ -338,7 +338,6 @@ static void* AsyncControl( void* ref_robot )
   while( robot->isControlRunning )
   {
     elapsedTime = Time_GetExecSeconds() - execTime;
-    //DEBUG_PRINT( "step time for robot %p (after delay): %.5f s", robot, elapsedTime );
     
     execTime = Time_GetExecSeconds();
     
@@ -349,17 +348,19 @@ static void* AsyncControl( void* ref_robot )
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
       (void) Actuator_GetMeasures( robot->actuatorsList[ jointIndex ], robot->jointMeasuresList[ jointIndex ], elapsedTime );
 
-    if( robot->controlState == CONTROL_OPERATION || robot->controlState == CONTROL_PREPROCESSING )
+    if( robot->controlState == CONTROL_OPERATION || robot->controlState == CONTROL_CALIBRATION )
     {
       for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
         LinearizeDoF( robot->jointMeasuresList[ jointIndex ], robot->jointSetpointsList[ jointIndex ], robot->jointLinearizersList[ jointIndex ] );
-      for( size_t axisIndex = 0; axisIndex < robot->axesNumber; axisIndex++ )
-        LinearizeDoF( robot->axisMeasuresList[ axisIndex ], robot->axisSetpointsList[ axisIndex ], robot->axisLinearizersList[ axisIndex ] );
     }
 
     robot->RunControlStep( robot->jointMeasuresList, robot->axisMeasuresList, robot->jointSetpointsList, robot->axisSetpointsList, elapsedTime );
     
-    //DEBUG_PRINT( "s1: %.5f, s2: %.5f", robot->jointSetpointsList[ 0 ]->position, robot->jointSetpointsList[ 1 ]->position );
+    if( robot->controlState == CONTROL_OPERATION || robot->controlState == CONTROL_CALIBRATION )
+    {
+      for( size_t axisIndex = 0; axisIndex < robot->axesNumber; axisIndex++ )
+        LinearizeDoF( robot->axisMeasuresList[ axisIndex ], robot->axisSetpointsList[ axisIndex ], robot->axisLinearizersList[ axisIndex ] );
+    }
 
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
       (void) Actuator_SetSetpoints( robot->actuatorsList[ jointIndex ], robot->jointSetpointsList[ jointIndex ] );

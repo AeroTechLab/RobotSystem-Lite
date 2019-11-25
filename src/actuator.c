@@ -147,7 +147,9 @@ bool Actuator_SetControlState( Actuator actuator, enum ControlState newState )
   if( newState == actuator->controlState ) return false;
   
   if( newState >= CONTROL_STATES_NUMBER ) return false;
-
+  
+  Kalman_Reset( actuator->motionFilter );
+  
   DEBUG_PRINT( "setting actuator state to %s", ( newState == CONTROL_OFFSET ) ? "offset" : ( ( newState == CONTROL_CALIBRATION ) ? "calibration" : "operation" ) );
   if( newState == CONTROL_OFFSET )
   {
