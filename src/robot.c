@@ -57,7 +57,6 @@ typedef struct _RobotData
   size_t jointsNumber;
   DoFVariables** axisMeasuresList;
   DoFVariables** axisSetpointsList;
-  LinearSystem* axisLinearizersList;
   size_t axesNumber;
   Input* extraInputsList;
   double* extraInputValuesList;
@@ -116,13 +115,11 @@ bool Robot_Init( const char* configName )
         robot.axesNumber = robot.GetAxesNumber();
         robot.axisMeasuresList = (DoFVariables**) calloc( robot.axesNumber, sizeof(DoFVariables*) );
         robot.axisSetpointsList = (DoFVariables**) calloc( robot.axesNumber, sizeof(DoFVariables*) );
-        robot.axisLinearizersList = (LinearSystem*) calloc( robot.axesNumber, sizeof(LinearSystem) );
         DEBUG_PRINT( "found %lu axes", robot.axesNumber );
         for( size_t axisIndex = 0; axisIndex < robot.axesNumber; axisIndex++ )
         {
           robot.axisMeasuresList[ axisIndex ] = (DoFVariables*) malloc( sizeof(DoFVariables) );
           robot.axisSetpointsList[ axisIndex ] = (DoFVariables*) malloc( sizeof(DoFVariables) );
-          robot.axisLinearizersList[ axisIndex ] = SystemLinearizer_CreateSystem( 3, 1, LINEARIZATION_MAX_SAMPLES );
         }
         
         robot.extraInputsNumber = robot.GetExtraInputsNumber();
@@ -178,7 +175,6 @@ void Robot_End()
   {
     free( robot.axisMeasuresList[ axisIndex ] );
     free( robot.axisSetpointsList[ axisIndex ] );
-    SystemLinearizer_DeleteSystem( robot.axisLinearizersList[ axisIndex ] );
   }
   free( robot.axisMeasuresList );
   free( robot.axisSetpointsList );
@@ -374,12 +370,6 @@ static void* AsyncControl( void* ref_robot )
     }
 
     robot->RunControlStep( robot->jointMeasuresList, robot->axisMeasuresList, robot->jointSetpointsList, robot->axisSetpointsList, elapsedTime );
-    
-    if( robot->controlState == CONTROL_OPERATION || robot->controlState == CONTROL_CALIBRATION )
-    {
-      for( size_t axisIndex = 0; axisIndex < robot->axesNumber; axisIndex++ )
-        LinearizeDoF( robot->axisMeasuresList[ axisIndex ], robot->axisSetpointsList[ axisIndex ], robot->axisLinearizersList[ axisIndex ] );
-    }
 
     for( size_t jointIndex = 0; jointIndex < robot->jointsNumber; jointIndex++ )
       (void) Actuator_SetSetpoints( robot->actuatorsList[ jointIndex ], robot->jointSetpointsList[ jointIndex ] );

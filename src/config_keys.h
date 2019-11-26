@@ -23,7 +23,7 @@
 #define KEY_CHANNEL               "channel"
 #define KEY_VARIABLE              "variable"
 #define KEY_DEVIATION             "deviation"
-#define KEY_LIMIT                 "saturation"
+#define KEY_LIMIT                 "limit"
 #define KEY_REFERENCE             "reference"
 #define KEY_INPUT                 "input"
 #define KEY_INPUTS                KEY_INPUT "s"
