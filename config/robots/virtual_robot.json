@@ -3,5 +3,6 @@
     "type": "SimpleJoint",
     "config": ""
   },
-  "actuators": [ "virtual_actuator" ]
+  "actuators": [ "virtual_actuator" ],
+  "log": { "to_file": false, "precision": 5 }
 }

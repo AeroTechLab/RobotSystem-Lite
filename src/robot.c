@@ -65,6 +65,7 @@ typedef struct _RobotData
   Output* extraOutputsList;
   double* extraOutputValuesList;
   size_t extraOutputsNumber;
+  Log controlLog;
 } 
 RobotData;
 
@@ -75,15 +76,15 @@ const double CONTROL_PASS_DEFAULT_INTERVAL = 0.005;
 
 static void* AsyncControl( void* );
 
-bool Robot_Init( const char* configPathName )
+bool Robot_Init( const char* configName )
 {
   char filePath[ DATA_IO_MAX_PATH_LENGTH ];
 
-  DEBUG_PRINT( "trying to initialize robot %s", configPathName );
+  DEBUG_PRINT( "trying to initialize robot %s", configName );
   
   bool loadSuccess = false;
   
-  sprintf( filePath, KEY_CONFIG "/" KEY_ROBOTS "/%s", configPathName );
+  sprintf( filePath, KEY_CONFIG "/" KEY_ROBOTS "/%s", configName );
   DataHandle configuration = DataIO_LoadStorageData( filePath );
   if( configuration != NULL )
   {
@@ -136,7 +137,11 @@ bool Robot_Init( const char* configPathName )
           robot.extraOutputsList[ outputIndex ] = Output_Init( DataIO_GetSubData( configuration, KEY_EXTRA_OUTPUTS ".%lu", outputIndex ) );
         robot.extraOutputValuesList = (double*) calloc( robot.extraOutputsNumber, sizeof(double) );
         
-        DEBUG_PRINT( "robot %s initialized", configPathName );
+        if( DataIO_HasKey( configuration, KEY_LOG ) )
+          robot.controlLog = Log_Init( DataIO_GetBooleanValue( configuration, false, KEY_LOG "." KEY_FILE ) ? configName : "", 
+                                       (size_t) DataIO_GetNumericValue( configuration, 3, KEY_LOG "." KEY_PRECISION ) );
+        
+        DEBUG_PRINT( "robot %s initialized", configName );
       }
     }
     
@@ -187,6 +192,8 @@ void Robot_End()
     Output_End( robot.extraOutputsList[ outputIndex ] );
   if( robot.extraOutputsList != NULL ) free( robot.extraOutputsList );
   if( robot.extraOutputValuesList != NULL ) free( robot.extraOutputValuesList );
+  
+  Log_End( robot.controlLog );
   
   memset( &robot, 0, sizeof(RobotData) );
 }
@@ -325,6 +332,18 @@ void LinearizeDoF( DoFVariables* measures, DoFVariables* setpoints, LinearSystem
   }
 }
 
+void LogRobotData( RobotData* robot, double execTime )
+{
+  Log_EnterNewLine( robot->controlLog, execTime );
+    for( size_t axisIndex = 0; axisIndex < robot->axesNumber; axisIndex++ )
+    {
+      Log_RegisterList( robot->controlLog, sizeof(DoFVariables)/sizeof(double), (double*) robot->axisSetpointsList[ axisIndex ] );
+      Log_RegisterList( robot->controlLog, sizeof(DoFVariables)/sizeof(double), (double*) robot->axisMeasuresList[ axisIndex ] );
+    }
+    Log_RegisterList( robot->controlLog, robot->extraInputsNumber, robot->extraInputValuesList );
+    Log_RegisterList( robot->controlLog, robot->extraOutputsNumber, robot->extraOutputValuesList );
+}
+
 static void* AsyncControl( void* ref_robot )
 {
   RobotData* robot = (RobotData*) ref_robot;
@@ -368,6 +387,8 @@ static void* AsyncControl( void* ref_robot )
     robot->GetExtraOutputsList( robot->extraOutputValuesList );
     for( size_t outputIndex = 0; outputIndex < robot->extraOutputsNumber; outputIndex++ )
       Output_Update( robot->extraOutputsList[ outputIndex ], robot->extraOutputValuesList[ outputIndex ] );
+    
+    LogRobotData( robot, execTime );
     
     elapsedTime = Time_GetExecSeconds() - execTime;
     if( elapsedTime < robot->controlTimeStep ) Time_Delay( (unsigned long) ( 1000 * ( robot->controlTimeStep - elapsedTime ) ) );

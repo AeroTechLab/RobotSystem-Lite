@@ -22,8 +22,6 @@
 
 #include "robot_control/robot_control.h"
 
-#include "debug/data_logging.h"
-
 #include <math.h>
 
 #define DOFS_NUMBER 1
@@ -31,8 +29,6 @@
 const char* DOF_NAMES[ DOFS_NUMBER ] = { "angle" };
 
 enum ControlState controlState = CONTROL_PASSIVE;
-
-Log controlLog = NULL;
 
 double lastForceError = 0.0;
 double velocitySetpoint = 0.0;
@@ -45,17 +41,11 @@ DECLARE_MODULE_INTERFACE( ROBOT_CONTROL_INTERFACE );
 
 bool InitController( const char* configurationString ) 
 {
-  Log_SetDirectory( "./logs/" );
-  Log_SetTimeStamp();
-  controlLog = Log_Init( "simple_joint", 5 );  
- 
   return true; 
 }
 
 void EndController() 
-{
-  Log_End( controlLog );  
- 
+{ 
   return; 
 }
 
@@ -116,12 +106,6 @@ void RunControlStep( DoFVariables** jointMeasuresList, DoFVariables** axisMeasur
   fprintf( stderr, "pd=%.3f, p=%.3f, fd=%.3f, f=%.3f, k=%.1f, kp=%.1f, ki=%.1f, vd=%.3f\n", axisSetpointsList[ 0 ]->position, axisMeasuresList[ 0 ]->position,
                                                                                             axisSetpointsList[ 0 ]->force, axisMeasuresList[ 0 ]->force, 
                                                                                             positionGain, proportionalGain, integralGain, velocitySetpoint );
-  if( controlState == CONTROL_OPERATION )
-  {
-    Log_EnterNewLine( controlLog, runningTime );
-    Log_RegisterValues( controlLog, 8, axisSetpointsList[ 0 ]->force, axisMeasuresList[ 0 ]->position, axisMeasuresList[ 0 ]->velocity, axisMeasuresList[ 0 ]->acceleration, 
-                                       axisMeasuresList[ 0 ]->force, axisMeasuresList[ 0 ]->inertia, axisMeasuresList[ 0 ]->damping, axisMeasuresList[ 0 ]->stiffness );
-  }  
 
   jointSetpointsList[ 0 ]->position = axisSetpointsList[ 0 ]->position;
   jointSetpointsList[ 0 ]->velocity = axisSetpointsList[ 0 ]->velocity;

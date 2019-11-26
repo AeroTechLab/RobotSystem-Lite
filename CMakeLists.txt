@@ -6,8 +6,6 @@ set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR} )
 set( CMAKE_C_STANDARD 99 )
 set( CMAKE_C_STANDARD_REQUIRED ON )
 
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
-
 set( MODULES_PATH plugins )
 
 set( SOURCES_DIR ${CMAKE_SOURCE_DIR}/src/ )
@@ -61,7 +59,6 @@ add_library( SimpleJoint MODULE ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/simp
 set_target_properties( SimpleJoint PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MODULES_DIR}/${ROBOT_CONTROL_PATH} )
 set_target_properties( SimpleJoint PROPERTIES PREFIX "" )
 target_include_directories( SimpleJoint PUBLIC ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/ )
-target_link_libraries( SimpleJoint DataLogging )
 
 add_library( DualMotor MODULE ${PLUGIN_SOURCES_DIR}/${ROBOT_CONTROL_PATH}/dual_motor.c )
 set_target_properties( DualMotor PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MODULES_DIR}/${ROBOT_CONTROL_PATH} )
@@ -82,5 +79,3 @@ target_include_directories( DualMotorWave PUBLIC ${PLUGIN_SOURCES_DIR}/${ROBOT_C
 # set_target_properties( EMGJoint PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${ROBOT_CONTROL_MODULES_DIR} )
 # set_target_properties( EMGJoint PROPERTIES PREFIX "" )
 # target_include_directories( EMGJoint PUBLIC ${SOURCES_DIR}/robot_control/ ${SOURCES_DIR}/robot_control/emg/ )
-
-# install( TARGETS RobRehabGui RobRehabServer RUNTIME DESTINATION . )

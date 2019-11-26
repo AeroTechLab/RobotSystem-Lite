@@ -54,6 +54,11 @@
 ///       "interface": { ... }
 ///     }, ...
 ///   ]
+///   "log": {                      // [o] Set logging of axis setpoint/measurement and extra input/output numeric data over time
+///     "to_file": false,             // [o] Save data logging to <log_dir>/[<user_name>-]<robot_name>-<time_stamp>.log, to log file 
+///                                   //     Default value will set terminal logging
+///     "precision": 3                // [o] Decimal precision for logged numeric values
+///   }
 /// }
 /// @endcode
 
