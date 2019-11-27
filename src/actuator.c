@@ -217,7 +217,7 @@ double Actuator_SetSetpoints( Actuator actuator, DoFVariables* ref_setpoints )
   }
   //DEBUG_PRINT( "writing mode %d setpoint %g to motor", actuator->controlMode, motorSetpoint );
   // If the motor is being actually controlled, write its control output
-  if( actuator->controlState == CONTROL_OPERATION ) Motor_WriteControl( actuator->motor, motorSetpoint );
+  if( actuator->controlState != CONTROL_OFFSET ) Motor_WriteControl( actuator->motor, motorSetpoint );
   //DEBUG_PRINT( "setpoint %g written to motor", motorSetpoint );
   return motorSetpoint;
 }
