@@ -95,24 +95,24 @@ void RunControlStep( DoFVariables** jointMeasuresList, DoFVariables** axisMeasur
   
   runningTime += timeDelta;
 
-  double totalForceSetpoint = axisSetpointsList[ 0 ]->force;
+  double totalForceSetpoint = 0.0;
   
-  if( controlState == CONTROL_OPERATION || controlState == CONTROL_CALIBRATION )
+  if( controlState != CONTROL_OFFSET )
   {
-    if( controlState == CONTROL_CALIBRATION ) axisSetpointsList[ 0 ]->force = 2 * sin( 2 * M_PI * runningTime / 4 );
+    if( controlState == CONTROL_CALIBRATION ) totalForceSetpoint = 2 * sin( 2 * M_PI * runningTime / 4 );
   
     double positionError = axisSetpointsList[ 0 ]->position - axisMeasuresList[ 0 ]->position;
     
-    if( controlState == CONTROL_OPERATION ) totalForceSetpoint += positionProportionalGain * positionError;
+    if( controlState == CONTROL_OPERATION ) totalForceSetpoint = axisSetpointsList[ 0 ]->force + positionProportionalGain * positionError;
     
     double forceError = totalForceSetpoint - axisMeasuresList[ 0 ]->force;
     velocitySetpoint += forceProportionalGain * ( forceError - lastForceError ) + forceIntegralGain * timeDelta * forceError;
     axisSetpointsList[ 0 ]->velocity = velocitySetpoint;
     lastForceError = forceError;
     
-    fprintf( stderr, "pd=%.3f, p=%.3f, fd=%.3f, f=%.3f, k=%.1f, kp=%.1f, ki=%.1f, vd=%.3f\n", axisSetpointsList[ 0 ]->position, axisMeasuresList[ 0 ]->position,
-                                                                                              axisSetpointsList[ 0 ]->force, axisMeasuresList[ 0 ]->force, 
-                                                                                              positionProportionalGain, forceProportionalGain, forceIntegralGain, velocitySetpoint );
+    fprintf( stderr, "pd=%.3f, p=%.3f, fd=%.3f, f=%.3f, fc=%.3f, k=%.1f, kp=%.1f, ki=%.1f, vd=%.3f\n", axisSetpointsList[ 0 ]->position, axisMeasuresList[ 0 ]->position,
+                                                                                                       axisSetpointsList[ 0 ]->force, axisMeasuresList[ 0 ]->force, totalForceSetpoint,
+                                                                                                       positionProportionalGain, forceProportionalGain, forceIntegralGain, velocitySetpoint );
   }
   
   jointSetpointsList[ 0 ]->position = axisSetpointsList[ 0 ]->position;
