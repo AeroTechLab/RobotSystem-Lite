@@ -1,7 +1,7 @@
 {
   "controller": {
     "type": "SimpleJoint",
-    "config": ""
+    "config": "10 10 1"
   },
   "actuators": [ "opensim/actuator_1" ]
 }

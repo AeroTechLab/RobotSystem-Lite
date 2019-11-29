@@ -1,4 +1,4 @@
 {
-  "interface": { "type": "OpenSimRobotIO", "config": "device_1", "channel": 0 },
+  "interface": { "type": "OpenSimActuatorIO", "config": "device_1", "channel": 0 },
   "output": "set - ref"
 }
