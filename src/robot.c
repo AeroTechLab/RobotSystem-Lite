@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Copyright (c) 2016-2019 Leonardo Consoni <leonardojc@protonmail.com>      //
+//  Copyright (c) 2016-2020 Leonardo Consoni <leonardojc@protonmail.com>      //
 //                                                                            //
 //  This file is part of RobotSystem-Lite.                                    //
 //                                                                            //
@@ -323,7 +323,7 @@ void LinearizeDoF( DoFVariables* measures, DoFVariables* setpoints, LinearSystem
     {
       measures->stiffness = ( impedancesList[ 0 ] > 0.0 ) ? impedancesList[ 0 ] : 0.0;
       measures->damping = ( impedancesList[ 1 ] > 0.0 ) ? impedancesList[ 1 ] : 0.0;
-      measures->inertia = ( impedancesList[ 2 ] > 0.0 ) ? impedancesList[ 2 ] : 0.0;
+      measures->inertia = ( impedancesList[ 2 ] > 0.1 ) ? impedancesList[ 2 ] : 0.1;
     }
   }
 }
