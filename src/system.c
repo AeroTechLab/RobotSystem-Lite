@@ -197,7 +197,7 @@ bool UpdateAxes( unsigned long lastNetworkUpdateElapsedTimeMS )
   while( IPC_ReadMessage( robotAxesConnection, messageIn ) ) 
   {
     size_t setpointBlocksNumber = (size_t) *(messageIn++);
-    //DEBUG_PRINT( "received message for %lu axes", setpointBlocksNumber );
+    DEBUG_PRINT( "received message for %lu axes", setpointBlocksNumber );
     for( size_t setpointBlockIndex = 0; setpointBlockIndex < setpointBlocksNumber; setpointBlockIndex++ )
     {
       size_t axisIndex = (size_t) *(messageIn++);

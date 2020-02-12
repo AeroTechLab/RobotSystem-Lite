@@ -193,7 +193,7 @@ bool Actuator_GetMeasures( Actuator actuator, DoFVariables* ref_measures, double
   (void) Kalman_Predict( actuator->motionFilter, NULL, (double*) filteredMeasures );
   (void) Kalman_Update( actuator->motionFilter, NULL, (double*) filteredMeasures );
   
-  DEBUG_PRINT( "p=%.5f, v=%.5f, f=%.5f", filteredMeasures[ POSITION ], filteredMeasures[ VELOCITY ], filteredMeasures[ FORCE ] );
+  //DEBUG_PRINT( "p=%.5f, v=%.5f, f=%.5f", filteredMeasures[ POSITION ], filteredMeasures[ VELOCITY ], filteredMeasures[ FORCE ] );
   ref_measures->position = filteredMeasures[ POSITION ];
   ref_measures->velocity = filteredMeasures[ VELOCITY ];
   ref_measures->acceleration = filteredMeasures[ ACCELERATION ];
