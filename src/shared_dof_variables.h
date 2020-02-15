@@ -28,16 +28,16 @@
 /// Measurements for both axes and joints go from the main application to its clients, axes setpoints go in the opposite direction. 
 /// Messages consist of byte and [single precision floating-point](https://en.wikipedia.org/wiki/Single-precision_floating-point_format) arrays (to prevent string parsing overhead), with data organized like:
 ///
-/// DoFs number | Index 1 | Position | Velocity |  Force  | Acceleration | Inertia | Stiffness | Damping | Index 2 | ...
-/// :---------: | :-----: | :------: | :------: | :-----: | :----------: | :-----: | :-------: | :-----: | :-----: | :-:
-///    1 byte   | 1 byte  | 4 bytes  | 4 bytes  | 4 bytes |   4 bytes    | 4 bytes |  4 bytes  | 4 bytes | 1 byte  | ...
+/// DoFs number | Index 1 | Position | Velocity |  Force  | Acceleration | Inertia | Damping | Stiffness | Index 2 | ...
+/// :---------: | :-----: | :------: | :------: | :-----: | :----------: | :-----: | :-----: | :-------: | :-----: | :-:
+///    1 byte   | 1 byte  | 4 bytes  | 4 bytes  | 4 bytes |   4 bytes    | 4 bytes | 4 bytes |  4 bytes  | 1 byte  | ...
 
 
 #ifndef SHARED_DOF_VARIABLES_H
 #define SHARED_DOF_VARIABLES_H
 
 /// Enumeration of floating-point values for a single DoF update message
-enum RobotDoFVariable { DOF_POSITION, DOF_VELOCITY, DOF_FORCE, DOF_ACCELERATION, DOF_INERTIA, DOF_STIFFNESS, DOF_DAMPING, DOF_FLOATS_NUMBER };
+enum RobotDoFVariable { DOF_POSITION, DOF_VELOCITY, DOF_FORCE, DOF_ACCELERATION, DOF_INERTIA, DOF_DAMPING, DOF_STIFFNESS, DOF_FLOATS_NUMBER };
 
 #define DOF_DATA_BLOCK_SIZE DOF_FLOATS_NUMBER * sizeof(float)   ///< Size in bytes of all floating-point values for a single DoF update message
 

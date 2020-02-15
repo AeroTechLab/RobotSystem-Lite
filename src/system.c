@@ -197,7 +197,7 @@ bool UpdateAxes( unsigned long lastNetworkUpdateElapsedTimeMS )
   while( IPC_ReadMessage( robotAxesConnection, messageIn ) ) 
   {
     size_t setpointBlocksNumber = (size_t) *(messageIn++);
-    DEBUG_PRINT( "received message for %lu axes", setpointBlocksNumber );
+    //DEBUG_PRINT( "received message for %lu axes", setpointBlocksNumber );
     for( size_t setpointBlockIndex = 0; setpointBlockIndex < setpointBlocksNumber; setpointBlockIndex++ )
     {
       size_t axisIndex = (size_t) *(messageIn++);
@@ -208,7 +208,7 @@ bool UpdateAxes( unsigned long lastNetworkUpdateElapsedTimeMS )
       DoFVariables axisSetpoints = { .position = axisSetpointsList[ DOF_POSITION ], .velocity = axisSetpointsList[ DOF_VELOCITY ],
                                      .acceleration = axisSetpointsList[ DOF_ACCELERATION ], .force = axisSetpointsList[ DOF_FORCE ],
                                      .inertia = axisSetpointsList[ DOF_INERTIA ],
-                                     .stiffness = axisSetpointsList[ DOF_STIFFNESS ], .damping = axisSetpointsList[ DOF_DAMPING ] };
+                                     .damping = axisSetpointsList[ DOF_DAMPING ], .stiffness = axisSetpointsList[ DOF_STIFFNESS ] };
       //if( axisIndex == 0 ) DEBUG_PRINT( "setpoints: p: %.3f - v: %.3f", axisSetpoints.position, axisSetpoints.velocity );
       Robot_SetAxisSetpoints( axisIndex, &axisSetpoints );
 
@@ -233,8 +233,8 @@ bool UpdateAxes( unsigned long lastNetworkUpdateElapsedTimeMS )
       axisMeasuresList[ DOF_ACCELERATION ] = (float) axisMeasures.acceleration;
       axisMeasuresList[ DOF_FORCE ] = (float) axisMeasures.force;
       axisMeasuresList[ DOF_INERTIA ] = (float) axisMeasures.inertia;
-      axisMeasuresList[ DOF_STIFFNESS ] = (float) axisMeasures.stiffness;
       axisMeasuresList[ DOF_DAMPING ] = (float) axisMeasures.damping;
+      axisMeasuresList[ DOF_STIFFNESS ] = (float) axisMeasures.stiffness;
       //if( axisIndex == 0 ) DEBUG_PRINT( "measures: p: %+.5f, v: %+.5f, f: %+.5f", axisMeasuresList[ DOF_POSITION ], axisMeasuresList[ DOF_VELOCITY ], axisMeasuresList[ DOF_FORCE ] );
       axisdataOffset += DOF_DATA_BLOCK_SIZE;
     }
