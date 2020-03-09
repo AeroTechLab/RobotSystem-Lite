@@ -36,9 +36,9 @@
 /// {
 ///   "sensors": [                        // List of sensors available for configured actuator
 ///     { 
-///       "variable_type": "POSITION",        // Dimension measured by sensor (POSITION, VELOCITY, FORCE or ACCELERATION)
-///       "config": "<sensor_1_id>",          // Sensor string identifier, used for searching its configuration file
-///       "deviation": 1.0                    // [o] Measurement error (standard deviation) associated with the sensor
+///       "variable": "POSITION",           // Dimension measured by sensor (POSITION, VELOCITY, FORCE or ACCELERATION)
+///       "config": "<sensor_1_id>",        // Sensor string identifier, used for searching its configuration file
+///       "deviation": 1.0                  // [o] Measurement error (standard deviation) associated with the sensor
 ///     },
 ///     { 
 ///       "input_variable": "FORCE",
@@ -46,7 +46,7 @@
 ///     }, ...
 ///   ],
 ///   "motor": {                          // Actuation motor used on configured actuator
-///     "variable_type": "VELOCITY",        // Controlled dimension/variable (POSITION, VELOCITY, FORCE or ACCELERATION)
+///     "variable": "VELOCITY",             // Controlled dimension/variable (POSITION, VELOCITY, FORCE or ACCELERATION)
 ///     "config": "<motor_identifier>",     // Motor string identifier (configuration file path) or inline configuration object 
 ///     "limit": -1.0                       // [o] Absolute maximum allowed for control motor setpoint/output
 ///   },

@@ -38,6 +38,7 @@
 ///   "controller": {               // Robot controller configuration
 ///     "type": "<library_name>",   // Path (without extension, relative to MODULES_DIR/robot_control/) to plugin with robot controller implementation
 ///     "config": ""                // [o] Custom-format configuration string passed to controller (plugin) specific initialization
+///     "time_step": 0.005          // [o] Control updates time step
 ///   },
 ///   "actuators": [                // List of robot actuators identifiers (strings) or configurations (objects)
 ///     "<actuator_1_id>",          // Actuator string identifier (configuration file name)
