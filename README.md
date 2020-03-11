@@ -99,8 +99,8 @@ Velocity         | meter / second (m/s)            | rad / second (rad/s)
 Force/Torque     | Newton (N)                      | Newton x meter (N.m)
 Acceleration     | meter / second² (m/s²)          | radian / second² (rad/s²)
 Stiffness        | Newton / meter (N/m)            | Newton x meter / radian (N.m/rad)
-Damping          | Newton x second / meter (Nxs/m) | Newton x meter x second / radian (N.m.s/rad)
-
+Damping          | Newton x second / meter (N.s/m) | Newton x meter x second / radian (N.m.s/rad)
+Inertia          | kg (N.s²/m)                     | kg.m² (N.m.s²/rad)
 
 ## Building
 
