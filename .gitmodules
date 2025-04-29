@@ -1,33 +1,33 @@
 [submodule "src/kalman"]
 	path = src/kalman
-	url = https://github.com/EESC-MKGroup/Simple-Kalman-Filter
+	url = https://github.com/AeroTechLab/Simple-Kalman-Filter
 [submodule "src/threads"]
 	path = src/threads
-	url = https://github.com/EESC-MKGroup/Simple-Multithreading
+	url = https://github.com/AeroTechLab/Simple-Multithreading
 [submodule "src/signal_processing"]
 	path = src/signal_processing
-	url = https://github.com/EESC-MKGroup/Simple-Signal-Processing
+	url = https://github.com/AeroTechLab/Simple-Signal-Processing
 [submodule "src/timing"]
 	path = src/timing
-	url = https://github.com/EESC-MKGroup/Precise-Timing
+	url = https://github.com/AeroTechLab/Precise-Timing
 [submodule "src/debug"]
 	path = src/debug
-	url = https://github.com/EESC-MKGroup/Simple-Data-Logging
+	url = https://github.com/AeroTechLab/Simple-Data-Logging
 [submodule "src/signal_io"]
 	path = src/signal_io
-	url = https://github.com/EESC-MKGroup/Signal-IO-Interface.git
+	url = https://github.com/AeroTechLab/Signal-IO-Interface
 [submodule "src/robot_control"]
 	path = src/robot_control
-	url = https://github.com/EESC-MKGroup/Robot-Control-Interface.git
+	url = https://github.com/AeroTechLab/Robot-Control-Interface
 [submodule "src/function_loader"]
 	path = src/function_loader
 	url = https://github.com/EESC-MKGroup/Simple-Function-Loader
 [submodule "src/tinyexpr"]
 	path = src/tinyexpr
-	url = https://github.com/codeplea/tinyexpr.git
+	url = https://github.com/codeplea/tinyexpr
 [submodule "src/wingetopt"]
 	path = src/wingetopt
 	url = https://github.com/alex85k/wingetopt
 [submodule "src/linearizer"]
 	path = src/linearizer
-	url = https://github.com/EESC-MKGroup/Simple-System-Linearizer.git
+	url = https://github.com/AeroTechLab/Simple-System-Linearizer
