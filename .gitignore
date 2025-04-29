@@ -26,3 +26,8 @@ src/plugins/robot_control/emg/emg_control~cvi173251.c
 *.json
 *.json
 *.json~
+RobotControl
+TestLinearizer 
+plugins
+libs
+build
