@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="docs/img/rehab_resized.gif" align="left"/>
-  <img src="docs/img/eesc_resized.gif" align="right"/>
+  <img src="docs/img/rehab_resized.png" align="left"/>
+  <img src="docs/img/eesc_resized.png" align="right"/>
 </p>
 
 
