@@ -23,7 +23,7 @@
 /// @file shared_dof_variables.h
 /// @brief RobotSystem-Lite clients request/receive interface
 ///
-/// Messages transporting online update values for robot DoFs ([axes or joints](https://github.com/EESC-MKGroup/Robot-Control-Interface#the-jointaxis-rationale)) control variables should arrive as quickly as possible, and there is no advantage in resending lost packets, as their validity is short in time. 
+/// Messages transporting online update values for robot DoFs ([axes or joints](https://github.com/AeroTechLab/Robot-Control-Interface#the-jointaxis-rationale)) control variables should arrive as quickly as possible, and there is no advantage in resending lost packets, as their validity is short in time. 
 /// Thereby, these messages are exchanged with RobotSystem-Lite through lower-latency UDP sockets, on port 50001 for axes and 50002 for joints. 
 /// Measurements for both axes and joints go from the main application to its clients, axes setpoints go in the opposite direction. 
 /// Messages consist of byte and [single precision floating-point](https://en.wikipedia.org/wiki/Single-precision_floating-point_format) arrays (to prevent string parsing overhead), with data organized like:

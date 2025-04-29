@@ -86,7 +86,7 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p align="center"></p>
-<p><img src="docs/img/rehab_resized.gif" alt="" align="left" class="inline"/> <img src="https://raw.githubusercontent.com/EESC-MKGroup/RobotSystem-Lite/master/docs/img/eesc_resized.gif" alt="" align="right" class="inline"/> </p>
+<p><img src="docs/img/rehab_resized.gif" alt="" align="left" class="inline"/> <img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/eesc_resized.gif" alt="" align="right" class="inline"/> </p>
 <hr  />
 <hr  />
 <h1 align="center">RobotSystem-Lite</h1>
@@ -95,38 +95,38 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <h2><a class="anchor" id="autotoc_md0"></a>
 Overview</h2>
 <p><b>RobotSystem-Lite</b> is a lightweight customizable robotic control application, with few third-party dependencies, for easier deployment in embedded systems. Its generic programming and communication interfaces allows it to integrate with a variety of client applications (for remote comunication) and custom plugins (for implementing specific control algorithms and robotic hardware I/O support).</p>
-<p><img src="https://raw.githubusercontent.com/EESC-MKGroup/RobotSystem-Lite/master/docs/img/top_level_system-basic.png" alt="" width="800" class="inline"/> </p>
+<p><img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/top_level_system-basic.png" alt="" width="800" class="inline"/> </p>
 <p>(High-level RobotSystem-Lite interfacing examples) </p>
 <p>Its original goal is to enable combination of robotic rehabilitation with alternative approaches for physical therapy, like remote assistance and multiplayer "serious" video-games.</p>
-<p><img src="https://raw.githubusercontent.com/EESC-MKGroup/RobotSystem-Lite/master/docs/img/top_level_system-full.png" alt="" width="800" class="inline"/> </p>
+<p><img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/top_level_system-full.png" alt="" width="800" class="inline"/> </p>
 <p>(One of proposed RobotSystem-Lite usages) </p>
 <p>However, its configuration flexibility is intended for allowing other usages of robotic control besides rehabilitation.</p>
 <h2><a class="anchor" id="autotoc_md1"></a>
 Robot Multi-Level Configuration</h2>
 <p>In an effort to generalize and parameterize robot control in and efficient way, wherever it makes sense, and facilitate implementation of device specific behaviour, when needed, <b>RobotSystem-Lite</b> defines a multi-layer robot configuration scheme.</p>
-<p><img src="https://raw.githubusercontent.com/EESC-MKGroup/RobotSystem-Lite/master/docs/img/control_abstraction_full.png" alt="" width="800" class="inline"/> </p>
+<p><img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/control_abstraction_full.png" alt="" width="800" class="inline"/> </p>
 <p>From top to bottom levels, the control application is expected to have/define:</p>
 <ul>
 <li>The base robot instance (only 1 per control process), constituted by:<ul>
-<li>A <a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/robot_config.html">robot configuration</a> JSON file (inside **&lt;root_dir&gt;/config/robots/**), defining its used high-level control implementation and actuator IDs</li>
-<li>The robot+actuators controller itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/robot_control/**), according to <a href="https://github.com/EESC-MKGroup/Robot-Control-Interface">Robot Control Interface</a> description</li>
+<li>A <a href="https://AeroTechLab.github.io/RobotSystem-Lite/robot_config.html">robot configuration</a> JSON file (inside **&lt;root_dir&gt;/config/robots/**), defining its used high-level control implementation and actuator IDs</li>
+<li>The robot+actuators controller itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/robot_control/**), according to <a href="https://github.com/AeroTechLab/Robot-Control-Interface">Robot Control Interface</a> description</li>
 <li>A list of generic actuators, with each one, in turn, composed of:<ul>
-<li>An <a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/actuator_config.html">actuator configuration</a> JSON file (inside **&lt;root_dir&gt;/config/actuators/**), defining sensors and motor configuration IDs, their related control variables (position, force, etc.) and measurement deviations, as well as logging options</li>
+<li>An <a href="https://AeroTechLab.github.io/RobotSystem-Lite/actuator_config.html">actuator configuration</a> JSON file (inside **&lt;root_dir&gt;/config/actuators/**), defining sensors and motor configuration IDs, their related control variables (position, force, etc.) and measurement deviations, as well as logging options</li>
 <li>A <a href="https://en.wikipedia.org/wiki/Kalman_filter">Kalman filter</a> for sensor fusion and complete joint state estimation</li>
 <li>A list of sensor IDs, each one, in turn, composed of:<ul>
-<li><a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/sensor_config.html">Sensor configuration</a> JSON file (inside **&lt;root_dir&gt;/config/sensors/**), defining input sources inline configuration, inputs-output conversion expression and logging options</li>
+<li><a href="https://AeroTechLab.github.io/RobotSystem-Lite/sensor_config.html">Sensor configuration</a> JSON file (inside **&lt;root_dir&gt;/config/sensors/**), defining input sources inline configuration, inputs-output conversion expression and logging options</li>
 <li>A list of input sources, for which the configuration file defines:<ul>
-<li>The signal input code itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/signal_io/**), according to <a href="https://github.com/EESC-MKGroup/Signal-IO-Interface">Signal I/O Interface</a> description</li>
+<li>The signal input code itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/signal_io/**), according to <a href="https://github.com/AeroTechLab/Signal-IO-Interface">Signal I/O Interface</a> description</li>
 <li>Signal processing/conversion options</li>
 </ul>
 </li>
 </ul>
 </li>
 <li>Generic actuation motor, composed of:<ul>
-<li><a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/motor_config.html">Motor configuration</a> JSON file (inside **&lt;root_dir&gt;/config/motors/**), defining the hardware/virtual output device/channel, reference input inline configuration (if needed), output conversion expression and logging options</li>
-<li>The signal output code itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/signal_io/**), according to <a href="https://github.com/EESC-MKGroup/Signal-IO-Interface">Signal I/O Interface</a> description</li>
+<li><a href="https://AeroTechLab.github.io/RobotSystem-Lite/motor_config.html">Motor configuration</a> JSON file (inside **&lt;root_dir&gt;/config/motors/**), defining the hardware/virtual output device/channel, reference input inline configuration (if needed), output conversion expression and logging options</li>
+<li>The signal output code itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/signal_io/**), according to <a href="https://github.com/AeroTechLab/Signal-IO-Interface">Signal I/O Interface</a> description</li>
 <li>A optional reference input, for which the configuration file defines:<ul>
-<li>The signal input code itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/signal_io/**), according to <a href="https://github.com/EESC-MKGroup/Signal-IO-Interface">Signal I/O Interface</a> description</li>
+<li>The signal input code itself, implemented as a plug-in library (inside **&lt;root_dir&gt;/plugins/signal_io/**), according to <a href="https://github.com/AeroTechLab/Signal-IO-Interface">Signal I/O Interface</a> description</li>
 <li>Signal processing/conversion options</li>
 </ul>
 </li>
@@ -137,21 +137,21 @@ Robot Multi-Level Configuration</h2>
 </ul>
 </li>
 </ul>
-<p>With that structure, a multi-level control process can interact with external clients through a single interface (for comprehending the difference between <b>joints</b> and <b>axes</b>, see <a href="https://github.com/EESC-MKGroup/Robot-Control-Interface#the-jointaxis-rationale"><b>Robot Control Interface</b> rationale</a>):</p>
-<p><img src="https://raw.githubusercontent.com/EESC-MKGroup/RobotSystem-Lite/master/docs/img/control_flux.png" alt="" width="800" class="inline"/> </p>
+<p>With that structure, a multi-level control process can interact with external clients through a single interface (for comprehending the difference between <b>joints</b> and <b>axes</b>, see <a href="https://github.com/AeroTechLab/Robot-Control-Interface#the-jointaxis-rationale"><b>Robot Control Interface</b> rationale</a>):</p>
+<p><img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/control_flux.png" alt="" width="800" class="inline"/> </p>
 <h2><a class="anchor" id="autotoc_md2"></a>
 Communication Interfaces</h2>
 <p><b>RobotSystem-Lite</b> client applications communicate with it through a provided <a href="https://en.wikipedia.org/wiki/Inter-process_communication">IPC</a> implementation (based on methods like <a href="https://en.wikipedia.org/wiki/Shared_memory">shared memory</a>, <a href="https://en.wikipedia.org/wiki/Network_socket"><b>IP</b> sockets</a>, <a href="https://github.com/nanomsg/nng">nanomsg</a> or <a href="https://github.com/ros2/rcl">ROS2</a>), with fixed-size <b>512 bytes</b> messages. Depending on the type of message sent or received, a specific data format and underlying transport/protocol is used.</p>
-<p><img src="https://raw.githubusercontent.com/EESC-MKGroup/RobotSystem-Lite/master/docs/img/robot_communications.png" alt="" width="600" class="inline"/> </p>
+<p><img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/robot_communications.png" alt="" width="600" class="inline"/> </p>
 <h3><a class="anchor" id="autotoc_md3"></a>
 State change messages</h3>
-<p>Messages requesting state changes or information about the robot are sent by clients occasionally and their arrival should be as guaranteed as possible. Therefore, these messages are transmitted using a <a href="https://en.wikipedia.org/wiki/Request%E2%80%93response">request-reply</a> protocol. Possible messages (and corresponding reply values) are listed in a <a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/shared__robot__control_8h.html">separate header</a></p>
+<p>Messages requesting state changes or information about the robot are sent by clients occasionally and their arrival should be as guaranteed as possible. Therefore, these messages are transmitted using a <a href="https://en.wikipedia.org/wiki/Request%E2%80%93response">request-reply</a> protocol. Possible messages (and corresponding reply values) are listed in a <a href="https://AeroTechLab.github.io/RobotSystem-Lite/shared__robot__control_8h.html">separate header</a></p>
 <h3><a class="anchor" id="autotoc_md4"></a>
 Axes update messages</h3>
-<p>Messages transporting online updates for robot degrees-of-freedom (<a href="https://github.com/EESC-MKGroup/Robot-Control-Interface#the-jointaxis-rationale">axes (not joints)</a>) control variables (measurements or setpoints) should arrive as quickly as possible, and there is no advantage in resending lost packets, as their validity is short in time. Thereby, these messages are exchanged with <b>RobotSystem-Lite</b> through lower-latency and scalable <a href="https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern">publisher-subscriber</a> connections (possibly with <a href="https://en.wikipedia.org/wiki/Multicast">broadcast</a>), in a <a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/shared__dof__variables_8h.html">defined format</a>.</p>
+<p>Messages transporting online updates for robot degrees-of-freedom (<a href="https://github.com/AeroTechLab/Robot-Control-Interface#the-jointaxis-rationale">axes (not joints)</a>) control variables (measurements or setpoints) should arrive as quickly as possible, and there is no advantage in resending lost packets, as their validity is short in time. Thereby, these messages are exchanged with <b>RobotSystem-Lite</b> through lower-latency and scalable <a href="https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern">publisher-subscriber</a> connections (possibly with <a href="https://en.wikipedia.org/wiki/Multicast">broadcast</a>), in a <a href="https://AeroTechLab.github.io/RobotSystem-Lite/shared__dof__variables_8h.html">defined format</a>.</p>
 <h3><a class="anchor" id="autotoc_md5"></a>
 Control variables conventions</h3>
-<p>In order to keep consistency across developed <a href="https://github.com/EESC-MKGroup/Robot-Control-Interface"><b>robot control</b></a> and <a href="https://github.com/EESC-MKGroup/Signal-IO-Interface"><b>signal I/O</b></a> plug-ins and configuration files, and allow easier interoperation between them, the following unit conventions for control variables (input and output) are adopted: <br  />
+<p>In order to keep consistency across developed <a href="https://github.com/AeroTechLab/Robot-Control-Interface"><b>robot control</b></a> and <a href="https://github.com/AeroTechLab/Signal-IO-Interface"><b>signal I/O</b></a> plug-ins and configuration files, and allow easier interoperation between them, the following unit conventions for control variables (input and output) are adopted: <br  />
 </p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -171,14 +171,14 @@ Control variables conventions</h3>
 </table>
 <h2><a class="anchor" id="autotoc_md6"></a>
 Building</h2>
-<p>On a terminal, get the <a href="https://github.com/EESC-MKGroup/RobotSystem-Lite">GitHub code repository</a> with: </p><pre class="fragment">$ git clone https://github.com/EESC-MKGroup/RobotSystem-Lite [&lt;my_system_folder&gt;]
-</pre><p>Besides operating system's libraries, this software is dependent on code from other projects: <a href="https://github.com/EESC-MKGroup/Simple-Data-Logging">Data Logging</a>, <a href="https://github.com/EESC-MKGroup/Simple-Kalman-Filter">Kalman Filter</a>, <a href="https://github.com/EESC-MKGroup/Plugin-Loader">Plugin Loader</a>, <a href="https://github.com/EESC-MKGroup/Robot-Control-Interface">Robot Control Interface</a>, <a href="https://github.com/EESC-MKGroup/Signal-IO-Interface">Signal I/O Interface</a>, <a href="https://github.com/EESC-MKGroup/Simple-Signal-Processing">Signal Processing</a>, <a href="https://github.com/EESC-MKGroup/Simple-Multithreading">Multithreading</a>, <a href="https://github.com/EESC-MKGroup/Precise-Timing">Precise Timing</a>, <a href="https://github.com/codeplea/tinyexpr">Tiny Expr</a> and <a href="https://github.com/alex85k/wingetopt">WinGetOpt</a> (for Windows builds). Those are automatically linked as <a href="https://chrisjean.com/git-submodules-adding-using-removing-and-updating/">git submodules</a>.</p>
+<p>On a terminal, get the <a href="https://github.com/AeroTechLab/RobotSystem-Lite">GitHub code repository</a> with: </p><pre class="fragment">$ git clone https://github.com/AeroTechLab/RobotSystem-Lite [&lt;my_system_folder&gt;]
+</pre><p>Besides operating system's libraries, this software is dependent on code from other projects: <a href="https://github.com/AeroTechLab/Simple-Data-Logging">Data Logging</a>, <a href="https://github.com/AeroTechLab/Simple-Kalman-Filter">Kalman Filter</a>, <a href="https://github.com/AeroTechLab/Plugin-Loader">Plugin Loader</a>, <a href="https://github.com/AeroTechLab/Robot-Control-Interface">Robot Control Interface</a>, <a href="https://github.com/AeroTechLab/Signal-IO-Interface">Signal I/O Interface</a>, <a href="https://github.com/AeroTechLab/Simple-Signal-Processing">Signal Processing</a>, <a href="https://github.com/AeroTechLab/Simple-Multithreading">Multithreading</a>, <a href="https://github.com/AeroTechLab/Precise-Timing">Precise Timing</a>, <a href="https://github.com/codeplea/tinyexpr">Tiny Expr</a> and <a href="https://github.com/alex85k/wingetopt">WinGetOpt</a> (for Windows builds). Those are automatically linked as <a href="https://chrisjean.com/git-submodules-adding-using-removing-and-updating/">git submodules</a>.</p>
 <p>To add those repositories to your sources, navigate to the root project folder and clone them with: </p><pre class="fragment">$ cd &lt;my_system_folder&gt;
 $ git submodule update --init
-</pre><p>Also, a <a href="https://en.wikipedia.org/wiki/LAPACK">BLAS/LAPACK API</a> system library and implementations of <a href="https://github.com/EESC-MKGroup/Data-IO-Interface">Data I/O Interface</a> and <a href="https://github.com/EESC-MKGroup/IPC-Interface">IPC Interface</a> are needed.</p>
+</pre><p>Also, a <a href="https://en.wikipedia.org/wiki/LAPACK">BLAS/LAPACK API</a> system library and implementations of <a href="https://github.com/AeroTechLab/Data-IO-Interface">Data I/O Interface</a> and <a href="https://github.com/AeroTechLab/IPC-Interface">IPC Interface</a> are needed.</p>
 <p>To add the latter, run the following from the root project folder: </p><pre class="fragment">$ git clone &lt;my_data-io_implementation_repo&gt; src/data_io
 $ git clone &lt;my_ipc_implementation_repo&gt; src/ipc
-</pre><p>Example implementations are <a href="https://github.com/EESC-MKGroup/Data-IO-JSON">Data I/O JSON</a> and <a href="https://github.com/EESC-MKGroup/Simple-Async-IPC">Simple Async IPC</a>.</p>
+</pre><p>Example implementations are <a href="https://github.com/AeroTechLab/Data-IO-JSON">Data I/O JSON</a> and <a href="https://github.com/AeroTechLab/Simple-Async-IPC">Simple Async IPC</a>.</p>
 <p>With dependencies set, you can now build the system executable to a separate build directory with <a href="https://cmake.org/">CMake</a>: </p><pre class="fragment">$ mkdir build &amp;&amp; cd build
 $ cmake .. # or ccmake for more options
 $ make
@@ -189,11 +189,11 @@ Running</h2>
 <li>**&lt;root_dir&gt;** is the absolute or relative path to the directory where <b>config</b> and <b>plugins</b> folders are located (default is working directory **"./"**)</li>
 <li>**&lt;connection_address&gt;** is the <b>IP</b> address the server sockets will be binded to (default is any address/all interfaces)</li>
 <li>**&lt;log_dir&gt;** is the absolute or relative path to the directory where log folders/files will be saved (default is **"./log/"**)</li>
-<li>**&lt;robot_name&gt;** is the name (without extensions) of the <a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/robot_config.html">robot configuration</a> file to be loaded on startup (configuration could be set or changed later via client applications)</li>
+<li>**&lt;robot_name&gt;** is the name (without extensions) of the <a href="https://AeroTechLab.github.io/RobotSystem-Lite/robot_config.html">robot configuration</a> file to be loaded on startup (configuration could be set or changed later via client applications)</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md8"></a>
 Documentation</h2>
-<p>Doxygen-generated detailed reference is available on project's <a href="https://eesc-mkgroup.github.io/RobotSystem-Lite/files.html">GitHub Pages</a> </p>
+<p>Doxygen-generated detailed reference is available on project's <a href="https://AeroTechLab.github.io/RobotSystem-Lite/files.html">GitHub Pages</a> </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->

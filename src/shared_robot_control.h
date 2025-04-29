@@ -38,7 +38,7 @@ enum RobotControlCode {
        /// { "robots":[ "<available_robot1_name>", "<available_robot2_name>", :"<available_robot3_name>" ] }
        /// @endcode
         ROBOT_REP_CONFIGS_LISTED = ROBOT_REQ_LIST_CONFIGS,
-       /// Request information about current robot configuration, its available [axes and joints](https://github.com/EESC-MKGroup/Robot-Control-Interface#the-jointaxis-rationale))
+       /// Request information about current robot configuration, its available [axes and joints](https://github.com/AeroTechLab/Robot-Control-Interface#the-jointaxis-rationale))
        ROBOT_REQ_GET_CONFIG,
        /// Reply code for ROBOT_REQ_GET_CONFIG. Followed, in the same message, by a JSON-format string like:
        /// @code
@@ -47,7 +47,7 @@ enum RobotControlCode {
        ROBOT_REP_GOT_CONFIG = ROBOT_REQ_GET_CONFIG,
        ROBOT_REQ_SET_CONFIG,                            ///< Request setting new @ref robot_config, reloading all parameters. Must be followed, in the same message, by a string with the new @ref robot_config name
        ROBOT_REP_CONFIG_SET = ROBOT_REQ_SET_CONFIG,     ///< Confirmation reply to ROBOT_REQ_SET_CONFIG. Followed by the same JSON string type as in ROBOT_REP_GOT_CONFIG
-       ROBOT_REQ_SET_USER,                              ///< Request setting new user/folder name for [data logging](https://github.com/EESC-MKGroup/Simple-Data-Logging). Must be followed, in the same message, by a string with the name
+       ROBOT_REQ_SET_USER,                              ///< Request setting new user/folder name for [data logging](https://github.com/AeroTechLab/Simple-Data-Logging). Must be followed, in the same message, by a string with the name
        ROBOT_REP_USER_SET = ROBOT_REQ_SET_USER,         ///< Confirmation reply to ROBOT_REQ_SET_USER
        ROBOT_REQ_DISABLE,                               ///< Request turning off the robot and stopping its control thread
        ROBOT_REP_DISABLED = ROBOT_REQ_DISABLE,          ///< Confirmation reply to ROBOT_REQ_DISABLE
