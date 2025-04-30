@@ -100,7 +100,7 @@ $(function(){initNavTree('index.html',''); initResizable(true); });
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p align="center"><a class="anchor" id="md_README"></a> </p>
-<p><img src="docs/img/rehab_resized.png" alt="" align="left" class="inline"/> <img src="docs/img/eesc_resized.png" alt="" align="right" class="inline"/> </p>
+<p><img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/rehab_resized.png" alt="" align="left" class="inline"/> <img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/eesc_resized.png" alt="" align="right" class="inline"/> </p>
 <hr  />
  <hr  />
 <h1 align="center">RobotSystem-Lite</h1>
@@ -109,18 +109,18 @@ $(function(){initNavTree('index.html',''); initResizable(true); });
 <h2><a class="anchor" id="autotoc_md0"></a>
 Overview</h2>
 <p><b>RobotSystem-Lite</b> is a lightweight customizable robotic control application, with few third-party dependencies, for easier deployment in embedded systems. Its generic programming and communication interfaces allows it to integrate with a variety of client applications (for remote comunication) and custom plugins (for implementing specific control algorithms and robotic hardware I/O support).</p>
-<p><img src="docs/img/top_level_system-basic.png" alt="" width="800" class="inline"/> </p>
+<p><img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/top_level_system-basic.png" alt="" width="800" class="inline"/> </p>
 <p>(High-level RobotSystem-Lite interfacing examples) </p>
 <p><a href="https://www.teses.usp.br/teses/disponiveis/18/18149/tde-01062020-111015/en.php">Its original goal</a> has been enabling the combination of robotic rehabilitation with alternative approaches for physical therapy, like remote assistance and multiplayer "serious" video-games, where user engagement is modeled as proportional to external/environmental <b>Impedance</b> (<b>Inertia</b>, <b>Damping</b> and <b>Stiffness</b>), estimated using the <a href="https://en.wikipedia.org/wiki/Least_squares"><b>least squares</b> method</a>.</p>
-<p><img src="docs/img/top_level_system-full.png" alt="" width="800" class="inline"/> </p>
+<p><img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/top_level_system-full.png" alt="" width="800" class="inline"/> </p>
 <p>(One of proposed RobotSystem-Lite usages) </p>
-<p><img src="docs/img/local_integration.png" alt="" width="800" class="inline"/> </p>
+<p><img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/local_integration.png" alt="" width="800" class="inline"/> </p>
 <p>(Continuous impedance parameters estimation as link between robotic control and integrated applications) </p>
 <p>However, its configuration flexibility is intended for allowing other usages of robotic control besides rehabilitation.</p>
 <h2><a class="anchor" id="autotoc_md1"></a>
 Robot Multi-Level Configuration</h2>
 <p>In an effort to generalize and parameterize robot control in and efficient way, wherever it makes sense, and facilitate implementation of device specific behaviour, when needed, <b>RobotSystem-Lite</b> defines a multi-layer robot configuration scheme.</p>
-<p><img src="docs/img/control_abstraction_full.png" alt="" width="800" class="inline"/> </p>
+<p><img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/control_abstraction_full.png" alt="" width="800" class="inline"/> </p>
 <p>From top to bottom levels, the control application is expected to have/define:</p>
 <ul>
 <li>The base robot instance (only 1 per control process), constituted by:<ul>
@@ -154,11 +154,11 @@ Robot Multi-Level Configuration</h2>
 </li>
 </ul>
 <p>With that structure, a multi-level control process can interact with external clients through a single interface (for comprehending the difference between <b>joints</b> and <b>axes</b>, see <a href="https://github.com/AeroTechLab/Robot-Control-Interface#the-jointaxis-rationale"><b>Robot Control Interface</b> rationale</a>):</p>
-<p><img src="docs/img/control_flux.png" alt="" width="800" class="inline"/> </p>
+<p><img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/control_flux.png" alt="" width="800" class="inline"/> </p>
 <h2><a class="anchor" id="autotoc_md2"></a>
 Communication Interfaces</h2>
 <p><b>RobotSystem-Lite</b> client applications communicate with it through a provided <a href="https://en.wikipedia.org/wiki/Inter-process_communication">IPC</a> implementation (based on methods like <a href="https://en.wikipedia.org/wiki/Shared_memory">shared memory</a>, <a href="https://en.wikipedia.org/wiki/Network_socket"><b>IP</b> sockets</a>, <a href="https://github.com/nanomsg/nng">nanomsg</a> or <a href="https://github.com/ros2/rcl">ROS2</a>), with fixed-size <b>512 bytes</b> messages. Depending on the type of message sent or received, a specific data format and underlying transport/protocol is used.</p>
-<p><img src="docs/img/robot_communications.png" alt="" width="600" class="inline"/> </p>
+<p><img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/robot_communications.png" alt="" width="600" class="inline"/> </p>
 <h3><a class="anchor" id="autotoc_md3"></a>
 State change messages</h3>
 <p>Messages requesting state changes or information about the robot are sent by clients occasionally and their arrival should be as guaranteed as possible. Therefore, these messages are transmitted using a <a href="https://en.wikipedia.org/wiki/Request%E2%80%93response">request-reply</a> protocol. Possible messages (and corresponding reply values) are listed in a <a href="https://AeroTechLab.github.io/RobotSystem-Lite/shared__robot__control_8h.html">separate header</a></p>

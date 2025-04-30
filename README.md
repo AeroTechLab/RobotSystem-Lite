@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="docs/img/rehab_resized.png" align="left"/>
-  <img src="docs/img/eesc_resized.png" align="right"/>
+  <img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/rehab_resized.png" align="left"/>
+  <img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/eesc_resized.png" align="right"/>
 </p>
 
 
@@ -20,7 +20,7 @@
 **RobotSystem-Lite** is a lightweight customizable robotic control application, with few third-party dependencies, for easier deployment in embedded systems. Its generic programming and communication interfaces allows it to integrate with a variety of client applications (for remote comunication) and custom plugins (for implementing specific control algorithms and robotic hardware I/O support).
 
 <p align="center">
-  <img src="docs/img/top_level_system-basic.png" width="800"/>
+  <img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/top_level_system-basic.png" width="800"/>
 </p>
 <p align="center">
   (High-level RobotSystem-Lite interfacing examples)
@@ -29,14 +29,14 @@
 [Its original goal](https://www.teses.usp.br/teses/disponiveis/18/18149/tde-01062020-111015/en.php) has been enabling the combination of robotic rehabilitation with alternative approaches for physical therapy, like remote assistance and multiplayer "serious" video-games, where user engagement is modeled as proportional to external/environmental **Impedance** (**Inertia**, **Damping** and **Stiffness**), estimated using the [**least squares** method](https://en.wikipedia.org/wiki/Least_squares).
 
 <p align="center">
-  <img src="docs/img/top_level_system-full.png" width="800"/>
+  <img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/top_level_system-full.png" width="800"/>
 </p>
 <p align="center">
   (One of proposed RobotSystem-Lite usages)
 </p>
 
 <p align="center">
-  <img src="docs/img/local_integration.png" width="800"/>
+  <img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/local_integration.png" width="800"/>
 </p>
 <p align="center">
   (Continuous impedance parameters estimation as link between robotic control and integrated applications)
@@ -49,7 +49,7 @@ However, its configuration flexibility is intended for allowing other usages of 
 In an effort to generalize and parameterize robot control in and efficient way, wherever it makes sense, and facilitate implementation of device specific behaviour, when needed, **RobotSystem-Lite** defines a multi-layer robot configuration scheme.
 
 <p align="center">
-  <img src="docs/img/control_abstraction_full.png" width="800"/>
+  <img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/control_abstraction_full.png" width="800"/>
 </p>
 
 From top to bottom levels, the control application is expected to have/define:
@@ -75,7 +75,7 @@ From top to bottom levels, the control application is expected to have/define:
 With that structure, a multi-level control process can interact with external clients through a single interface (for comprehending the difference between **joints** and **axes**, see [**Robot Control Interface** rationale](https://github.com/AeroTechLab/Robot-Control-Interface#the-jointaxis-rationale)):
 
 <p align="center">
-  <img src="docs/img/control_flux.png" width="800"/>
+  <img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/control_flux.png" width="800"/>
 </p>
 
 ## Communication Interfaces
@@ -83,7 +83,7 @@ With that structure, a multi-level control process can interact with external cl
 **RobotSystem-Lite** client applications communicate with it through a provided [IPC](https://en.wikipedia.org/wiki/Inter-process_communication) implementation (based on methods like [shared memory](https://en.wikipedia.org/wiki/Shared_memory), [**IP** sockets](https://en.wikipedia.org/wiki/Network_socket), [nanomsg](https://github.com/nanomsg/nng) or [ROS2](https://github.com/ros2/rcl)), with fixed-size **512 bytes** messages. Depending on the type of message sent or received, a specific data format and underlying transport/protocol is used.
 
 <p align="center">
-  <img src="docs/img/robot_communications.png" width="600"/>
+  <img src="https://raw.githubusercontent.com/AeroTechLab/RobotSystem-Lite/master/docs/img/robot_communications.png" width="600"/>
 </p>
 
 ### State change messages
