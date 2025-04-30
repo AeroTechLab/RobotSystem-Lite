@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['robot_20configuration_198',['Robot Configuration',['../robot_config.html',1,'']]]
+  ['lite_0',['RobotSystem-Lite',['../index.html',1,'']]]
 ];

@@ -26,7 +26,7 @@
   (High-level RobotSystem-Lite interfacing examples)
 </p>
 
-Its original goal is to enable combination of robotic rehabilitation with alternative approaches for physical therapy, like remote assistance and multiplayer "serious" video-games.
+[Its original goal](https://www.teses.usp.br/teses/disponiveis/18/18149/tde-01062020-111015/en.php) has been enabling the combination of robotic rehabilitation with alternative approaches for physical therapy, like remote assistance and multiplayer "serious" video-games, where user engagement is modeled as proportional to external/environmental **Impedance** (**Inertia**, **Damping** and **Stiffness**), estimated using the [**least squares** method](https://en.wikipedia.org/wiki/Least_squares).
 
 <p align="center">
   <img src="docs/img/top_level_system-full.png" width="800"/>
@@ -35,6 +35,12 @@ Its original goal is to enable combination of robotic rehabilitation with altern
   (One of proposed RobotSystem-Lite usages)
 </p>
 
+<p align="center">
+  <img src="docs/img/local_integration.png" width="800"/>
+</p>
+<p align="center">
+  (Continuous impedance parameters estimation as link between robotic control and integrated applications)
+</p>
 
 However, its configuration flexibility is intended for allowing other usages of robotic control besides rehabilitation.
 
@@ -108,7 +114,7 @@ On a terminal, get the [GitHub code repository](https://github.com/AeroTechLab/R
 
     $ git clone https://github.com/AeroTechLab/RobotSystem-Lite [<my_system_folder>]
 
-Besides operating system's libraries, this software is dependent on code from other projects: [Data Logging](https://github.com/AeroTechLab/Simple-Data-Logging), [Kalman Filter](https://github.com/AeroTechLab/Simple-Kalman-Filter), [Plugin Loader](https://github.com/AeroTechLab/Plugin-Loader), [Robot Control Interface](https://github.com/AeroTechLab/Robot-Control-Interface), [Signal I/O Interface](https://github.com/AeroTechLab/Signal-IO-Interface), [Signal Processing](https://github.com/AeroTechLab/Simple-Signal-Processing), [Multithreading](https://github.com/AeroTechLab/Simple-Multithreading), [Precise Timing](https://github.com/AeroTechLab/Precise-Timing), [Tiny Expr](https://github.com/codeplea/tinyexpr) and [WinGetOpt](https://github.com/alex85k/wingetopt) (for Windows builds). Those are automatically linked as [git submodules](https://chrisjean.com/git-submodules-adding-using-removing-and-updating/).
+Besides operating system's libraries, this software is dependent on code from other projects: [Data Logging](https://github.com/AeroTechLab/Simple-Data-Logging), [Kalman Filter](https://github.com/AeroTechLab/Simple-Kalman-Filter), [Plugin Loader](https://github.com/AeroTechLab/Plugin-Loader), [Robot Control Interface](https://github.com/AeroTechLab/Robot-Control-Interface), [Signal I/O Interface](https://github.com/AeroTechLab/Signal-IO-Interface), [Signal Processing](https://github.com/AeroTechLab/Simple-Signal-Processing), [Multithreading](https://github.com/AeroTechLab/Simple-Multithreading), [Precise Timing](https://github.com/AeroTechLab/Precise-Timing), [System Linearizer](https://github.com/AeroTechLab/Simple-System-Linearizer), [Tiny Expr](https://github.com/codeplea/tinyexpr) and [WinGetOpt](https://github.com/alex85k/wingetopt) (for Windows builds). Those are automatically linked as [git submodules](https://chrisjean.com/git-submodules-adding-using-removing-and-updating/).
 
 To add those repositories to your sources, navigate to the root project folder and clone them with:
 

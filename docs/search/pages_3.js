@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['sensor_20configuration_199',['Sensor Configuration',['../sensor_config.html',1,'']]]
+  ['motor_20configuration_0',['Motor Configuration',['../motor_config.html',1,'']]]
 ];
